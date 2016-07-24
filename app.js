@@ -171,10 +171,11 @@ if (config.debug) {
 }
 
 if (!module.parent) {
-  app.listen(config.port, function () {
-    logger.info('NodeClub listening on port', config.port);
+  var port = process.env.NODE_ENV === 'dev' ? config.dev_port : config.product_port;
+  app.listen(port, function () {
+    logger.info('NodeClub listening on port', port);
     logger.info('God bless love....');
-    logger.info('You can debug your app with http://' + config.hostname + ':' + config.port);
+    logger.info('You can debug your app with http://' + config.hostname + ':' + port);
     logger.info('');
   });
 }
