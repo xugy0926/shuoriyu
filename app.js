@@ -171,11 +171,11 @@ if (config.debug) {
 }
 
 if (!module.parent) {
-  var port = process.env.NODE_ENV === 'test' ? config.dev_port : config.product_port;
-  app.listen(port, function () {
-    logger.info('NodeClub listening on port', port);
+  app.listen(parseInt(config.port), function () {
+    logger.info('shuoriyu env is ', config.env);
+    logger.info('shuoriyu listening on port ', config.port);
     logger.info('God bless love....');
-    logger.info('You can debug your app with http://' + config.hostname + ':' + port);
+    logger.info('You can debug your app with http://' + config.host + ':' + config.port);
     logger.info('');
   });
 }
