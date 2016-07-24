@@ -171,7 +171,7 @@ if (config.debug) {
 }
 
 if (!module.parent) {
-  var port = process.env.NODE_ENV === 'dev' ? config.dev_port : config.product_port;
+  var port = process.env.NODE_ENV === 'test' ? config.dev_port : config.product_port;
   app.listen(port, function () {
     logger.info('NodeClub listening on port', port);
     logger.info('God bless love....');

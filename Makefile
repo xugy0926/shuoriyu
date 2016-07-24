@@ -44,9 +44,9 @@ run:
 	@node app.js
 
 start: install build
-	@NODE_ENV=production ./node_modules/.bin/pm2 start app.js -i 0 --name "cnode" --max-memory-restart 400M
+	@NODE_ENV=production ./node_modules/.bin/pm2 start app.js -i 0 --name "shuoriyu" --max-memory-restart 400M
 
 restart: install build
-	@NODE_ENV=production ./node_modules/.bin/pm2 restart "cnode"
+	@NODE_ENV=production ./node_modules/.bin/pm2 restart "shuoriyu"
 
 .PHONY: install test cov test-cov build run start restart
