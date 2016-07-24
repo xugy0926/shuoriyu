@@ -33,6 +33,7 @@
     "lodash": "4.6.1",
     "log4js": "^0.6.29",
     "markdown-it": "6.0.0",
+    "markdown-it-html5-embed": "0.3.2",
     "memory-cache": "0.1.4",
     "method-override": "2.3.5",
     "moment": "2.12.0",

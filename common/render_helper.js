@@ -18,7 +18,12 @@ var jsxss      = require('xss');
 var multiline = require('multiline')
 
 // Set default options
-var md = new MarkdownIt();
+var md = new MarkdownIt()
+  .use(require('markdown-it-html5-embed'), {
+  html5embed: {
+    useImageSyntax: true, // Enables video/audio embed with ![]() syntax (default)
+    useLinkSyntax: true   // Enables video/audio embed with []() syntax
+  }});
 
 md.set({
   html:         true,        // Enable HTML tags in source
@@ -56,7 +61,7 @@ var myxss = new jsxss.FilterXSS({
 });
 
 exports.markdown = function (text) {
-  return '<div class="markdown-text">' + myxss.process(md.render(text || '')) + '</div>';
+  return '<div class="markdown-text">' + md.render(text || '') + '</div>';
 };
 
 exports.escapeSignature = function (signature) {
