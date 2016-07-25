@@ -15,6 +15,7 @@ var router            = express.Router();
 // 主题
 router.get('/topics', topicController.index);
 router.get('/topic/:id', middleware.tryAuth, topicController.show);
+router.get('/topic_page/:id', topicController.showPage);
 router.post('/topics', middleware.auth, limit.peruserperday('create_topic', config.create_post_per_day, true), topicController.create);
 
 

@@ -18,6 +18,8 @@ var index = function (req, res, next) {
   var limit    = Number(req.query.limit) || config.list_topic_count;
   var mdrender = req.query.mdrender === 'false' ? false : true;
 
+  console.log('mdrender = ' + mdrender);
+
   var query = {};
   if (tab && tab !== 'all') {
     if (tab === 'good') {
@@ -81,6 +83,7 @@ var show = function (req, res, next) {
 
     if (mdrender) {
       topic.content = renderHelper.markdown(at.linkUsers(topic.content));
+      console.log('content' + topic.content);
     }
     topic.author = _.pick(author, ['loginname', 'avatar_url']);
 
@@ -113,6 +116,64 @@ var show = function (req, res, next) {
 };
 
 exports.show = show;
+
+var showPage = function (req, res, next) {
+  var topicId  = String(req.params.id);
+
+  var mdrender = req.query.mdrender === 'false' ? false : true;
+  var ep       = new eventproxy();
+
+  if (!validator.isMongoId(topicId)) {
+    res.status(400);
+    return res.send({success: false, error_msg: '不是有效的话题id'});
+  }
+
+  ep.fail(next);
+
+  TopicProxy.getFullTopic(topicId, ep.done(function (msg, topic, author, replies) {
+    if (!topic) {
+      res.status(404);
+      return res.send({success: false, error_msg: '话题不存在'});
+    }
+    topic = _.pick(topic, ['id', 'author_id', 'tab', 'content', 'title', 'last_reply_at',
+      'good', 'top', 'reply_count', 'visit_count', 'create_at', 'author']);
+
+    if (mdrender) {
+      topic.content = renderHelper.markdown(at.linkUsers(topic.content));
+      console.log('content' + topic.content);
+    }
+    topic.author = _.pick(author, ['loginname', 'avatar_url']);
+
+    topic.replies = replies.map(function (reply) {
+      if (mdrender) {
+        reply.content = renderHelper.markdown(at.linkUsers(reply.content));
+      }
+      reply.author = _.pick(reply.author, ['loginname', 'avatar_url']);
+      reply =  _.pick(reply, ['id', 'author', 'content', 'ups', 'create_at', 'reply_id']);
+      reply.reply_id = reply.reply_id || null;
+      return reply;
+    });
+
+    ep.emit('full_topic', topic)
+  }));
+
+
+  if (!req.user) {
+    ep.emitLater('is_collect', null)
+  } else {
+    TopicCollect.getTopicCollect(req.user._id, topicId, ep.done('is_collect'))
+  }
+
+  ep.all('full_topic', 'is_collect', function (full_topic, is_collect) {
+    full_topic.is_collect = !!is_collect;
+
+    console.log('full_topic = ' + full_topic.linkedContent);
+    res.render('mobile/topic', {success: true, topic: full_topic, rn: true});
+  })
+
+};
+
+exports.showPage = showPage;
 
 var create = function (req, res, next) {
   var title   = validator.trim(req.body.title || '');

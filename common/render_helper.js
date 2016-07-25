@@ -61,6 +61,7 @@ var myxss = new jsxss.FilterXSS({
 });
 
 exports.markdown = function (text) {
+  console.log('<div class="markdown-text">' + md.render(text || '') + '</div>');
   return '<div class="markdown-text">' + md.render(text || '') + '</div>';
 };
 
