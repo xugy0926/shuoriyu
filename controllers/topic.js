@@ -20,14 +20,7 @@ var _            = require('lodash');
 var cache        = require('../common/cache');
 var logger = require('../common/logger')
 
-/**
- * Topic page
- *
- * @param  {HttpRequest} req
- * @param  {HttpResponse} res
- * @param  {Function} next
- */
-exports.index = function (req, res, next) {
+exports.topicPage = function (req, res, next) {
   function isUped(user, reply) {
     if (!reply.ups) {
       return false;
@@ -44,14 +37,15 @@ exports.index = function (req, res, next) {
   var events = ['topic', 'other_topics', 'no_reply_topics', 'is_collect'];
   var ep = EventProxy.create(events,
     function (topic, other_topics, no_reply_topics, is_collect) {
-    res.render('topic/index', {
-      topic: topic,
-      author_other_topics: other_topics,
-      no_reply_topics: no_reply_topics,
-      is_uped: isUped,
-      is_collect: is_collect,
+      res.render('topic/index', {
+        tabs: config.tabs,
+        topic: topic,
+        author_other_topics: other_topics,
+        no_reply_topics: no_reply_topics,
+        is_uped: isUped,
+        is_collect: is_collect,
+      });
     });
-  });
 
   ep.fail(next);
 
@@ -109,12 +103,42 @@ exports.index = function (req, res, next) {
   } else {
     TopicCollect.getTopicCollect(currentUser._id, topic_id, ep.done('is_collect'))
   }
+}
+
+/**
+ * Topic page
+ *
+ * @param  {HttpRequest} req
+ * @param  {HttpResponse} res
+ * @param  {Function} next
+ */
+exports.topic = function (req, res, next) {
+  var topic_id = req.params.tid;
+
+  if (topic_id.length !== 24) {
+    return res.json({error: '此话题不存在或已被删除。'});
+  }
+
+  Topic.getTopic(topic_id, function(err, topic) {
+
+    if(err || !topic) {
+      return res.json({error: '此话题不存在或已被删除。'});
+    }
+
+    if(!topic.author_id.equals(req.session.user._id)) {
+      return res.json({error: '无权限编辑。'});
+    }
+
+    return res.json({
+      success: 'success',
+      tabs: config.tabs,
+      topic: topic
+    });
+  });
 };
 
 exports.create = function (req, res, next) {
-  res.render('topic/edit', {
-    tabs: config.tabs
-  });
+  res.render('topic/edit');
 };
 
 
@@ -142,24 +166,18 @@ exports.put = function (req, res, next) {
   // END 验证
 
   if (editError) {
-    res.status(422);
-    return res.render('topic/edit', {
-      edit_error: editError,
-      title: title,
-      content: content,
-      tabs: config.tabs
-    });
+    return res.json({error: editError});
   }
 
   Topic.newAndSave(title, content, tab, req.session.user._id, function (err, topic) {
     if (err) {
-      return next(err);
+      return res.json({error: '出错啦！'});
     }
 
     var proxy = new EventProxy();
 
     proxy.all('score_saved', function () {
-      res.redirect('/topic/' + topic._id);
+      res.json({success: 'success', url: '/topic/' + topic._id});
     });
     proxy.fail(next);
     User.getUserById(req.session.user._id, proxy.done(function (user) {
@@ -177,26 +195,7 @@ exports.put = function (req, res, next) {
 
 exports.showEdit = function (req, res, next) {
   var topic_id = req.params.tid;
-
-  Topic.getTopicById(topic_id, function (err, topic, tags) {
-    if (!topic) {
-      res.render404('此话题不存在或已被删除。');
-      return;
-    }
-
-    if (String(topic.author_id) === String(req.session.user._id) || req.session.user.is_admin) {
-      res.render('topic/edit', {
-        action: 'edit',
-        topic_id: topic._id,
-        title: topic.title,
-        content: topic.content,
-        tab: topic.tab,
-        tabs: config.tabs
-      });
-    } else {
-      res.renderError('对不起，你不能编辑此话题。', 403);
-    }
-  });
+  res.render('topic/edit', {topic_id: topic_id});
 };
 
 exports.update = function (req, res, next) {
@@ -207,7 +206,7 @@ exports.update = function (req, res, next) {
 
   Topic.getTopicById(topic_id, function (err, topic, tags) {
     if (!topic) {
-      res.render404('此话题不存在或已被删除。');
+      res.json({error: '此话题不存在或已被删除。'});
       return;
     }
 
@@ -228,13 +227,7 @@ exports.update = function (req, res, next) {
       // END 验证
 
       if (editError) {
-        return res.render('topic/edit', {
-          action: 'edit',
-          edit_error: editError,
-          topic_id: topic._id,
-          content: content,
-          tabs: config.tabs
-        });
+        return res.json({error: editError});
       }
 
       //保存话题
@@ -250,11 +243,11 @@ exports.update = function (req, res, next) {
         //发送at消息
         at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
 
-        res.redirect('/topic/' + topic._id);
+        res.json({success: 'success', url: '/topic_page/' + topic._id});
 
       });
     } else {
-      res.renderError('对不起，你不能编辑此话题。', 403);
+      res.json({error: '对不起，你不能编辑此话题。'});
     }
   });
 };

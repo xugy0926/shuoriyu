@@ -18,7 +18,16 @@ var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
 var _            = require('lodash');
 
+
 exports.index = function (req, res, next) {
+  res.render('index',{tabs: config.tabs, pageTitle: '全部'});
+}
+
+exports.tabs = function (req, res, next) {
+  res.json({success: 'success', tabs: config.tabs});
+}
+
+exports.topics = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
   page = page > 0 ? page : 1;
   var tab = req.query.tab || 'all';
@@ -94,7 +103,8 @@ exports.index = function (req, res, next) {
   var tabName = renderHelper.tabName(tab);
   proxy.all('topics', 'tops', 'no_reply_topics', 'pages',
     function (topics, tops, no_reply_topics, pages) {
-      res.render('index', {
+      res.json({
+        success: 'success',
         topics: topics,
         current_page: page,
         list_topic_count: limit,
@@ -103,7 +113,7 @@ exports.index = function (req, res, next) {
         pages: pages,
         tabs: config.tabs,
         tab: tab,
-        pageTitle: tabName && (tabName + '版块'),
+        pageTitle: tabName,
       });
     });
 };

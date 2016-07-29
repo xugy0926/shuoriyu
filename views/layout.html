@@ -6,14 +6,11 @@
 <body>
 
 <%  if(typeof(rn) ==='undefined' || !rn) { %>
-<%- partial('_navbar') %>
+  <%- partial('_navbar') %>
 <% } %>
 
-<div id='main'>
+<div class="container">
   <%- body %>
 </div>
-<%  if(typeof(rn) === 'undefined' ||  !rn) { %>
-<%- partial('_foot') %>
-<% } %>
 </body>
 </html>

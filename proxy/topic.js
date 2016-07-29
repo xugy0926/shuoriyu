@@ -73,30 +73,40 @@ exports.getCountByQuery = function (query, callback) {
 exports.getTopicsByQuery = function (query, opt, callback) {
   query.deleted = false;
   Topic.find(query, {}, opt, function (err, topics) {
+
+    var newTopics = [];
+    for (var i = 0, len = topics.length; i < len; i++) {
+      newTopics[i] = topics[i].toObject();
+    }
+
     if (err) {
       return callback(err);
     }
-    if (topics.length === 0) {
+    if (newTopics.length === 0) {
       return callback(null, []);
     }
 
     var proxy = new EventProxy();
-    proxy.after('topic_ready', topics.length, function () {
-      topics = _.compact(topics); // 删除不合规的 topic
-      return callback(null, topics);
+    proxy.after('topic_ready', newTopics.length, function () {
+      newTopics = _.compact(newTopics); // 删除不合规的 topic
+      return callback(null, newTopics);
     });
     proxy.fail(callback);
 
-    topics.forEach(function (topic, i) {
+    newTopics.forEach(function (topic, i) {
+
+      topic.create_at = tools.formatDate(topic.create_at, true);
+
       var ep = new EventProxy();
       ep.all('author', 'reply', function (author, reply) {
         // 保证顺序
         // 作者可能已被删除
         if (author) {
+
           topic.author = author;
           topic.reply = reply;
         } else {
-          topics[i] = null;
+          topic = null;
         }
         proxy.emit('topic_ready');
       });

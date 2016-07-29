@@ -22,8 +22,7 @@ exports.signup = function (req, res, next) {
   var ep = new eventproxy();
   ep.fail(next);
   ep.on('prop_err', function (msg) {
-    res.status(422);
-    res.render('sign/signup', {error: msg, loginname: loginname, email: email});
+    res.json({error: msg, loginname: loginname, email: email});
   });
 
   // 验证信息的正确性
@@ -68,7 +67,7 @@ exports.signup = function (req, res, next) {
         }
         // 发送激活邮件
         mail.sendActiveMail(email, utility.md5(email + passhash + config.session_secret), loginname);
-        res.render('sign/signup', {
+        res.json({
           success: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'
         });
       });
@@ -114,8 +113,7 @@ exports.login = function (req, res, next) {
   ep.fail(next);
 
   if (!loginname || !pass) {
-    res.status(422);
-    return res.render('sign/signin', { error: '信息不完整。' });
+    return res.json({ error: '信息不完整。' });
   }
 
   var getUser;
@@ -126,8 +124,8 @@ exports.login = function (req, res, next) {
   }
 
   ep.on('login_error', function (login_error) {
-    res.status(403);
-    res.render('sign/signin', { error: '用户名或密码错误' });
+//    res.status(403);
+    res.json({ error: '用户名或密码错误' });
   });
 
   getUser(loginname, function (err, user) {
@@ -145,8 +143,8 @@ exports.login = function (req, res, next) {
       if (!user.active) {
         // 重新发送激活邮件
         mail.sendActiveMail(user.email, utility.md5(user.email + passhash + config.session_secret), user.loginname);
-        res.status(403);
-        return res.render('sign/signin', { error: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });
+//        res.status(403);
+        return res.json({ error: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });
       }
       // store session cookie
       authMiddleWare.gen_session(user, res);
@@ -158,7 +156,7 @@ exports.login = function (req, res, next) {
           break;
         }
       }
-      res.redirect(refer);
+      res.json({success: '登录成功'});
     }));
   });
 };
