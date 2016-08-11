@@ -203,7 +203,7 @@ exports.showSearchPass = function (req, res) {
 exports.updateSearchPass = function (req, res, next) {
   var email = validator.trim(req.body.email).toLowerCase();
   if (!validator.isEmail(email)) {
-    return res.render('sign/search_pass', {error: '邮箱不合法', email: email});
+    return res.json({success: false, message: '邮箱不合法'});
   }
 
   // 动态生成retrive_key和timestamp到users collection,之后重置密码进行验证
@@ -212,7 +212,7 @@ exports.updateSearchPass = function (req, res, next) {
 
   User.getUserByMail(email, function (err, user) {
     if (!user) {
-      res.render('sign/search_pass', {error: '没有这个电子邮箱。', email: email});
+      res.json({success: false, message: '没有这个电子邮箱。'});
       return;
     }
     user.retrieve_key = retrieveKey;
@@ -223,7 +223,7 @@ exports.updateSearchPass = function (req, res, next) {
       }
       // 发送重置密码邮件
       mail.sendResetPassMail(email, retrieveKey, user.loginname);
-      res.render('notify/notify', {success: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'});
+      return res.json({success: true, message: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'});
     });
   });
 };

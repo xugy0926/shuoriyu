@@ -61,8 +61,7 @@ var myxss = new jsxss.FilterXSS({
 });
 
 exports.markdown = function (text) {
-  console.log('<div class="markdown-text">' + md.render(text || '') + '</div>');
-  return '<div class="markdown-text">' + md.render(text || '') + '</div>';
+  return  md.render(text || '');
 };
 
 exports.escapeSignature = function (signature) {

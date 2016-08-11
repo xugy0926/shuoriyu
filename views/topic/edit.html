@@ -6,8 +6,8 @@
   </ol>
 
   <div class="form-group">
-  <select class="form-control" v-model="tabName">
-    <option v-for="item in tabs">{{ item[1] }}</option>
+  <select class="form-control" v-model="selectedTab">
+    <option v-for="tab in tabs" v-bind:value="tab.value" selected="selectedTab === tab.value">{{ tab.text }}</option>
   </select>
   </div>
 
@@ -21,6 +21,7 @@
                 placeholder='文章支持 Markdown 语法, 请注意标记代码'></textarea>
     </div>
   </div>
+  <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
   <button type="submit" class='btn btn-primary' v-on:click="submit">提交</button>
   <input type='hidden' name='_csrf' value='<%= csrf %>'>
 </div>
@@ -40,9 +41,27 @@
       pageTitle: '新建',
       topic: '',
       tabs: [],
-      tabName: '全部'
+      selectedTab: '',
+      errorMsg: '',
+      successMsg: ''
     },
     methods: {
+      getTabs: function() {
+        $.get('/tabs', function(result) {
+          if (result.success) {
+            vue.buildTabs(result.tabs);
+          }
+        });
+      },
+      buildTabs: function(tabs) {
+        var tabsTpl = [];
+        tabs.forEach(function(tab) {
+          tabsTpl.push({value: tab[0], text: tab[1], selected: false});
+        });
+
+        vue.tabs = tabsTpl;
+        vue.selectedTab = tabsTpl.length > 0 ? tabsTpl[0].value : '';
+      },
       getTopic: function() {
         $.get('/topic_data/' + this.topicId, function (result) {
           if (!result.success) {
@@ -51,32 +70,20 @@
             vue.topic = result.topic;
             vue.tabs = result.tabs;
             vue.title = result.topic.title;
-
             editor.codemirror.setValue(vue.topic.content);
-
-            for(var i = 0; i < result.tabs.length; i++) {
-              if(result.tabs[i][0] === result.topic.tab) {
-                vue.tabName = result.tabs[i][1];
-                break;
-              }
-            }
           }
         });
       },
       submit: function() {
-
-        var tab = '';
-        for(var i = 0; i < this.tabs.length; i++) {
-          if(this.tabs[i][1] === this.tabName) {
-            tab = this.tabs[i][0];
-            break;
-          }
+        if (vue.selectedTab === '') {
+          confirm('没有选类别')
+          return;
         }
 
         $.post(this.submitUrl, {
           _csrf: $('#_csrf').val(),
           title: vue.title,
-          tab: tab,
+          tab: vue.selectedTab,
           t_content: editor.codemirror.getValue() },
           function (result) {
             if (!result.success) {
@@ -88,6 +95,8 @@
       }
     }
   });
+
+  vue.getTabs();
 
   var topicId = $('#topic-id').val();
   if (topicId) {

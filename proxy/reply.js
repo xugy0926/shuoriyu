@@ -27,6 +27,9 @@ exports.getReplyById = function (id, callback) {
     return callback(null, null);
   }
   Reply.findOne({_id: id}, function (err, reply) {
+
+    reply = reply.toObject();
+
     if (err) {
       return callback(err);
     }
@@ -72,26 +75,31 @@ exports.getRepliesByTopicId = function (id, cb) {
       return cb(null, []);
     }
 
+    var newReplies = [];
+    for (var i = 0, len = replies.length; i < len; i++) {
+      newReplies[i] = replies[i].toObject();
+    }
+
     var proxy = new EventProxy();
-    proxy.after('reply_find', replies.length, function () {
-      cb(null, replies);
+    proxy.after('reply_find', newReplies.length, function () {
+      cb(null, newReplies);
     });
-    for (var j = 0; j < replies.length; j++) {
+    for (var j = 0; j < newReplies.length; j++) {
       (function (i) {
-        var author_id = replies[i].author_id;
+        var author_id = newReplies[i].author_id;
         User.getUserById(author_id, function (err, author) {
           if (err) {
             return cb(err);
           }
-          replies[i].author = author || { _id: '' };
-          if (replies[i].content_is_html) {
+          newReplies[i].author = author || { _id: '' };
+          if (newReplies[i].content_is_html) {
             return proxy.emit('reply_find');
           }
-          at.linkUsers(replies[i].content, function (err, str) {
+          at.linkUsers(newReplies[i].content, function (err, str) {
             if (err) {
               return cb(err);
             }
-            replies[i].content = str;
+            newReplies[i].content = str;
             proxy.emit('reply_find');
           });
         });

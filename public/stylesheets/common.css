@@ -9,3 +9,26 @@
 .signin-panel {
     width: 340px;
 }
+
+/**
+*
+**/
+
+.reply-panel {
+    padding-top: 15px;
+    border-bottom: 1px solid #f1f1f1
+}
+
+.reply-content {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.reply-user-time {
+    color: #767676;
+    margin-left: 8px;
+}
+
+.reply-input {
+    padding: 15px;
+}

@@ -4,14 +4,20 @@
       <button href="#" class="list-group-item disabled">
         操作
       </button>
-      <button v-on:click="onTab" v-for="item in tabs" class="btn list-group-item" value="{{ item[0] }}">{{ item[1] }}</button>
+      <button class="btn list-group-item"
+              v-on:click="onTab"
+              v-for="item in tabs"
+              v-bind:class="{'active': item.selected}"
+              value="{{ item.key }}">
+        {{ item.value }}
+      </button>
     </div>
   </div>
 
   <div class="col-sm-10">
     <ol class="breadcrumb">
       <li><a href="/">Home</a></li>
-      <li><a href="#"><%= pageTitle %></a></li>
+      <li><a href="#">{{ pageTitle }}</a></li>
     </ol>
     <div class="panel panel-default">
       <div class="panel-body">
@@ -39,11 +45,15 @@
                 Action <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li><a href="#">Action</a></li>
                 <li><a href='/topic/{{topic._id}}/edit'>编辑</a></li>
-                <li><a href="#">Something else here</a></li>
                 <li role="separator" class="divider"></li>
-                <li><a href="#">Separated link</a></li>
+                <li v-if="topic.top"><a href="#">取消置顶</a></li>
+                <li v-else><a href="#">置顶</a></li>
+                <li v-if="topic.good"><a href="#">取消精华</a></li>
+                <li v-else><a href="#">精华</a></li>
+                <li v-if="topic.lock"><a href="#">取消锁定</a></li>
+                <li v-else><a href="#">锁定</a></li>
+                <li><a v-on:click="onDelete(topic._id)">删除</a></li>
               </ul>
             </div>
           </td>
@@ -56,24 +66,72 @@
   var vue = new Vue({
     el: '#app',
     data: {
+      pageTitle: '全部',
       tabs: [],
-      tab: 'all',
+      selectedTab: 'all',
       topics: []
     },
     methods: {
       onTab: function(event) {
-        this.tab = event.target.value;
+        this.selectedTab = event.target.value;
         this.getData();
       },
       getData: function() {
-        $.post('topics?tab=' + this.tab, function(result) {
+        $.post('topics?tab=' + this.selectedTab, function(result) {
           if (!result.success) {
             alert(result.error);
           } else {
             vue.topics = result.topics;
-            vue.tabs = result.tabs;
+            vue.buildTabs(result.tabs);
           }
         });
+      },
+      buildTabs: function(tabs) {
+        var tabsTpl = [{key: 'all', value: '全部', selected: false}, {key: 'good', value: '精选', selected: false}];
+        tabs.forEach(function(item) {
+          tabsTpl.push({key: item[0], value: item[1], selected: false});
+        });
+
+        vue.tabs = tabsTpl;
+        vue.updateSelectedTab();
+      },
+      updateSelectedTab: function() {
+        vue.tabs.forEach(function(item) {
+          if(item.key === vue.selectedTab) {
+            item.selected = true;
+            vue.pageTitle = item.value;
+          } else {
+            item.selected = false;
+          }
+        });
+      },
+      onTop: function(topicId) {
+
+      },
+      onGood: function(topicId) {
+
+      },
+      onLock: function(topicId) {
+        if (topicId && confirm('确定要锁定吗？')) {
+          $.get('/topic/' + topicId + '/lock', function(result) {
+
+          });
+        }
+      },
+      onDelete: function(topicId) {
+        if (topicId && confirm('确定要删除吗？')) {
+          $.post('/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
+            if (!result.success) {
+              alert(result.message);
+            } else {
+              var index = _.findIndex(vue.topics, function(topic) {
+                if (topic._id === topicId) return true;
+              });
+
+              vue.topics.$remove(vue.topics[index]);
+            }
+          });
+        }
       }
     }
   });

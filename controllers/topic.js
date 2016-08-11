@@ -177,7 +177,7 @@ exports.put = function (req, res, next) {
     var proxy = new EventProxy();
 
     proxy.all('score_saved', function () {
-      res.json({success: 'success', url: '/topic/' + topic._id});
+      res.json({success: 'success', url: '/topic_page/' + topic._id});
     });
     proxy.fail(next);
     User.getUserById(req.session.user._id, proxy.done(function (user) {

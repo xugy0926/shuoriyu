@@ -91,6 +91,7 @@ router.post('/topic/collect', auth.userRequired, topic.collect); // 关注某话
 router.post('/topic/de_collect', auth.userRequired, topic.de_collect); // 取消关注某话题
 
 // reply controller
+router.get('/:topic_id/replies', reply.Replies);
 router.post('/:topic_id/reply', auth.userRequired, limit.peruserperday('create_reply', config.create_reply_per_day, false), reply.add); // 提交一级回复
 router.get('/reply/:reply_id/edit', auth.userRequired, reply.showEdit); // 修改自己的评论页
 router.post('/reply/:reply_id/edit', auth.userRequired, reply.update); // 修改某评论

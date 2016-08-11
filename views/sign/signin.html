@@ -10,8 +10,8 @@
       <input type='hidden' name='_csrf' value='<%= csrf %>'/>
       <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
       <button class='btn btn-primary btn-lg btn-block' v-on:click="submit">登录</button>
-      <button class="btn btn-link" href="/auth/github">通过 GitHub 登录</button>
-      <button class="btn btn-link" href='/search_pass'>忘记密码了?</button>
+      <a class="btn btn-link" href="/auth/github">通过 GitHub 登录</a>
+      <a class="btn btn-link" href='/search_pass'>忘记密码了?</a>
     </div>
   </div>
 </div>
