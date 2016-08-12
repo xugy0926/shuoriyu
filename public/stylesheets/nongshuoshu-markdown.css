@@ -6,12 +6,11 @@
 .nongshuoshu-body {
   -ms-text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  color: #000000;
+  color: #303030;
   font-family: "inherit";
   font-size: 16px;
   line-height: 2;
   word-wrap: break-word;
-  padding: 2px 16px;
 }
 
 .nongshuoshu-body a {
@@ -98,7 +97,7 @@
 }
 
 .nongshuoshu-body a {
-  color: #41A8A1;
+  color: #515151;
   text-decoration: none;
 }
 
@@ -136,7 +135,7 @@
   margin-top: 0;
   margin-bottom: 0;
   line-height: 1.5;
-  color: #41A8A1;
+  color: #515151;
 }
 
 .nongshuoshu-body h1 {
@@ -177,7 +176,6 @@
   padding-left: 0;
   margin-top: 0;
   margin-bottom: 0;
-  list-style: disc url('http://www.w3school.com.cn/i/eg_arrow.gif');
 }
 
 .nongshuoshu-body ol ol,
@@ -329,7 +327,7 @@
   padding-bottom: 0.3em;
   font-size: 1.75em;
   line-height: 1.225;
-  border-bottom: 1px solid #41A8A1;
+  border-bottom: 1px solid #515151;
 }
 
 .nongshuoshu-body h2 .anchor {
@@ -427,7 +425,7 @@
 .nongshuoshu-body blockquote {
   padding: 0 15px;
   color: #777;
-  border-left: 2px solid #41A8A1;
+  border-left: 2px solid #515151;
     font-size: 1em;
     font-style:oblique
 }
@@ -669,14 +667,14 @@
 }
 
 .nongshuoshu-body .full-commit .btn-outline:not(:disabled):hover {
-  color: #41A8A1;
-  border: 1px solid #41A8A1;
+  color: #515151;
+  border: 1px solid #515151;
 }
 
 .nongshuoshu-body :checked+.radio-label {
   position: relative;
   z-index: 1;
-  border-color: #41A8A1;
+  border-color: #515151;
 }
 
 .nongshuoshu-body .octicon {

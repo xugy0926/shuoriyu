@@ -15,7 +15,7 @@ var _          = require('lodash');
 var config     = require('../config');
 var validator  = require('validator');
 var jsxss      = require('xss');
-var multiline = require('multiline')
+var multiline = require('multiline');
 
 // Set default options
 var md = new MarkdownIt()

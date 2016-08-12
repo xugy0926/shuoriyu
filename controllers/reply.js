@@ -33,7 +33,7 @@ exports.add = function (req, res, next) {
 
   var str = validator.trim(String(content));
   if (str === '') {
-    res.json({success: false, message: '回复内容不能为空。'});
+    return res.json({success: false, message: '回复内容不能为空。'});
   }
 
   var ep = EventProxy.create();
@@ -47,7 +47,7 @@ exports.add = function (req, res, next) {
     }
 
     if (topic.lock) {
-      res.json({success: false, message: '此主题已锁定。'});
+      return res.json({success: false, message: '此主题已锁定。'});
     }
     ep.emit('topic', topic);
   }));
@@ -88,7 +88,7 @@ exports.add = function (req, res, next) {
         return res.json({success: false, message: '数据库错误'});
       }
 
-      res.json({success: true, reply: reply});
+      return res.json({success: true, reply: reply});
     });
 
   });

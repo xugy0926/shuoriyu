@@ -1,10 +1,10 @@
-<div class="col-sm-8 col-sm-offset-2">
+<div class="col-sm-8 col-sm-offset-2 topic">
   <input type="hidden" id="topic-id" value="<%= typeof(topic._id) !== 'undefined' ? topic._id : '' %>"/>
-  <div class='header topic_header'>
-    <h1 class="topic_full_title">
+  <div class='header'>
+    <h2>
       <%= topic.title %>
-    </h1>
-    <div class="changes">
+    </h2>
+    <div class="meta">
       <span>
         发布于 <%= topic.create_at_ago() %>
       </span>
@@ -24,7 +24,7 @@
       <%}%>
     </div>
   </div>
-  <div class='nongshuoshu-body'>
+  <div class='nongshuoshu-body content'>
     <%- markdown(topic.linkedContent) %>
   </div>
 
@@ -59,8 +59,8 @@
               </div>
             </div>
           </div>
-          <div class="reply-content">
-            {{reply.content}}
+          <div class='nongshuoshu-body content'>
+            {{{reply.content}}}
           </div>
         </div>
       </div>
@@ -75,18 +75,13 @@
       <span class='col_fade'>添加回复</span>
     </div>
     <div class='panel-body reply'>
-      <form id='reply_form' action='/<%= topic._id %>/reply' method='post'>
         <div class='markdown_editor in_editor'>
           <div class='markdown_in_editor'>
-            <textarea class='editor' name='r_content' rows='8'></textarea>
-            <input class='btn btn-primary submit_btn'
-                   type="submit"
-                   data-loading-text="回复中.."
-                   value="回复<%= topic.lock ? '(此主题已锁定)' : ''%>" <%= topic.lock ? 'disabled="disabled"' :''%>>
+            <textarea class='editor' name='content' rows='8' v-model="content"></textarea>
+            <button class="btn btn-default" v-on:click="onReply">提交</button>
           </div>
         </div>
         <input type='hidden' name='_csrf' id="_csrf" value='<%= csrf %>'/>
-      </form>
     </div>
   </div>
   <% } %>
@@ -117,18 +112,29 @@
       data: {
         currentUserId: "",
         topicId: '',
-        replies: []
+        replies: [],
+        content: ''
       },
       methods: {
         getReplies: function() {
           $.get('/' + vue.topicId + '/replies', function (result) {
             if (!result.success) {
-              alert('xxx');
               return;
             }
 
             console.log(result.replies);
             vue.replies = result.replies;
+          });
+        },
+        onReply: function () {
+          $.post('/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
+            if (!result.success) {
+              vue.errorMsg = result.message;
+              alert(vue.errorMsg);
+              return;
+            }
+
+            vue.replies.push(result.reply);
           });
         },
         onReplyReply: function (replyId, loginname) {

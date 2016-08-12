@@ -1,3 +1,4 @@
+
 .nav-tabs-x {
     margin-bottom: 50px;
 }
@@ -14,8 +15,31 @@
     width: 340px;
 }
 
+
 /**
-*
+* topic
+**/
+
+.topic .header {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.topic .header h2 {
+    margin-bottom: 20px;
+}
+
+.topic .header .meta {
+    color: #999;
+}
+
+.topic .content {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/**
+* reply
 **/
 
 .reply-panel {

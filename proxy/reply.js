@@ -4,6 +4,7 @@ var EventProxy = require('eventproxy');
 var tools      = require('../common/tools');
 var User       = require('./user');
 var at         = require('../common/at');
+var renderHelper = require('../common/render_helper');
 
 /**
  * 获取一条回复信息
@@ -43,15 +44,12 @@ exports.getReplyById = function (id, callback) {
         return callback(err);
       }
       reply.author = author;
-      // TODO: 添加更新方法，有些旧帖子可以转换为markdown格式的内容
-      if (reply.content_is_html) {
-        return callback(null, reply);
-      }
+
       at.linkUsers(reply.content, function (err, str) {
         if (err) {
           return callback(err);
         }
-        reply.content = str;
+        reply.content = renderHelper.markdown(str);
         return callback(err, reply);
       });
     });
@@ -99,7 +97,7 @@ exports.getRepliesByTopicId = function (id, cb) {
             if (err) {
               return cb(err);
             }
-            newReplies[i].content = str;
+            newReplies[i].content = renderHelper.markdown(str);
             proxy.emit('reply_find');
           });
         });
