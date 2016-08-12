@@ -31,7 +31,7 @@ var router = express.Router();
 // cms page
 router.get('/cms', site.index);
 router.get('/cms/tabs', site.tabs);
-router.post('/cms/topics', site.topics);
+router.post('/topics', site.topics);
 
 // sitemap
 router.get('/sitemap.xml', site.sitemap);
