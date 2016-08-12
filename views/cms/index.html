@@ -77,7 +77,7 @@
         this.getData();
       },
       getData: function() {
-        $.post('topics?tab=' + this.selectedTab, function(result) {
+        $.post('/topics?tab=' + this.selectedTab, function(result) {
           if (!result.success) {
             alert(result.error);
           } else {
