@@ -1,4 +1,4 @@
-<div id='app' class="col-sm-8 col-sm-offset-2">
+<div class="col-sm-8 col-sm-offset-2">
   <input type="hidden" id="topic-id" value="<%= typeof(topic._id) !== 'undefined' ? topic._id : '' %>"/>
   <div class='header topic_header'>
     <h1 class="topic_full_title">
@@ -40,19 +40,19 @@
             <strong>{{reply.author.loginname}}</strong><span class="reply-user-time">{{reply.create_at_ago}}</span>
             <div class="btn-toolbar pull-right" role="toolbar" aria-label="...">
               <div class="btn-group" role="group" aria-label="...">
-                <button v-if="currentUser && reply.author._id === currentUser._id"
+                <button v-if="currentUserId === reply.author._id"
                         type="button"
                         class="btn btn-default btn-sm"
                   v-on:click="onReplyReply(reply._id, reply.author.loginname)">
                   <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span>
                 </button>
-                <button v-if="currentUser && reply.author._id === currentUser._id"
+                <button v-if="currentUserId === reply.author._id"
                         type="button"
                         class="btn btn-default btn-sm"
                         v-on:click="onDeleteReply(reply._id)">
                   <span class="glyphicon glyphicon-remove" aria-hidden="true" data-replyid="{{reply._id}}"></span>
                 </button>
-                <button v-if="currentUser && reply.author._id === currentUser._id"
+                <button v-if="currentUserId === reply.author._id"
                         type="button" class="btn btn-default btn-sm" v-on:click="onEditReply(reply._id, reply.content)">
                   <span class="glyphicon glyphicon-edit" aria-hidden="true" data-replyid="{{reply._id}}"></span>
                 </button>
@@ -109,10 +109,13 @@
 <script>
   $(document).ready(function () {
 
+    var editor = new Editor();
+    editor.render($('.editor')[0]);
+
     var vue = new Vue({
       el: '#app',
       data: {
-        currentUser: null,
+        currentUserId: "",
         topicId: '',
         replies: []
       },
@@ -183,7 +186,7 @@
     });
 
     vue.topicId = '<%= typeof(topic) !== "undefined" && topic ? topic._id : "" %>';
-    vue.currentUser = '<%= typeof(current_user) !== "undefined" ? current_user : null %>';
+    vue.currentUserId = '<%= typeof(current_user) !== "undefined" ? current_user._id : "" %>';
     vue.getReplies();
   });
 

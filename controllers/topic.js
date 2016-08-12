@@ -145,7 +145,8 @@ exports.create = function (req, res, next) {
 exports.put = function (req, res, next) {
   var title   = validator.trim(req.body.title);
   var tab     = validator.trim(req.body.tab);
-  var content = validator.trim(req.body.t_content);
+  var category = validator.trim(req.body.category);
+  var content = validator.trim(req.body.content);
 
   // 得到所有的 tab, e.g. ['ask', 'share', ..]
   var allTabs = config.tabs.map(function (tPair) {
@@ -169,7 +170,7 @@ exports.put = function (req, res, next) {
     return res.json({error: editError});
   }
 
-  Topic.newAndSave(title, content, tab, req.session.user._id, function (err, topic) {
+  Topic.newAndSave(title, content, tab, category, req.session.user._id, function (err, topic) {
     if (err) {
       return res.json({error: '出错啦！'});
     }
@@ -202,7 +203,8 @@ exports.update = function (req, res, next) {
   var topic_id = req.params.tid;
   var title    = req.body.title;
   var tab      = req.body.tab;
-  var content  = req.body.t_content;
+  var category = req.body.category;
+  var content  = req.body.content;
 
   Topic.getTopicById(topic_id, function (err, topic, tags) {
     if (!topic) {
@@ -213,6 +215,7 @@ exports.update = function (req, res, next) {
     if (topic.author_id.equals(req.session.user._id) || req.session.user.is_admin) {
       title   = validator.trim(title);
       tab     = validator.trim(tab);
+      category = validator.trim(category);
       content = validator.trim(content);
 
       // 验证
@@ -234,6 +237,7 @@ exports.update = function (req, res, next) {
       topic.title     = title;
       topic.content   = content;
       topic.tab       = tab;
+      topic.category  = category;
       topic.update_at = new Date();
 
       topic.save(function (err) {

@@ -1,5 +1,5 @@
 <input type="hidden" id="topic-id" value="<%= typeof(topic_id) !== 'undefined' ? topic_id : '' %>"/>
-<div id="app" class="col-md-8 col-md-offset-2">
+<div class="col-md-8 col-md-offset-2">
   <ol class="breadcrumb">
     <li><a href="/">主页</a></li>
     <li class="active">{{ pageTitle }}</li>
@@ -9,6 +9,12 @@
   <select class="form-control" v-model="selectedTab">
     <option v-for="tab in tabs" v-bind:value="tab.value" selected="selectedTab === tab.value">{{ tab.text }}</option>
   </select>
+  </div>
+
+  <div class="form-group">
+    <select class="form-control" v-model="selectedCategory">
+      <option v-for="category in categories" v-bind:value="category.key" selected="selectedCategory === category.key">{{ category.text }}</option>
+    </select>
   </div>
 
   <div class="form-group">
@@ -42,6 +48,8 @@
       topic: '',
       tabs: [],
       selectedTab: '',
+      categories: [],
+      selectedCategory: '',
       errorMsg: '',
       successMsg: ''
     },
@@ -49,18 +57,30 @@
       getTabs: function() {
         $.get('/tabs', function(result) {
           if (result.success) {
-            vue.buildTabs(result.tabs);
+            var tabs = result.tabs;
+            var tabsTpl = [];
+            tabs.forEach(function(tab) {
+              tabsTpl.push({value: tab[0], text: tab[1], selected: false});
+            });
+
+            vue.tabs = tabsTpl;
+            vue.selectedTab = tabsTpl.length > 0 ? tabsTpl[0].value : '';
           }
         });
       },
-      buildTabs: function(tabs) {
-        var tabsTpl = [];
-        tabs.forEach(function(tab) {
-          tabsTpl.push({value: tab[0], text: tab[1], selected: false});
-        });
+      getCategories: function() {
+        $.get('/categories', function(result) {
+          if (result.success) {
+            var categories = result.categories;
+            var categoriesTpl = [];
+            categories.forEach(function(category) {
+              categoriesTpl.push({key: category.key, text: category.text, selected: false});
+            });
 
-        vue.tabs = tabsTpl;
-        vue.selectedTab = tabsTpl.length > 0 ? tabsTpl[0].value : '';
+            vue.categories = categoriesTpl;
+            vue.selectedCategory = categoriesTpl.length > 0 ? categoriesTpl[0].key : '';
+          }
+        });
       },
       getTopic: function() {
         $.get('/topic_data/' + this.topicId, function (result) {
@@ -68,7 +88,8 @@
             vue.errorMsg = result.error;
           } else {
             vue.topic = result.topic;
-            vue.tabs = result.tabs;
+            vue.selectedTab = result.topic.tab;
+            vue.selectedCategory = result.topic.category;
             vue.title = result.topic.title;
             editor.codemirror.setValue(vue.topic.content);
           }
@@ -84,7 +105,8 @@
           _csrf: $('#_csrf').val(),
           title: vue.title,
           tab: vue.selectedTab,
-          t_content: editor.codemirror.getValue() },
+          category: vue.selectedCategory,
+          content: editor.codemirror.getValue() },
           function (result) {
             if (!result.success) {
               vue.errorMsg = result.error;
@@ -97,6 +119,7 @@
   });
 
   vue.getTabs();
+  vue.getCategories();
 
   var topicId = $('#topic-id').val();
   if (topicId) {

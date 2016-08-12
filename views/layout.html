@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
-<%- partial('_head') %>
+<%- partial('cms/_head') %>
 
 <body>
 
 <%  if(typeof(rn) ==='undefined' || !rn) { %>
-  <%- partial('_navbar') %>
+  <%- partial('cms/_navbar') %>
 <% } %>
 
-<div class="container">
+<div id="app" class="container">
   <%- body %>
 </div>
 </body>

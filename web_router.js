@@ -15,6 +15,7 @@ var user = require('./controllers/user');
 var message = require('./controllers/message');
 var topic = require('./controllers/topic');
 var reply = require('./controllers/reply');
+var category = require('./controllers/category');
 var rss = require('./controllers/rss');
 var staticController = require('./controllers/static');
 var auth = require('./middlewares/auth');
@@ -27,10 +28,11 @@ var config = require('./config');
 
 var router = express.Router();
 
-// home page
-router.get('/', site.index);
-router.get('/tabs', site.tabs);
-router.post('/topics', site.topics);
+// cms page
+router.get('/cms', site.index);
+router.get('/cms/tabs', site.tabs);
+router.post('/cms/topics', site.topics);
+
 // sitemap
 router.get('/sitemap.xml', site.sitemap);
 // mobile app download
@@ -98,6 +100,12 @@ router.post('/reply/:reply_id/edit', auth.userRequired, reply.update); // 修改
 router.post('/reply/:reply_id/delete', auth.userRequired, reply.delete); // 删除某评论
 router.post('/reply/:reply_id/up', auth.userRequired, reply.up); // 为评论点赞
 router.post('/upload', auth.userRequired, topic.upload); //上传图片
+
+// category
+router.get('/category', category.index);
+router.get('/categories', category.getCategories);
+router.post('/category/add', auth.adminRequired, category.add);
+router.post('/category/:cid/delete', auth.adminRequired, category.delete);
 
 // static
 router.get('/about', staticController.about);

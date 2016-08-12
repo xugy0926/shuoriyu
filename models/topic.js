@@ -21,6 +21,7 @@ var TopicSchema = new Schema({
   last_reply_at: { type: Date, default: Date.now },
   content_is_html: { type: Boolean },
   tab: {type: String},
+  category: {type: String},
   deleted: {type: Boolean, default: false},
 });
 

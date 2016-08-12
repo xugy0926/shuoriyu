@@ -1,3 +1,7 @@
+.nav-tabs-x {
+    margin-bottom: 50px;
+}
+
 .signin {
     padding-top: 50px;
 }
@@ -31,4 +35,8 @@
 
 .reply-input {
     padding: 15px;
+}
+
+div.category {
+    margin-right: 15px;
 }
