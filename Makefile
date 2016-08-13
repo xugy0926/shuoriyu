@@ -38,7 +38,7 @@ test-cov cov: install pretest
 		$(TESTS)
 
 build:
-	@./node_modules/loader-builder/bin/builder views .
+	@./node_modules/loader-builder/bin/builder ./src/server/views ./src/server
 
 run:
 	@node app.js
