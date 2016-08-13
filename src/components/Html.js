@@ -16,16 +16,6 @@ function Html({ title, description, style, script, children }) {
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: children }} />
         {script && <script src={script} />}
-        {analytics.google.trackingId &&
-          <script
-            dangerouslySetInnerHTML={{ __html:
-            'window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;' +
-            `ga('create','${analytics.google.trackingId}','auto');ga('send','pageview')` }}
-          />
-        }
-        {analytics.google.trackingId &&
-          <script src="https://www.google-analytics.com/analytics.js" async defer />
-        }
       </body>
     </html>
   );
