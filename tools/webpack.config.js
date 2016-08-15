@@ -189,6 +189,8 @@ const config = {
         // Add vendor prefixes to CSS rules using values from caniuse.com
         // https://github.com/postcss/autoprefixer
         require('autoprefixer')({ browsers: AUTOPREFIXER_BROWSERS }),
+        // boostrap
+        require('postcss-url')({copy: 'rebase'}),
       ],
       sass: [
         require('autoprefixer')({ browsers: AUTOPREFIXER_BROWSERS }),
