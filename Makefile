@@ -37,22 +37,22 @@ test-cov cov: install pretest
 		--timeout $(TEST_TIMEOUT) \
 		$(TESTS)
 
-build:
+loader-builder:
 	@./node_modules/loader-builder/bin/builder ./src/server/views ./src/server
 
-run:
-	@node app.js
+start-development:
+	@node ./build/server.js
 
-start: install build
-	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start app.js -i 0 --name "shuoriyu" --max-memory-restart 400M
+start-production: install loader-builder
+	@MODE=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M
 
-restart: install build
-	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 restart "shuoriyu"
+restart: install loader-builder
+	@./node_modules/.bin/pm2 restart "shuoriyu"
 
 stop:
-	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 stop "shuoriyu"
+	@./node_modules/.bin/pm2 stop "shuoriyu"
 
 delete:
-	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 delete "shuoriyu"
+	@./node_modules/.bin/pm2 delete "shuoriyu"
 
 .PHONY: install test cov test-cov build run start restart

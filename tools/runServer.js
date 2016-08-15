@@ -33,6 +33,7 @@ function runServer(cb) {
       server.stdout.removeListener('data', onStdOut);
       server.stdout.on('data', x => process.stdout.write(x));
       if (cb) {
+        console.log('-------');
         cbIsPending = false;
         cb(null, match[1]);
       }

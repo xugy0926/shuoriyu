@@ -1,17 +1,15 @@
-var config = require('../config');
-
-var env = process.env.NODE_ENV || "development"
-
-
+var { mode, debug } = require('../../config');
+import fs from 'fs';
 var log4js = require('log4js');
+
 log4js.configure({
   appenders: [
     { type: 'console' },
-    { type: 'file', filename: './logs/cheese.log', category: 'cheese' }
+    { type: 'file', filename: 'logs/cheese.log', category: 'cheese' }
   ]
 });
 
 var logger = log4js.getLogger('cheese');
-logger.setLevel(config.debug && env !== 'test' ? 'DEBUG' : 'ERROR')
+logger.setLevel( debug && mode === 'development' ? 'DEBUG' : 'ERROR')
 
 module.exports = logger;
