@@ -28,10 +28,11 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, mode, debug, port, auth } from './config';
+import { host, node_env, debug, port, auth } from './config';
+
 
 var serverConfig = require('./server/config');
-if (!serverConfig.debug && serverConfig.oneapm_key) {
+if (!debug && serverConfig.oneapm_key) {
   require('oneapm');
 }
 
@@ -137,7 +138,7 @@ app.use(session({
 app.use(serverAuth.authUser);
 app.use(serverAuth.blockUser());
 
-if (!serverConfig.debug) {
+if (!debug) {
   app.use(function (req, res, next) {
     if (req.path === '/api' || req.path.indexOf('/api') === -1) {
       csurf()(req, res, next);
@@ -197,12 +198,12 @@ app.use('/graphql', expressGraphQL(req => ({
   schema,
   graphiql: true,
   rootValue: { request: req },
-  pretty: process.env.NODE_ENV !== 'production',
+  pretty: node_env !== 'production',
 })));
 
 // routes
 app.use('/api/v1', cors(), apiRouterV1);
-app.use('/', webRouter);
+app.use('/cms', webRouter);
 
 //
 // Register server-side rendering middleware
@@ -211,7 +212,7 @@ app.get('*', async (req, res, next) => {
   try {
     let css = new Set();
     let statusCode = 200;
-    const data = { title: '', description: '', style: '', script: assets.main.js, children: '' };
+    const data = { title: '', description: '', style: '', script: assets.main.js, children: '', csrf: res.locals.csrf };
 
     await UniversalRouter.resolve(routes, {
       path: req.path,
@@ -270,11 +271,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 /* eslint-disable no-console */
 models.sync().catch(err => console.error(err.stack)).then(() => {
   app.listen(port, () => {
-    logger.info('shuoriyu mode  = ', mode);
-    logger.info('shuoriyu debug = ', debug);
-    logger.info('God bless love....');
-    logger.info('The server is running at http://' + host + '/');
-    logger.info('');
+    console.log(`The server is running at http://localhost:${port}/`);
   });
 });
 /* eslint-enable no-console */

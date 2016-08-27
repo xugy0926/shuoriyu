@@ -15,6 +15,7 @@ import home from './home';
 import contact from './contact';
 import login from './login';
 import register from './register';
+import topicPage from './topicPage'
 import content from './content';
 import error from './error';
 
@@ -28,6 +29,7 @@ export default {
     contact,
     login,
     register,
+    topicPage,
 
     // place new routes before...
     content,

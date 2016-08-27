@@ -15,6 +15,7 @@ import run from './run';
 import runServer from './runServer';
 import webpackConfig from './webpack.config';
 import clean from './clean';
+import loaderBuild from './loader.build';
 import copy from './copy';
 import copyres from './copyres';
 
@@ -28,7 +29,7 @@ async function start() {
   // [begin][add] 首要先把数据保存一下
   await run(copyres);
   // [end][add]
-
+  await run(loaderBuild);
   await run(clean);
   await run(copy.bind(undefined, { watch: true }));
   await new Promise(resolve => {

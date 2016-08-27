@@ -7,27 +7,48 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Navigation.css';
 import Link from '../Link';
+import { Nav, Navbar, NavBrand, NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
+import history from '../../core/history';
 
-function Navigation({ className }) {
-  return (
-    <div className={cx(s.root, className)} role="navigation">
-      <Link className={s.link} to="/about">About</Link>
-      <Link className={s.link} to="/contact">Contact</Link>
-      <span className={s.spacer}> | </span>
-      <Link className={s.link} to="/login">Log in</Link>
-      <span className={s.spacer}>or</span>
-      <Link className={cx(s.link, s.highlight)} to="/register">Sign up</Link>
-    </div>
-  );
+class Navigation extends Component {
+
+  static propTypes = {
+    className: PropTypes.string
+  }
+
+  _onLogin() {
+    history.push('/login');
+  }
+
+  _onLogout() {
+    history.push('/logout');
+  }
+
+  render() { 
+    return (
+      <Navbar>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <Link to="/">说日语</Link>
+          </Navbar.Brand>
+          <Navbar.Toggle />
+        </Navbar.Header>
+        <Navbar.Collapse>
+          <Nav>
+            <NavItem eventKey={1} onClick={this._onLogin}>Log in</NavItem>
+            <NavItem eventKey={1} onClick={this._onLogout}>Log out</NavItem>
+          </Nav>
+          <Nav pullRight>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+    );
+  }
 }
-
-Navigation.propTypes = {
-  className: PropTypes.string,
-};
 
 export default withStyles(s)(Navigation);

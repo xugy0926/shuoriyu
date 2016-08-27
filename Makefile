@@ -8,7 +8,7 @@ NPM_REGISTRY = ""
 all: test
 
 install:
-	@npm install $(NPM_REGISTRY)
+	@cnpm install
 
 pretest:
 	@if ! test -f config.js; then \
@@ -37,16 +37,13 @@ test-cov cov: install pretest
 		--timeout $(TEST_TIMEOUT) \
 		$(TESTS)
 
-loader-builder:
-	@./node_modules/loader-builder/bin/builder ./src/server/views ./src/server
+build-release:
+	@npm run build --release
 
-start-development:
-	@node ./build/server.js
+start-production: install build-release
+	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M
 
-start-production: install loader-builder
-	@MODE=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M
-
-restart: install loader-builder
+restart: install build-release
 	@./node_modules/.bin/pm2 restart "shuoriyu"
 
 stop:

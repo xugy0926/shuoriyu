@@ -1,0 +1,27 @@
+
+.item {
+	padding: 2px 0 2px 40px;
+	position: relative;
+}
+
+.item .index {
+    position: absolute;
+    width: 30px;
+    text-align: right;
+    left: 0;
+    top: 4px;
+}
+
+.item p {
+	margin: 2px 0;
+}
+
+.item .index, .item .title:visited {
+	color: #828282;
+}
+
+a {
+	color: #000;
+	cursor: pointer;
+	text-decoration: none;
+}

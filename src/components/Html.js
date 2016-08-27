@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { analytics } from '../config';
 
-function Html({ title, description, style, script, children }) {
+function Html({ title, description, style, script, children, csrf }) {
   return (
     <html className="no-js" lang="">
       <head>
@@ -10,12 +10,25 @@ function Html({ title, description, style, script, children }) {
         <title>{title}</title>
         <meta name="description" content={description} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta content="_csrf" name="csrf-param"/>
+        <meta content={csrf} name="csrf-token"/>
         <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+        <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
         <style id="css" dangerouslySetInnerHTML={{ __html: style }} />
       </head>
       <body>
         <div id="app" dangerouslySetInnerHTML={{ __html: children }} />
         {script && <script src={script} />}
+        {analytics.google.trackingId &&
+          <script
+            dangerouslySetInnerHTML={{ __html:
+            'window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;' +
+            `ga('create','${analytics.google.trackingId}','auto');ga('send','pageview')` }}
+          />
+        }
+        {analytics.google.trackingId &&
+          <script src="https://www.google-analytics.com/analytics.js" async defer />
+        }
       </body>
     </html>
   );
