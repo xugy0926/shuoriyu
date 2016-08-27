@@ -1,12 +1,12 @@
-var config = require('../config');
+var { redisInfo } = require('../../config');
 var Redis = require('ioredis');
 var logger = require('./logger')
 
 var client = new Redis({
-  port: config.redis_port,
-  host: config.redis_host,
-  db: config.redis_db,
-  password: config.redis_password,
+  port: redisInfo.port,
+  host: redisInfo.host,
+  db: redisInfo.db,
+  password: redisInfo.password,
 });
 
 client.on('error', function (err) {
