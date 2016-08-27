@@ -18,7 +18,7 @@ export const debug = _debug === 'yes' ? true : false;
 
 export const mini_assets = !debug;
 
-export const mongodbUrl = debug || node_env === 'development' ? 'mongodb://127.0.0.1/shuoriyu_club_test_db' : 'mongodb://127.0.0.1/shuoriyu_club_product';
+export const mongodbUrl = debug || node_env === 'development' ? 'mongodb://127.0.0.1/shuoriyu_club_test_db' : 'mongodb://192.168.0.2/shuoriyu_club_product';
 export const databaseUrl = process.env.DATABASE_URL || 'sqlite:database.sqlite';
 
 export const redisInfo = {
