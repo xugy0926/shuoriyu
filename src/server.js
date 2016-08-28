@@ -28,7 +28,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, node_env, debug, port, auth } from './config';
+import { host, node_env, debug, port, auth, redisInfo } from './config';
 
 
 var serverConfig = require('./server/config');
@@ -125,10 +125,10 @@ app.use(compress());
 app.use(session({
   secret: serverConfig.session_secret,
   store: new RedisStore({
-    port: serverConfig.redis_port,
-    host: serverConfig.redis_host,
-    db: serverConfig.redis_db,
-    pass: serverConfig.redis_password,
+    port: redisInfo.port,
+    host: redisInfo.host,
+    db: redisInfo.db,
+    pass: redisInfo.password,
   }),
   resave: false,
   saveUninitialized: false,
