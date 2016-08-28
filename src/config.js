@@ -11,22 +11,34 @@
 
 export const port = process.env.PORT || 3000;
 export const host = process.env.HOST ?  process.env.HOST + `/${port}` : `localhost:${port}`;
-export const node_env = process.env.NODE_ENV || 'development';
+export const node_env = process.env.NODE_ENV;
 
 let _debug = process.env.DEBUG || 'yes';
 export const debug = _debug === 'yes' ? true : false;
 
 export const mini_assets = !debug;
 
-export const mongodbUrl = debug || node_env === 'development' ? 'mongodb://127.0.0.1/shuoriyu_club_test_db' : 'mongodb://192.168.0.2/shuoriyu_club_product';
+export const mongodbUrl = (!debug && node_env === 'production') ? 'mongodb://192.168.0.2/shuoriyu_club_product' : 'mongodb://127.0.0.1/shuoriyu_club_test_db';
 export const databaseUrl = process.env.DATABASE_URL || 'sqlite:database.sqlite';
 
 export const redisInfo = {
-  host: debug || node_env === 'development' ? '127.0.0.1' : '192.168.0.3',
+  host: (!debug && node_env === 'production') ? '192.168.0.3' : '127.0.0.1',
   port: 6379,
   db: 0,
   password: '',
 };
+
+console.log('############## env ####################');
+
+console.log('## node_env = ' + node_env);
+console.log('## debug = ' + debug);
+console.log('## host = ' + host);
+console.log('## port = ' + port);
+console.log('## mongodbUrl = ' + mongodbUrl);
+console.log('## redisInfo host = ' + redisInfo.host);
+console.log('## redisInfo port = ' + redisInfo.port);
+
+console.log('#######################################');
 
 export const analytics = {
 

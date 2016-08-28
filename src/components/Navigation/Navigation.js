@@ -12,7 +12,8 @@ import cx from 'classnames';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Navigation.css';
 import Link from '../Link';
-import { Nav, Navbar, NavBrand, NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
+import { Nav, Navbar, NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
+import { Header, Brand, Toggle, Collapse } from 'react-bootstrap/lib/Navbar'
 import history from '../../core/history';
 
 class Navigation extends Component {
@@ -29,23 +30,23 @@ class Navigation extends Component {
     history.push('/logout');
   }
 
-  render() { 
+  render() {
     return (
       <Navbar>
-        <Navbar.Header>
-          <Navbar.Brand>
+        <Header>
+          <Brand>
             <Link to="/">说日语</Link>
-          </Navbar.Brand>
-          <Navbar.Toggle />
-        </Navbar.Header>
-        <Navbar.Collapse>
+          </Brand>
+          <Toggle />
+        </Header>
+        <Collapse>
           <Nav>
             <NavItem eventKey={1} onClick={this._onLogin}>Log in</NavItem>
             <NavItem eventKey={1} onClick={this._onLogout}>Log out</NavItem>
           </Nav>
           <Nav pullRight>
           </Nav>
-        </Navbar.Collapse>
+        </Collapse>
       </Navbar>
     );
   }

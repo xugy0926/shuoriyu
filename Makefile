@@ -41,7 +41,7 @@ build-release:
 	@npm run build --release
 
 start-production: install build-release
-	@NODE_ENV=production DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M
+	@DEBUG=no PORT=80 HOST=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M
 
 restart: install build-release
 	@./node_modules/.bin/pm2 restart "shuoriyu"

@@ -4,6 +4,7 @@ var Message    = require('../proxy').Message;
 var config     = require('../config');
 var eventproxy = require('eventproxy');
 var UserProxy  = require('../proxy').User;
+import { debug } from '../../config';
 
 /**
  * 需要管理员权限
@@ -66,7 +67,7 @@ exports.authUser = function (req, res, next) {
   // Ensure current_user always has defined.
   res.locals.current_user = null;
 
-  if (config.debug && req.cookies['mock_user']) {
+  if (debug && req.cookies['mock_user']) {
     var mockUser = JSON.parse(req.cookies['mock_user']);
     req.session.user = new UserModel(mockUser);
     if (mockUser.is_admin) {
