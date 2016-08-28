@@ -18,8 +18,6 @@ var index = function (req, res, next) {
   var limit    = Number(req.query.limit) || config.list_topic_count;
   var mdrender = req.query.mdrender === 'false' ? false : true;
 
-  console.log('mdrender = ' + mdrender);
-
   var query = {};
   if (tab && tab !== 'all') {
     if (tab === 'good') {
@@ -83,7 +81,6 @@ var show = function (req, res, next) {
 
     if (mdrender) {
       topic.content = renderHelper.markdown(at.linkUsers(topic.content));
-      console.log('content' + topic.content);
     }
     topic.author = _.pick(author, ['loginname', 'avatar_url']);
 
@@ -140,7 +137,6 @@ var showPage = function (req, res, next) {
 
     if (mdrender) {
       topic.content = renderHelper.markdown(at.linkUsers(topic.content));
-      console.log('content' + topic.content);
     }
     topic.author = _.pick(author, ['loginname', 'avatar_url']);
 
@@ -167,7 +163,6 @@ var showPage = function (req, res, next) {
   ep.all('full_topic', 'is_collect', function (full_topic, is_collect) {
     full_topic.is_collect = !!is_collect;
 
-    console.log('full_topic = ' + full_topic.linkedContent);
     res.render('mobile/topic', {success: true, topic: full_topic, rn: true});
   })
 

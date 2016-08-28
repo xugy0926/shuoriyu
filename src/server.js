@@ -138,16 +138,16 @@ app.use(session({
 app.use(serverAuth.authUser);
 app.use(serverAuth.blockUser());
 
-if (!debug) {
-  app.use(function (req, res, next) {
-    if (req.path === '/api' || req.path.indexOf('/api') === -1) {
-      csurf()(req, res, next);
-      return;
-    }
-    next();
-  });
-  app.set('view cache', true);
-}
+// if (!debug) {
+//   app.use(function (req, res, next) {
+//     if (req.path === '/api' || req.path.indexOf('/api') === -1) {
+//       csurf()(req, res, next);
+//       return;
+//     }
+//     next();
+//   });
+//   app.set('view cache', true);
+// }
 
 _.extend(app.locals, {
   config: serverConfig,
