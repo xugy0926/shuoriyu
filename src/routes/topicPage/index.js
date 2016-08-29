@@ -8,8 +8,7 @@ export default {
   path: '/topic/:id',
 
   async action({path}) {
-  	console.log('path = ' + path);
-    const resp = await fetch( 'http://' + host + '/api/v1' + path);
+    const resp = await fetch('/api/v1' + path);
     const { success, data } = await resp.json();
     if (!success || !data) throw new Error('Failed to load the topic.');
     return <TopicPage topic={data} />;

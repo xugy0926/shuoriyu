@@ -1,4 +1,3 @@
-var { mode, debug } = require('../../config');
 import fs from 'fs';
 var log4js = require('log4js');
 
@@ -10,6 +9,6 @@ log4js.configure({
 });
 
 var logger = log4js.getLogger('cheese');
-logger.setLevel( debug && mode === 'development' ? 'DEBUG' : 'ERROR')
+logger.setLevel( process.env.NODE_ENV !== 'production' ? 'DEBUG' : 'ERROR')
 
 module.exports = logger;

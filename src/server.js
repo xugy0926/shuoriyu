@@ -28,8 +28,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, node_env, debug, port, auth, redisInfo } from './config';
-
+import { host, debug, port, auth, redisInfo } from './config';
 
 var serverConfig = require('./server/config');
 if (!debug && serverConfig.oneapm_key) {
@@ -198,7 +197,7 @@ app.use('/graphql', expressGraphQL(req => ({
   schema,
   graphiql: true,
   rootValue: { request: req },
-  pretty: node_env !== 'production',
+  pretty: process.env.NODE_ENV !== 'production',
 })));
 
 // routes
@@ -271,7 +270,7 @@ app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
 /* eslint-disable no-console */
 models.sync().catch(err => console.error(err.stack)).then(() => {
   app.listen(port, () => {
-    console.log(`The server is running at ${host}/`);
+    console.log(`The server is running at http://localhost:${port}/`);
   });
 });
 /* eslint-enable no-console */
