@@ -10,7 +10,7 @@
 /* eslint-disable max-len */
 
 export const port = process.env.PORT || 3000;
-export const host = process.env.HOST ?  process.env.HOST + `:${port}` : `localhost:${port}`;
+export const host = process.env.HOST ?  'http://' + process.env.HOST + `:${port}` : `http://localhost:${port}`;
 export const node_env = process.env.NODE_ENV;
 
 let _debug = process.env.DEBUG || 'yes';
