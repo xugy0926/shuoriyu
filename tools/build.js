@@ -20,8 +20,8 @@ import loaderBuild from './loader.build';
  * format and copies it to the output (build) folder.
  */
 async function build() {
-  await run(clean);
   await run(loaderBuild);
+  await run(clean);
   await run(copy);
     // [begin][add] 首要先把数据保存一下
   await run(copyres);
