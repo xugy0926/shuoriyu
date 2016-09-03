@@ -12,6 +12,8 @@ import clean from './clean';
 import copy from './copy';
 import bundle from './bundle';
 import render from './render';
+import copyres from './copyres';
+import loaderBuild from './loader.build';
 
 /**
  * Compiles the project from source files into a distributable
