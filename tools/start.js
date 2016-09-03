@@ -26,11 +26,11 @@ const DEBUG = !process.argv.includes('--release');
  * synchronizing URLs, interactions and code changes across multiple devices.
  */
 async function start() {
-  // [begin][add] 首要先把数据保存一下
+  await run(clean);
+    // [begin][add] 首要先把数据保存一下
   await run(copyres);
   // [end][add]
   await run(loaderBuild);
-  await run(clean);
   await run(copy.bind(undefined, { watch: true }));
   await new Promise(resolve => {
     // Patch the client-side bundle configurations
