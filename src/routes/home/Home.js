@@ -33,7 +33,7 @@ class Home extends Component {
 
   render() {
     return (
-      <Col className="col-sm-8 col-sm-offset-2">
+      <Col class="col-sm-8 col-sm-offset-2" className={s.root}>
         <ul className={s.news}>
           {this.props.topics.map((item, index) => (
             <TopicRow key={item.id} index={index+1} item={item}/>

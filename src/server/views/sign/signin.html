@@ -10,7 +10,7 @@
     <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
     <button class='btn btn-primary btn-lg btn-block' v-on:click="submit">登录</button>
     <a class="btn btn-link" href="/auth/github">通过 GitHub 登录</a>
-    <a class="btn btn-link" href='/search_pass'>忘记密码了?</a>
+    <a class="btn btn-link" href='/cms/search_pass'>忘记密码了?</a>
   </div>
 </div>
 <script>
@@ -24,7 +24,7 @@ var vue = new Vue({
   },
   methods: {
     submit: function(event) {
-      $.post('/signin', { _csrf: $('#_csrf').val(), name: this.username, pass: this.password }, function (result) {
+      $.post('/cms/signin', { _csrf: $('#_csrf').val(), name: this.username, pass: this.password }, function (result) {
         if (!result.success) {
           vue.errorMsg = result.error;
         } else {

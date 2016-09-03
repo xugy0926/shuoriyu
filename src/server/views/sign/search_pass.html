@@ -31,7 +31,7 @@
         vue.errorMsg = '';
         vue.successMsg = '';
 
-        $.post('/search_pass', {email: vue.email}, function (result) {
+        $.post('/cms/search_pass', {email: vue.email}, function (result) {
           console.log(result.message);
           if (!result.success) {
             vue.errorMsg = result.message;

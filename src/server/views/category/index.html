@@ -43,7 +43,7 @@
     },
     methods: {
       getCategories: function() {
-        $.get('/categories', function (result) {
+        $.get('/cms/categories', function (result) {
           if (!result.success) {
             return;
           }
@@ -52,7 +52,7 @@
         });
       },
       onDelete: function(id) {
-        $.post('/category/' + id + '/delete', {cid: id}, function (result) {
+        $.post('/cms/category/' + id + '/delete', {cid: id}, function (result) {
           if (!result.success) {
             console.log(result.message);
             return;
@@ -66,7 +66,7 @@
         });
       },
       onAdd: function() {
-        $.post('/category/add', { _csrf: $('#_csrf').val(), key: vue.key, text: vue.value}, function (result) {
+        $.post('/cms/category/add', { _csrf: $('#_csrf').val(), key: vue.key, text: vue.value}, function (result) {
           if (!result.success) {
             console.log(result.message);
             return;

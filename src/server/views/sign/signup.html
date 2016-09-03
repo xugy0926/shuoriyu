@@ -37,11 +37,11 @@
     },
     methods: {
       submit: function(event) {
-        $.post('/signup', { _csrf: $('#_csrf').val(), loginname: this.username, pass: this.pass, re_pass: this.re_pass, email: this.email }, function (result) {
+        $.post('/cms/signup', { _csrf: $('#_csrf').val(), loginname: this.username, pass: this.pass, re_pass: this.re_pass, email: this.email }, function (result) {
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
-            location.href = '/signin';
+            location.href = '/cms/signin';
           }
         });
       }

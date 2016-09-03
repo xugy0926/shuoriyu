@@ -41,8 +41,7 @@ class Navigation extends Component {
         </Header>
         <Collapse>
           <Nav>
-            <NavItem eventKey={1} onClick={this._onLogin}>Log in</NavItem>
-            <NavItem eventKey={1} onClick={this._onLogout}>Log out</NavItem>
+
           </Nav>
           <Nav pullRight>
           </Nav>

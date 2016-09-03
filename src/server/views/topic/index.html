@@ -9,7 +9,7 @@
         发布于 <%= topic.create_at_ago() %>
       </span>
       <span>
-        作者 <a href="/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
+        作者 <a href="/cms/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
       </span>
       <span>
         <%= topic.visit_count %> 次浏览
@@ -69,7 +69,7 @@
   </div>
 
 
-  <% if (current_user && typeof(topic) !== 'undefined') { %>
+  <% if (typeof(current_user) !== 'undefined' && current_user) { %>
   <div class='panel panel-default'>
     <div class='panel-heading'>
       <span class='col_fade'>添加回复</span>
@@ -78,25 +78,13 @@
         <div class='markdown_editor in_editor'>
           <div class='markdown_in_editor'>
             <textarea class='editor' name='content' rows='8' v-model="content"></textarea>
-            <button class="btn btn-default" v-on:click="onReply">提交</button>
           </div>
         </div>
+        <button class="btn btn-default" v-on:click="onReply">提交</button>
         <input type='hidden' name='_csrf' id="_csrf" value='<%= csrf %>'/>
     </div>
   </div>
   <% } %>
-</div>
-
-<div class="replies_history">
-  <div class="inner_content"></div>
-  <div class="anchor"></div>
-</div>
-
-<!-- 预览模态对话框 -->
-<div class="modal fade" id="preview-modal">
-  <div class="modal-body" style="max-height: initial;">
-    <img src="" alt="点击内容或者外部自动关闭图片预览" id="preview-image">
-  </div>
 </div>
 
 <!-- markdown editor -->
@@ -104,30 +92,26 @@
 <script>
   $(document).ready(function () {
 
-    var editor = new Editor();
-    editor.render($('.editor')[0]);
-
     var vue = new Vue({
       el: '#app',
       data: {
         currentUserId: "",
         topicId: '',
-        replies: [],
+        replies: null,
         content: ''
       },
       methods: {
         getReplies: function() {
-          $.get('/' + vue.topicId + '/replies', function (result) {
+          $.get('/cms/' + vue.topicId + '/replies', function (result) {
             if (!result.success) {
               return;
             }
 
-            console.log(result.replies);
-            vue.replies = result.replies;
+            vue.replies = result.replies && result.replies.length === 0 ? null : result.replies;
           });
         },
         onReply: function () {
-          $.post('/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
+          $.post('/cms/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               alert(vue.errorMsg);
@@ -143,7 +127,7 @@
           editorDialog.init('编辑', atUser);
           editorDialog.show(function (editedContent) {
             if (editedContent) {
-              $.post('/' + vue.topicId + '/reply', {reply_id: replyId, content: editedContent}, function (result) {
+              $.post('/cms/' + vue.topicId + '/reply', {reply_id: replyId, content: editedContent}, function (result) {
                 if (!result.success) {
                   vue.errorMsg = result.message;
                   return;
@@ -159,7 +143,7 @@
           editorDialog.init('编辑', content);
           editorDialog.show(function (editedContent) {
             if (editedContent) {
-              $.post('/reply/' + replyId + '/edit', {reply_id: replyId, content: editedContent}, function (result) {
+              $.post('/cms/reply/' + replyId + '/edit', {reply_id: replyId, content: editedContent}, function (result) {
                 if (!result.success) {
                   vue.errorMsg = result.message;
                   return;
@@ -175,7 +159,7 @@
           });
         },
         onDeleteReply: function(replyId) {
-          $.post('/reply/' + replyId + '/delete', {reply_id: replyId}, function (result) {
+          $.post('/cms/reply/' + replyId + '/delete', {reply_id: replyId}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               return;
@@ -192,8 +176,13 @@
     });
 
     vue.topicId = '<%= typeof(topic) !== "undefined" && topic ? topic._id : "" %>';
-    vue.currentUserId = '<%= typeof(current_user) !== "undefined" ? current_user._id : "" %>';
+    vue.currentUserId = '<%= typeof(current_user) !== "undefined" && current_user ? current_user._id : "" %>';
+
+    if(vue.currentUserId) {
+      var editor = new Editor();
+      editor.render($('.editor')[0]);
+    }
+
     vue.getReplies();
   });
-
 </script>

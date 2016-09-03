@@ -29,7 +29,7 @@ var config = require('./config');
 var router = express.Router();
 
 // cms page
-router.get('/cms', site.index);
+router.get('/', site.index);
 router.get('/tabs', site.tabs);
 router.post('/topics', site.topics);
 

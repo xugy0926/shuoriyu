@@ -20,7 +20,7 @@ var _            = require('lodash');
 
 
 exports.index = function (req, res, next) {
-  res.render('cms/index',{tabs: config.tabs, pageTitle: '全部', navTab: 'topic'});
+  return res.render('cms/index',{tabs: config.tabs, pageTitle: '全部', navTab: 'topic'});
 }
 
 exports.tabs = function (req, res, next) {

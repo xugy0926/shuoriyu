@@ -13,6 +13,7 @@ import s from './App.css';
 import Navigation from '../Navigation';
 import Feedback from '../Feedback';
 import Footer from '../Footer';
+import { Col } from 'react-bootstrap';
 
 class App extends Component {
 
@@ -52,10 +53,10 @@ class App extends Component {
 
   render() {
     return !this.props.error ? (
-      <div className="container">
+      <Col className="container">
         <Navigation />
         {this.props.children}
-      </div>
+      </Col>
     ) : this.props.children;
   }
 

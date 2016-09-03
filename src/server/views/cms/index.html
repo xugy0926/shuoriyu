@@ -17,12 +17,12 @@
 
 <div class="col-sm-10">
   <ol class="breadcrumb">
-    <li><a href="/">Home</a></li>
+    <li><a href="/cms">Home</a></li>
     <li><a href="#">{{ pageTitle }}</a></li>
   </ol>
   <div class="panel panel-default">
     <div class="panel-body">
-      <a href='/topic/create' class="btn btn-primary btn-sm" role="button">添加文章</a>
+      <a href='/cms/topic/create' class="btn btn-primary btn-sm" role="button">添加文章</a>
     </div>
   </div>
 
@@ -37,8 +37,8 @@
     </thead>
     <tbody>
       <tr v-for="topic in topics">
-        <td style="width: 100px"><a href="/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
-        <td><a href='/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
+        <td style="width: 100px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
+        <td><a href='/cms/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
         <td style="width: 100px">{{topic.create_at}}</td>
         <td style="width: 100px">
           <div class="btn-group disabled">
@@ -46,7 +46,7 @@
               Action <span class="caret"></span>
             </button>
             <ul class="dropdown-menu disabled">
-              <li><a href='/topic/{{topic._id}}/edit'>编辑</a></li>
+              <li><a href='/cms/topic/{{topic._id}}/edit'>编辑</a></li>
               <li role="separator" class="divider"></li>
               <li v-if="topic.top"><a href="#">取消置顶</a></li>
               <li v-else><a href="#">置顶</a></li>
@@ -77,7 +77,7 @@
         this.getData();
       },
       getData: function() {
-        $.post('/topics?tab=' + this.selectedTab, function(result) {
+        $.post('/cms/topics?tab=' + this.selectedTab, function(result) {
           if (!result.success) {
             alert(result.error);
           } else {
@@ -113,14 +113,14 @@
       },
       onLock: function(topicId) {
         if (topicId && confirm('确定要锁定吗？')) {
-          $.get('/topic/' + topicId + '/lock', function(result) {
+          $.get('/cms/topic/' + topicId + '/lock', function(result) {
 
           });
         }
       },
       onDelete: function(topicId) {
         if (topicId && confirm('确定要删除吗？')) {
-          $.post('/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
+          $.post('/cms/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
             if (!result.success) {
               alert(result.message);
             } else {
