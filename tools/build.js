@@ -21,11 +21,11 @@ import loaderBuild from './loader.build';
  */
 async function build() {
   await run(clean);
+  await run(loaderBuild);
   await run(copy);
     // [begin][add] 首要先把数据保存一下
   await run(copyres);
   // [end][add]
-  await run(loaderBuild);
   await run(bundle);
 
   if (process.argv.includes('--static')) {
