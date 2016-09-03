@@ -28,7 +28,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, debug, port, auth, redisInfo } from './config';
+import { host, debug, port, auth, redisInfo, mini_assets } from './config';
 
 var serverConfig = require('./server/config');
 if (!debug && serverConfig.oneapm_key) {
@@ -62,7 +62,7 @@ var bytes = require('bytes');
 // assets
 var serverAssets = {};
 
-if (serverConfig.mini_assets) {
+if (mini_assets) {
   try {
     serverAssets = require('./server/assets.json');
   } catch (e) {
@@ -147,6 +147,8 @@ app.use(serverAuth.blockUser());
 //   });
 //   app.set('view cache', true);
 // }
+
+serverConfig.mini_assets = mini_assets;
 
 _.extend(app.locals, {
   config: serverConfig,
