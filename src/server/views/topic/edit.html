@@ -1,7 +1,7 @@
 <input type="hidden" id="topic-id" value="<%= typeof(topic_id) !== 'undefined' ? topic_id : '' %>"/>
 <div class="col-md-8 col-md-offset-2">
   <ol class="breadcrumb">
-    <li><a href="/">主页</a></li>
+    <li><a href="/cms">主页</a></li>
     <li class="active">{{ pageTitle }}</li>
   </ol>
 
@@ -43,7 +43,7 @@
     data: {
       topicId: '',
       title: '',
-      submitUrl: '/topic/create',
+      submitUrl: '/cms/topic/create',
       pageTitle: '新建',
       topic: '',
       tabs: [],
@@ -55,7 +55,7 @@
     },
     methods: {
       getTabs: function() {
-        $.get('/tabs', function(result) {
+        $.get('/cms/tabs', function(result) {
           if (result.success) {
             var tabs = result.tabs;
             var tabsTpl = [];
@@ -69,7 +69,7 @@
         });
       },
       getCategories: function() {
-        $.get('/categories', function(result) {
+        $.get('/cms/categories', function(result) {
           if (result.success) {
             var categories = result.categories;
             var categoriesTpl = [];
@@ -83,7 +83,7 @@
         });
       },
       getTopic: function() {
-        $.get('/topic_data/' + this.topicId, function (result) {
+        $.get('/cms/topic_data/' + this.topicId, function (result) {
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
@@ -124,7 +124,7 @@
   var topicId = $('#topic-id').val();
   if (topicId) {
     vue.topicId = topicId;
-    vue.submitUrl = '/topic/' + topicId + '/edit';
+    vue.submitUrl = '/cms/topic/' + topicId + '/edit';
     vue.pageTitle = '编辑';
     vue.getTopic();
   }
