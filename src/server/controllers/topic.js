@@ -178,7 +178,7 @@ exports.put = function (req, res, next) {
     var proxy = new EventProxy();
 
     proxy.all('score_saved', function () {
-      res.json({success: 'success', url: '/topic_page/' + topic._id});
+      res.json({success: 'success', url: '/cms/topic_page/' + topic._id});
     });
     proxy.fail(next);
     User.getUserById(req.session.user._id, proxy.done(function (user) {
@@ -247,7 +247,7 @@ exports.update = function (req, res, next) {
         //发送at消息
         at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
 
-        res.json({success: 'success', url: '/topic_page/' + topic._id});
+        res.json({success: 'success', url: '/cms/topic_page/' + topic._id});
 
       });
     } else {
