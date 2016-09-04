@@ -31,18 +31,22 @@
     <tr>
       <th>作者</th>
       <th>标题</th>
+      <th>Tab</th>
+      <th>Category</th>
       <th>时间</th>
       <th>操作</th>
     </tr>
     </thead>
     <tbody>
       <tr v-for="topic in topics">
-        <td style="width: 100px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
+        <td style="width: 80px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
         <td><a href='/cms/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
-        <td style="width: 100px">{{topic.create_at}}</td>
-        <td style="width: 100px">
+        <td style="width: 80px">{{topic.tabValue}}</td>
+        <td style="width: 80px">{{topic.categoryValue}}</td>
+        <td style="width: 80px">{{topic.create_at}}</td>
+        <td style="width: 80px">
           <div class="btn-group disabled">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Action <span class="caret"></span>
             </button>
             <ul class="dropdown-menu disabled">
@@ -69,9 +73,20 @@
       pageTitle: '全部',
       tabs: [],
       selectedTab: 'all',
-      topics: []
+      topics: [],
+      categories: []
     },
     methods: {
+      getCategories: function() {
+        $.get('/cms/categories', function (result) {
+          if (!result.success) {
+            return;
+          }
+
+          vue.categories = result.categories;
+          vue.getData();
+        });
+      },
       onTab: function(event) {
         this.selectedTab = event.target.value;
         this.getData();
@@ -81,8 +96,9 @@
           if (!result.success) {
             alert(result.error);
           } else {
-            vue.topics = result.topics;
+            // vue.topics = result.topics;
             vue.buildTabs(result.tabs);
+            vue.updateTopics(result.topics);
           }
         });
       },
@@ -94,6 +110,27 @@
 
         vue.tabs = tabsTpl;
         vue.updateSelectedTab();
+      },
+      updateTopics: function(topics) {
+        topics.forEach(function(item) {
+          let index1 = _.findIndex(vue.tabs, function(tab) {
+            return tab.key === item.tab;
+          });
+
+          if (index1 >= 0) {
+            item.tabValue = vue.tabs[index1].value;
+          }
+
+          let index2 = _.findIndex(vue.categories, function(category) {
+            return category.key === item.category;
+          });
+
+          if (index2 >=0 ) {
+            item.categoryValue = vue.categories[index2].text;
+          }
+        });
+
+        vue.topics = topics;
       },
       updateSelectedTab: function() {
         vue.tabs.forEach(function(item) {
@@ -136,5 +173,5 @@
     }
   });
 
-  vue.getData();
+  vue.getCategories();
 </script>
