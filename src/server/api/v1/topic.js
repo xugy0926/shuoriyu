@@ -26,6 +26,7 @@ var index = function (req, res, next) {
       query.tab = tab;
     }
   }
+  
   query.deleted = false;
   var options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
 

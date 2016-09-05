@@ -107,11 +107,13 @@ router.get('/category', category.index);
 router.get('/categories', category.getCategories);
 router.post('/category/add', auth.adminRequired, category.addCategory);
 router.post('/category/:cid/delete', auth.adminRequired, category.deleteCategory);
+router.post('/category/:cid/update',  category.updateCategory);
 
 // tab
 router.get('/tabs', category.getTabs);
 router.post('/tab/add', auth.adminRequired, category.addTab);
 router.post('/tab/:tid/delete', auth.adminRequired, category.deleteTab);
+router.post('/tab/:tid/update',  category.updateTab);
 
 // static
 router.get('/about', staticController.about);

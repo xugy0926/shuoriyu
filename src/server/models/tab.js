@@ -6,6 +6,7 @@ var TabSchema = new Schema({
   key: { type: String },
   value: { type: String },
   deleted: {type: Boolean, default: false},
+  enable: {type: Boolean, default: false},
   create_at: { type: Date, default: Date.now }
 });
 TabSchema.plugin(BaseModel);

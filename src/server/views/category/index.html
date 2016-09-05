@@ -7,78 +7,118 @@
       Tab
     </div>
     <div class="panel-body category">
-      <div class="btn-group category" v-for="tab in tabs">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{tab.value}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a>{{tab.key}}</a></li>
-          <li><a v-on:click="onDeleteTab(tab._id)">删除</a></li>
-        </ul>
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th>key</th>
+          <th>value</th>
+          <th>status</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr v-for="tab in tabs">
+            <td style="width: 80px">{{tab.key}}</td>
+            <td style="width: 80px">{{tab.value}}</td>
+            <td style="width: 80px">{{tab.enable}}</td>
+            <td style="width: 80px">
+              <div class="btn-group disabled">
+                <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu disabled">
+                  <li v-if="tab.enable"><a v-on:click="onTabEnable($index, tab._id, false)">置为无效</a></li>
+                  <li v-else><a v-on:click="onTabEnable($index, tab._id, true)">置为有效</a></li>
+                  <li><a v-on:click="onDeleteTab(tab._id)">删除</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          添加
+        </div>
+        <div class="panel-body">
+          <div class="form-inline">
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Key</div>
+                <input class='form-control' id='tabKey' name='tabKey' size='30' type='text' v-model="tabKey" placeholder=""/>
+              </div>
+            </div>
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Value</div>
+                <input class='form-control' id='tabValue' name='tabValue' size='30' type='text' v-model="tabValue" placeholder=""/>
+              </div>
+            </div>
+            <button class="btn btn-default" v-on:click="onAddTab">添加</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      添加
-    </div>
-    <div class="panel-body">
-      <div class="form-inline">
-        <div class='form-group'>
-          <div class="input-group">
-            <div class="input-group-addon">Key</div>
-            <input class='form-control' id='tabKey' name='tabKey' size='30' type='text' v-model="tabKey" placeholder=""/>
-          </div>
-        </div>
-        <div class='form-group'>
-          <div class="input-group">
-            <div class="input-group-addon">Value</div>
-            <input class='form-control' id='tabValue' name='tabValue' size='30' type='text' v-model="tabValue" placeholder=""/>
-          </div>
-        </div>
-        <button class="btn btn-default" v-on:click="onAddTab">添加</button>
-      </div>
-      
-    </div>
-  </div>
+  
 
   <div class="panel panel-default">
     <div class="panel-heading">
       Cagegory
     </div>
     <div class="panel-body category">
-      <div class="btn-group category" v-for="category in categories">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{category.value}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li><a>{{category.key}}</a></li>
-          <li><a v-on:click="onDeleteCategory(category._id)">删除</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      添加
-    </div>
-    <div class="panel-body">
-      <div class="form-inline">
-        <div class='form-group'>
-          <div class="input-group">
-            <div class="input-group-addon">Key</div>
-            <input class='form-control' id='categoryKey' name='categoryKey' size='30' type='text' v-model="categoryKey" placeholder=""/>
-          </div>
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th>key</th>
+          <th>value</th>
+          <th>status</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr v-for="category in categories">
+            <td style="width: 80px">{{category.key}}</td>
+            <td style="width: 80px">{{category.value}}</td>
+            <td style="width: 80px">{{category.enable}}</td>
+            <td style="width: 80px">
+              <div class="btn-group disabled">
+                <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu disabled">
+                  <li v-if="category.enable"><a v-on:click="onCategoryEnable($index, category._id, false)">置为无效</a></li>
+                  <li v-else><a v-on:click="onCategoryEnable($index, category._id, true)">置为有效</a></li>
+                  <li><a v-on:click="onDeleteCategory(category._id)">删除</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          添加
         </div>
-        <div class='form-group'>
-          <div class="input-group">
-            <div class="input-group-addon">Value</div>
-            <input class='form-control' id='categoryValue' name='categoryValue' size='30' type='text' v-model="categoryValue" placeholder=""/>
+        <div class="panel-body">
+          <div class="form-inline">
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Key</div>
+                <input class='form-control' id='categoryKey' name='categoryKey' size='30' type='text' v-model="categoryKey" placeholder=""/>
+              </div>
+            </div>
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Value</div>
+                <input class='form-control' id='categoryValue' name='categoryValue' size='30' type='text' v-model="categoryValue" placeholder=""/>
+              </div>
+            </div>
+            <button class="btn btn-default" v-on:click="onAddCategory">添加</button>
           </div>
+          
         </div>
-        <button class="btn btn-default" v-on:click="onAddCategory">添加</button>
       </div>
-      
     </div>
   </div>
 </div>
@@ -130,6 +170,15 @@
           vue.categories.push(result.category);
         });
       },
+      onCategoryEnable: function(index, id, enable) {
+        $.post('/cms/category/' + id + '/update', {enable: enable}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+        });
+        vue.categories[index].enable = enable;
+      },
       getTabs: function() {
         $.get('/cms/tabs', function (result) {
           if (!result.success) {
@@ -166,6 +215,16 @@
           vue.tabKey = '';
           vue.tabValue = '';
           vue.tabs.push(result.tab);
+        });
+      },
+      onTabEnable: function(index, id, enable) {
+        $.post('/cms/tab/' + id + '/update', {enable: enable}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.tabs[index].enable = enable;
         });
       }
     }

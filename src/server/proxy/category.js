@@ -9,8 +9,8 @@ exports.getCategory = function (opt, callback) {
   Category.findOne(opt, callback);
 }
 
-exports.getCategories = function (callback) {
-  Category.find({deleted: false}, callback);
+exports.getCategories = function (opt, callback) {
+  Category.find(opt, callback);
 };
 
 exports.newAndSave = function (key, value, callback) {

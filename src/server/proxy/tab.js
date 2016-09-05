@@ -9,8 +9,8 @@ exports.getTab = function (opt, callback) {
   Tab.findOne(opt, callback);
 }
 
-exports.getTabs = function (callback) {
-  Tab.find({deleted: false}, callback);
+exports.getTabs = function (opt, callback) {
+  Tab.find(opt, callback);
 };
 
 exports.newAndSave = function (key, value, callback) {

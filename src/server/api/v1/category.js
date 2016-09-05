@@ -4,7 +4,7 @@ var Category = require('../../proxy').Category;
 var Tab = require('../../proxy').Tab;
 
 exports.getCategories = function (req, res, next) {
-  Category.getCategories(function (err, categories) {
+  Category.getCategories({deleted: false, enable: true}, function (err, categories) {
     if (err) {
       res.json({success: false, message: '获取category错误'});
       return;
@@ -15,7 +15,7 @@ exports.getCategories = function (req, res, next) {
 }
 
 exports.getTabs = function (req, res, next) {
-  Tab.getTabs(function (err, tabs) {
+  Tab.getTabs({deleted: false, enable: true}, function (err, tabs) {
     if (err) {
       res.json({success: false, message: '获取tabs错误'});
       return;

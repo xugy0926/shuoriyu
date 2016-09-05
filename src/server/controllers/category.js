@@ -8,7 +8,7 @@ exports.index = function (req, res, next) {
 }
 
 exports.getCategories = function (req, res, next) {
-  Category.getCategories(function (err, categories) {
+  Category.getCategories({deleted: false}, function (err, categories) {
     if (err) {
       res.json({success: false, message: '获取category错误'});
       return;
@@ -21,7 +21,6 @@ exports.getCategories = function (req, res, next) {
 exports.addCategory = function (req, res, next) {
   var key = validator.trim(req.body.key);
   var value = validator.trim(req.body.value);
-  console.log('add category......');
 
   if (key === '' || value === '') {
     return res.json({success: false, message: '参数错误'});
@@ -70,8 +69,40 @@ exports.deleteCategory = function (req, res, next) {
   });
 }
 
+exports.updateCategory = function (req, res, next) {
+  var category_id = req.params.cid;
+  var enable = req.body.enable || false;
+  var key = req.body.key || '';
+  var value = req.body.value || '';
+
+  Category.getCategoryById(category_id, function(err, category) {
+    if (err) {
+      res.json({success: false, message: '获取tab错误'});
+      return;
+    }
+
+    if (!category) {
+      res.json({success: false, message: '获取tab错误'});
+      return;
+    }
+
+    category.enable = enable;
+
+    if (key) {
+      category.key = key;
+    }
+
+    if (value) {
+      category.value = value;
+    }
+
+    category.save();
+    res.json({success: true, message: '更新成功'});
+  });
+}
+
 exports.getTabs = function (req, res, next) {
-  Tab.getTabs(function (err, tabs) {
+  Tab.getTabs({deleted: false}, function (err, tabs) {
     if (err) {
       res.json({success: false, message: '获取tabs错误'});
       return;
@@ -129,5 +160,38 @@ exports.deleteTab = function (req, res, next) {
     tab.deleted = true;
     tab.save();
     res.json({success: true, message: '删除成功'});
+  });
+}
+
+
+exports.updateTab = function (req, res, next) {
+  var tab_id = req.params.tid;
+  var enable = req.body.enable || false;
+  var key = req.body.key || '';
+  var value = req.body.value || '';
+
+  Tab.getTabById(tab_id, function(err, tab) {
+    if (err) {
+      res.json({success: false, message: '获取tab错误'});
+      return;
+    }
+
+    if (!tab) {
+      res.json({success: false, message: '获取tab错误'});
+      return;
+    }
+
+    tab.enable = enable;
+    
+    if (key) {
+      tab.key = key;
+    }
+
+    if (value) {
+      tab.value = value;
+    }
+
+    tab.save();
+    res.json({success: true, message: '更新成功'});
   });
 }

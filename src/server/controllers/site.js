@@ -28,6 +28,8 @@ exports.topics = function (req, res, next) {
   page = page > 0 ? page : 1;
   var tab = req.query.tab || 'all';
 
+  
+
   var proxy = new eventproxy();
   proxy.fail(next);
 
@@ -48,39 +50,6 @@ exports.topics = function (req, res, next) {
     return topics;
   }));
 
-  // 取排行榜上的用户
-  cache.get('tops', proxy.done(function (tops) {
-    if (tops) {
-      proxy.emit('tops', tops);
-    } else {
-      User.getUsersByQuery(
-        {is_block: false},
-        { limit: 10, sort: '-score'},
-        proxy.done('tops', function (tops) {
-          cache.set('tops', tops, 60 * 1);
-          return tops;
-        })
-      );
-    }
-  }));
-  // END 取排行榜上的用户
-
-  // 取0回复的主题
-  cache.get('no_reply_topics', proxy.done(function (no_reply_topics) {
-    if (no_reply_topics) {
-      proxy.emit('no_reply_topics', no_reply_topics);
-    } else {
-      Topic.getTopicsByQuery(
-        { reply_count: 0, tab: {$ne: 'job'}},
-        { limit: 5, sort: '-create_at'},
-        proxy.done('no_reply_topics', function (no_reply_topics) {
-          cache.set('no_reply_topics', no_reply_topics, 60 * 1);
-          return no_reply_topics;
-        }));
-    }
-  }));
-  // END 取0回复的主题
-
   // 取分页数据
   var pagesCacheKey = JSON.stringify(query) + 'pages';
   cache.get(pagesCacheKey, proxy.done(function (pages) {
@@ -97,15 +66,13 @@ exports.topics = function (req, res, next) {
   // END 取分页数据
 
   var tabName = renderHelper.tabName(tab);
-  proxy.all('topics', 'tops', 'no_reply_topics', 'pages',
-    function (topics, tops, no_reply_topics, pages) {
+  proxy.all('topics', 'pages',
+    function (topics, pages) {
       res.json({
         success: 'success',
         topics: topics,
         current_page: page,
         list_topic_count: limit,
-        tops: tops,
-        no_reply_topics: no_reply_topics,
         pages: pages,
         tabs: config.tabs,
         tab: tab,
