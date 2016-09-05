@@ -30,7 +30,6 @@ var router = express.Router();
 
 // cms page
 router.get('/', site.index);
-router.get('/tabs', site.tabs);
 router.post('/topics', site.topics);
 
 // sitemap
@@ -101,11 +100,18 @@ router.post('/reply/:reply_id/delete', auth.userRequired, reply.delete); // 删�
 router.post('/reply/:reply_id/up', auth.userRequired, reply.up); // 为评论点赞
 router.post('/upload', auth.userRequired, topic.upload); //上传图片
 
-// category
+// category page
 router.get('/category', category.index);
+
+// category
 router.get('/categories', category.getCategories);
-router.post('/category/add', auth.adminRequired, category.add);
-router.post('/category/:cid/delete', auth.adminRequired, category.delete);
+router.post('/category/add', auth.adminRequired, category.addCategory);
+router.post('/category/:cid/delete', auth.adminRequired, category.deleteCategory);
+
+// tab
+router.get('/tabs', category.getTabs);
+router.post('/tab/add', auth.adminRequired, category.addTab);
+router.post('/tab/:tid/delete', auth.adminRequired, category.deleteTab);
 
 // static
 router.get('/about', staticController.about);

@@ -23,10 +23,6 @@ exports.index = function (req, res, next) {
   return res.render('cms/index',{tabs: config.tabs, pageTitle: '全部', navTab: 'topic'});
 }
 
-exports.tabs = function (req, res, next) {
-  res.json({success: 'success', tabs: config.tabs});
-}
-
 exports.topics = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
   page = page > 0 ? page : 1;

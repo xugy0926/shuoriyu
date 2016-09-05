@@ -38,7 +38,6 @@ exports.topicPage = function (req, res, next) {
   var ep = EventProxy.create(events,
     function (topic, other_topics, no_reply_topics, is_collect) {
       res.render('topic/index', {
-        tabs: config.tabs,
         topic: topic,
         author_other_topics: other_topics,
         no_reply_topics: no_reply_topics,

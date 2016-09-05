@@ -18,6 +18,7 @@ require('./reply');
 require('./topic_collect');
 require('./message');
 require('./category');
+require('./tab');
 
 exports.User         = mongoose.model('User');
 exports.Topic        = mongoose.model('Topic');
@@ -25,3 +26,4 @@ exports.Reply        = mongoose.model('Reply');
 exports.TopicCollect = mongoose.model('TopicCollect');
 exports.Message      = mongoose.model('Message');
 exports.Category     = mongoose.model('Category');
+exports.Tab          = mongoose.model('Tab');

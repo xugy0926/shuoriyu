@@ -13,8 +13,8 @@ var config            = require('./config');
 var router            = express.Router();
 
 //分类
-router.get('/tabs', topicController.tabs);
 router.get('/categories', categoryController.getCategories);
+router.get('/tabs', categoryController.getTabs);
 
 // 主题
 router.get('/topics', topicController.index);

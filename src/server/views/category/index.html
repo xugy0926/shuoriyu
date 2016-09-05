@@ -1,18 +1,19 @@
 <%- partial('../cms/_navtabs') %>
 
 <div class="col-sm-8 col-sm-offset-2">
+  <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
   <div class="panel panel-default">
     <div class="panel-heading">
-      Cagegory
+      Tab
     </div>
     <div class="panel-body category">
-      <div class="btn-group category" v-for="category in categories">
+      <div class="btn-group category" v-for="tab in tabs">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {{category.text}} <span class="caret"></span>
+          {{tab.value}} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li><a>{{category.key}}</a></li>
-          <li><a v-on:click="onDelete(category._id)">删除</a></li>
+          <li><a>{{tab.key}}</a></li>
+          <li><a v-on:click="onDeleteTab(tab._id)">删除</a></li>
         </ul>
       </div>
     </div>
@@ -22,13 +23,62 @@
       添加
     </div>
     <div class="panel-body">
-      <div class='form-group'>
-        <input class='form-control' id='key' name='key' size='30' type='test' v-model="key" placeholder=""/>
+      <div class="form-inline">
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Key</div>
+            <input class='form-control' id='tabKey' name='tabKey' size='30' type='text' v-model="tabKey" placeholder=""/>
+          </div>
+        </div>
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Value</div>
+            <input class='form-control' id='tabValue' name='tabValue' size='30' type='text' v-model="tabValue" placeholder=""/>
+          </div>
+        </div>
+        <button class="btn btn-default" v-on:click="onAddTab">添加</button>
       </div>
-      <div class='form-group'>
-        <input class='form-control' id='value' name='value' size='30' type='value' v-model="value" placeholder=""/>
+      
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Cagegory
+    </div>
+    <div class="panel-body category">
+      <div class="btn-group category" v-for="category in categories">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{category.value}} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a>{{category.key}}</a></li>
+          <li><a v-on:click="onDeleteCategory(category._id)">删除</a></li>
+        </ul>
       </div>
-      <button class="btn btn-default" v-on:click="onAdd">添加</button>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      添加
+    </div>
+    <div class="panel-body">
+      <div class="form-inline">
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Key</div>
+            <input class='form-control' id='categoryKey' name='categoryKey' size='30' type='text' v-model="categoryKey" placeholder=""/>
+          </div>
+        </div>
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Value</div>
+            <input class='form-control' id='categoryValue' name='categoryValue' size='30' type='text' v-model="categoryValue" placeholder=""/>
+          </div>
+        </div>
+        <button class="btn btn-default" v-on:click="onAddCategory">添加</button>
+      </div>
+      
     </div>
   </div>
 </div>
@@ -38,23 +88,28 @@
     el: '#app',
     data: {
       categories: [],
-      key: '',
-      value: ''
+      categoryKey: '',
+      categoryValue: '',
+      tabs: [],
+      tabKey: '',
+      tabValue: '',
+      errorMsg: ''
     },
     methods: {
       getCategories: function() {
         $.get('/cms/categories', function (result) {
           if (!result.success) {
+            vue.errorMsg = result.message;
             return;
           }
 
           vue.categories = result.categories;
         });
       },
-      onDelete: function(id) {
+      onDeleteCategory: function(id) {
         $.post('/cms/category/' + id + '/delete', {cid: id}, function (result) {
           if (!result.success) {
-            console.log(result.message);
+            vue.errorMsg = result.message;
             return;
           }
 
@@ -65,18 +120,57 @@
           vue.categories.$remove(vue.categories[index]);
         });
       },
-      onAdd: function() {
-        $.post('/cms/category/add', { _csrf: $('#_csrf').val(), key: vue.key, text: vue.value}, function (result) {
+      onAddCategory: function() {
+        $.post('/cms/category/add', { _csrf: $('#_csrf').val(), key: vue.categoryKey, value: vue.categoryValue}, function (result) {
           if (!result.success) {
-            console.log(result.message);
+            vue.errorMsg = result.message;
             return;
           }
 
           vue.categories.push(result.category);
+        });
+      },
+      getTabs: function() {
+        $.get('/cms/tabs', function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.categoryKey = '';
+          vue.categoryValue = '';
+          vue.tabs = result.tabs;
+        });
+      },
+      onDeleteTab: function(id) {
+        $.post('/cms/tab/' + id + '/delete', {cid: id}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          var index = _.findIndex(vue.tabs, function(tab) {
+            if (tab._id === id) return true;
+          });
+
+          vue.tabs.$remove(vue.tabs[index]);
+        });
+      },
+      onAddTab: function() {
+        $.post('/cms/tab/add', { _csrf: $('#_csrf').val(), key: vue.tabKey, value: vue.tabValue}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.tabKey = '';
+          vue.tabValue = '';
+          vue.tabs.push(result.tab);
         });
       }
     }
   });
 
   vue.getCategories();
+  vue.getTabs();
 </script>

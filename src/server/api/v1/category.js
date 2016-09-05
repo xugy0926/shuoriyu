@@ -1,6 +1,7 @@
 var validator = require('validator');
 
 var Category = require('../../proxy').Category;
+var Tab = require('../../proxy').Tab;
 
 exports.getCategories = function (req, res, next) {
   Category.getCategories(function (err, categories) {
@@ -13,15 +14,26 @@ exports.getCategories = function (req, res, next) {
   });
 }
 
+exports.getTabs = function (req, res, next) {
+  Tab.getTabs(function (err, tabs) {
+    if (err) {
+      res.json({success: false, message: '获取tabs错误'});
+      return;
+    }
+
+    res.json({success: true, tabs: tabs});
+  });
+}
+
 exports.add = function (req, res, next) {
   var key = validator.trim(req.body.key);
-  var text = validator.trim(req.body.text);
+  var value = validator.trim(req.body.value);
 
-  if (key === '' || text === '') {
+  if (key === '' || value === '') {
     return res.json({success: false, message: '参数错误'});
   }
 
-  var query = {"$or": [{key: key}, {text: text}]};
+  var query = {"$or": [{key: key}, {value: value}]};
   Category.getCategory(query, function (err, category) {
     if (err) {
       res.json({success: false, message: '添加错误'});
@@ -33,7 +45,7 @@ exports.add = function (req, res, next) {
       return;
     }
 
-    Category.newAndSave(key, text, function(err, category) {
+    Category.newAndSave(key, value, function(err, category) {
       if (err) {
         res.json({success: false, message: '添加错误'});
         return;

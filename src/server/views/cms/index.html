@@ -1,5 +1,5 @@
 <%- partial('./_navtabs') %>
-
+<div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
 <div class="col-sm-2">
   <div class="list-group">
     <button href="#" class="list-group-item disabled">
@@ -74,16 +74,29 @@
       tabs: [],
       selectedTab: 'all',
       topics: [],
-      categories: []
+      categories: [],
+      errorMsg: ''
     },
     methods: {
       getCategories: function() {
         $.get('/cms/categories', function (result) {
           if (!result.success) {
+            vue.errorMsg = result.message;
             return;
           }
 
           vue.categories = result.categories;
+          vue.getTabs();
+        });
+      },
+      getTabs: function() {
+        $.get('/cms/tabs', function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.buildTabs(result.tabs);
           vue.getData();
         });
       },
@@ -94,12 +107,11 @@
       getData: function() {
         $.post('/cms/topics?tab=' + this.selectedTab, function(result) {
           if (!result.success) {
-            alert(result.error);
-          } else {
-            // vue.topics = result.topics;
-            vue.buildTabs(result.tabs);
-            vue.updateTopics(result.topics);
+            vue.errorMsg = result.message;
+            return;
           }
+           
+          vue.updateTopics(result.topics);
         });
       },
       buildTabs: function(tabs) {
@@ -127,7 +139,7 @@
           });
 
           if (index2 >=0 ) {
-            item.categoryValue = vue.categories[index2].text;
+            item.categoryValue = vue.categories[index2].value;
           }
         });
 
@@ -160,7 +172,7 @@
         if (topicId && confirm('确定要删除吗？')) {
           $.post('/cms/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
             if (!result.success) {
-              alert(result.message);
+              vue.errorMsg = result.message;
             } else {
               var index = _.findIndex(vue.topics, function(topic) {
                 if (topic._id === topicId) return true;

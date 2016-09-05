@@ -13,10 +13,10 @@ exports.getCategories = function (callback) {
   Category.find({deleted: false}, callback);
 };
 
-exports.newAndSave = function (key, text, callback) {
+exports.newAndSave = function (key, value, callback) {
   var category  = new Category();
   category.key  = key;
-  category.text = text;
+  category.value = value;
 
   category.save(callback);
 };

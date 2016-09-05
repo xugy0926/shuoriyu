@@ -13,7 +13,9 @@
 
   <div class="form-group">
     <select class="form-control" v-model="selectedCategory">
-      <option v-for="category in categories" v-bind:value="category.key" selected="selectedCategory === category.key">{{ category.text }}</option>
+      <option v-for="category in categories" v-bind:value="category.key" selected="selectedCategory === category.key">
+      {{ category.value }}
+      </option>
     </select>
   </div>
 
@@ -56,7 +58,6 @@
     methods: {
       getTabs: function() {
         $.get('/cms/tabs', function(result) {
-          console.log(result);
           if (result.success) {
             var tabs = result.tabs;
             var tabsTpl = [];
@@ -64,8 +65,8 @@
               tabsTpl.push({key: tab.key, value: tab.value, selected: false});
             });
 
-            vue.tabs = tabsTpl;
             vue.selectedTab = tabsTpl.length > 0 ? tabsTpl[0].value : '';
+            vue.tabs = tabsTpl;
           }
         });
       },
@@ -75,11 +76,10 @@
             var categories = result.categories;
             var categoriesTpl = [];
             categories.forEach(function(category) {
-              categoriesTpl.push({key: category.key, text: category.text, selected: false});
+              categoriesTpl.push({key: category.key, value: category.value, selected: false});
             });
 
             vue.categories = categoriesTpl;
-            vue.selectedCategory = categoriesTpl.length > 0 ? categoriesTpl[0].key : '';
           }
         });
       },
