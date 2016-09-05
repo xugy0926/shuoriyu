@@ -147,18 +147,13 @@ exports.put = function (req, res, next) {
   var category = validator.trim(req.body.category);
   var content = validator.trim(req.body.content);
 
-  // 得到所有的 tab, e.g. ['ask', 'share', ..]
-  var allTabs = config.tabs.map(function (tPair) {
-    return tPair.key;
-  });
-
   // 验证
   var editError;
   if (title === '') {
     editError = '标题不能是空的。';
-  } else if (title.length < 5 || title.length > 100) {
+  } else if (title.length < 1 || title.length > 100) {
     editError = '标题字数太多或太少。';
-  } else if (!tab || allTabs.indexOf(tab) === -1) {
+  } else if (tab === '') {
     editError = '必须选择一个版块。';
   } else if (content === '') {
     editError = '内容不可为空';
