@@ -7,7 +7,7 @@
 
   <div class="form-group">
   <select class="form-control" v-model="selectedTab">
-    <option v-for="tab in tabs" v-bind:value="tab.value" selected="selectedTab === tab.value">{{ tab.text }}</option>
+    <option v-for="tab in tabs" v-bind:value="tab.key" selected="selectedTab === tab.key">{{ tab.value }}</option>
   </select>
   </div>
 
@@ -56,11 +56,12 @@
     methods: {
       getTabs: function() {
         $.get('/cms/tabs', function(result) {
+          console.log(result);
           if (result.success) {
             var tabs = result.tabs;
             var tabsTpl = [];
             tabs.forEach(function(tab) {
-              tabsTpl.push({value: tab[0], text: tab[1], selected: false});
+              tabsTpl.push({key: tab.key, value: tab.value, selected: false});
             });
 
             vue.tabs = tabsTpl;
@@ -97,7 +98,7 @@
       },
       submit: function() {
         if (vue.selectedTab === '') {
-          confirm('没有选类别')
+          vue.errorMsg = '没有选类别';
           return;
         }
 

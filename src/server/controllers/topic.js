@@ -150,7 +150,7 @@ exports.put = function (req, res, next) {
 
   // 得到所有的 tab, e.g. ['ask', 'share', ..]
   var allTabs = config.tabs.map(function (tPair) {
-    return tPair[0];
+    return tPair.key;
   });
 
   // 验证
