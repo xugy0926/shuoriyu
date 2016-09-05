@@ -10,10 +10,12 @@
 import React, { Component, PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Home.css';
+import Tab from '../../components/Tab';
 import TopicRow from '../../components/TopicRow';
-import { Col } from 'react-bootstrap';
+import { Panel, Col } from 'react-bootstrap';
+import connectComponent from '../../utils/connectComponent';
 
-const title = 'React Starter Kit';
+const title = '说日语';
 
 class Home extends Component {
 
@@ -22,26 +24,47 @@ class Home extends Component {
   };
 
   static propTypes = {
-    topics: PropTypes.arrayOf(PropTypes.shape({
-      title: PropTypes.string.isRequired
-    })).isRequired,
+    tabs: PropTypes.object.isRequired,
   };
 
   componentWillMount() {
     this.context.setTitle(title);
+    const {actions} = this.props;
+    console.log('get topics by tab.');
+    actions.getTopicsByTab('all');
+  }
+
+  onSelectedTab(key) {
+    console.log(key);
+    const {actions} = this.props;
+    actions.getTopicsByTab(key);
   }
 
   render() {
     return (
-      <Col class="col-sm-8 col-sm-offset-2" className={s.root}>
-        <ul className={s.news}>
-          {this.props.topics.map((item, index) => (
+      <div>
+        <div className="col-sm-2">
+          <Tab items={this.props.tabs} onSelectedTab={this.onSelectedTab.bind(this)}/>
+        </div>
+        <div className="col-sm-6">
+          <div className="panel panel-default">
+          <ul className="list-group">
+                    {this.props.topics.map((item, index) => (
             <TopicRow key={item.id} index={index+1} item={item}/>
           ))}
-        </ul>
-      </Col>
+          </ul>
+        </div>
+        </div>
+      </div>
     );
   }
 }
 
-export default withStyles(s)(Home);
+const LayoutComponent = Home;
+function mapStateToProps(state) {
+  return {
+    topics: state.topic.topics || []
+  }
+}
+
+export default connectComponent({LayoutComponent, mapStateToProps});

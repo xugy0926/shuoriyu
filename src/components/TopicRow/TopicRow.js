@@ -22,10 +22,9 @@ class TopicRow extends Component {
   render() {
     let to = `/topic/${this.props.item.id}`;
     return (
-      <div className={s.item}>
-        <span className={s.index}>{this.props.index}.</span>
-         <Link className={s.link} to={to}>{this.props.item.title}</Link>
-      </div>
+      <li className="list-group-item">
+         <Link to={to}>{this.props.item.title}</Link>
+      </li>
     );
   }
 }

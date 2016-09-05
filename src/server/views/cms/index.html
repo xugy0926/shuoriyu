@@ -105,7 +105,8 @@
       buildTabs: function(tabs) {
         var tabsTpl = [{key: 'all', value: '全部', selected: false}, {key: 'good', value: '精选', selected: false}];
         tabs.forEach(function(item) {
-          tabsTpl.push({key: item[0], value: item[1], selected: false});
+          item.selected = false;
+          tabsTpl.push(item);
         });
 
         vue.tabs = tabsTpl;

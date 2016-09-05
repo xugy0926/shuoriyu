@@ -19,6 +19,11 @@ import topicPage from './topicPage'
 import content from './content';
 import error from './error';
 
+import { Provider } from 'react-redux';
+import configureStore from '../store/configureStore';
+
+const store = configureStore();
+
 export default {
 
   path: '/',
@@ -40,7 +45,9 @@ export default {
     const component = await next();
     if (component === undefined) return component;
     return render(
-      <App context={context}>{component}</App>
+      <Provider store={store}>
+        <App context={context}>{component}</App>
+      </Provider>
     );
   },
 

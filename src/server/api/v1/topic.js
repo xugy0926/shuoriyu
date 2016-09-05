@@ -11,6 +11,10 @@ var at           = require('../../common/at');
 var renderHelper = require('../../common/render_helper');
 var validator    = require('validator');
 
+exports.tabs = function (req, res, next) {
+  res.json({success: 'success', tabs: config.tabs});
+}
+
 var index = function (req, res, next) {
   var page     = parseInt(req.query.page, 10) || 1;
   page         = page > 0 ? page : 1;
