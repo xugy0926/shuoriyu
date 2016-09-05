@@ -38,7 +38,7 @@ test-cov cov: install pretest
 		$(TESTS)
 
 build-release:
-	@npm run build -- --release
+	@PORT=80 WEBSITE_HOSTNAME=shuoriyu.cn npm run build -- --release
 
 start-production: install build-release
 	@PORT=80 WEBSITE_HOSTNAME=shuoriyu.cn ./node_modules/.bin/pm2 start ./build/server.js -i 0 --name "shuoriyu" --max-memory-restart 400M

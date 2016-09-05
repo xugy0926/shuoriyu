@@ -48,12 +48,12 @@ class Home extends Component {
         </div>
         <div className="col-sm-6">
           <div className="panel panel-default">
-          <ul className="list-group">
-                    {this.props.topics.map((item, index) => (
-            <TopicRow key={item.id} index={index+1} item={item}/>
-          ))}
-          </ul>
-        </div>
+            <ul className="list-group">
+              {this.props.topics.map((item, index) => 
+                (<TopicRow key={item.id} index={index+1} item={item}/>))
+              }
+            </ul>
+          </div>
         </div>
       </div>
     );
