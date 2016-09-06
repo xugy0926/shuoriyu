@@ -202,7 +202,7 @@ exports.update = function (req, res, next) {
 
   Topic.getTopicById(topic_id, function (err, topic, tags) {
     if (!topic) {
-      res.json({error: '此话题不存在或已被删除。'});
+      res.json({success: false, message: '此话题不存在或已被删除。'});
       return;
     }
 
@@ -216,15 +216,15 @@ exports.update = function (req, res, next) {
       var editError;
       if (title === '') {
         editError = '标题不能是空的。';
-      } else if (title.length < 5 || title.length > 100) {
+      } else if (title.length < 1 || title.length > 100) {
         editError = '标题字数太多或太少。';
-      } else if (!tab) {
+      } else if (tab === '') {
         editError = '必须选择一个版块。';
       }
       // END 验证
 
       if (editError) {
-        return res.json({error: editError});
+        return res.json({success: false, message: editError});
       }
 
       //保存话题
@@ -241,11 +241,11 @@ exports.update = function (req, res, next) {
         //发送at消息
         at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
 
-        res.json({success: 'success', url: '/cms/topic_page/' + topic._id});
+        res.json({success: true, url: '/cms/topic_page/' + topic._id});
 
       });
     } else {
-      res.json({error: '对不起，你不能编辑此话题。'});
+      res.json({success: false, message: '对不起，你不能编辑此话题。'});
     }
   });
 };

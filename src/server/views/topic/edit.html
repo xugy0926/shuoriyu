@@ -7,7 +7,9 @@
 
   <div class="form-group">
   <select class="form-control" v-model="selectedTab">
-    <option v-for="tab in tabs" v-bind:value="tab.key" selected="selectedTab === tab.key">{{ tab.value }}</option>
+    <option v-for="tab in tabs" v-bind:value="tab.key" selected="selectedTab === tab.key">
+    {{ tab.value }}
+    </option>
   </select>
   </div>
 
