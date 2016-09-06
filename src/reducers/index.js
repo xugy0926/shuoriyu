@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
-import topic from './topic';
+import home from './home';
 
 export default combineReducers({
-	topic
+	home
 });

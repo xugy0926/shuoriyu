@@ -10,7 +10,7 @@ exports.getCategories = function (req, res, next) {
       return;
     }
 
-    res.json({success: true, categories: categories});
+    res.json({success: true, data: categories});
   });
 }
 
@@ -21,7 +21,7 @@ exports.getTabs = function (req, res, next) {
       return;
     }
 
-    res.json({success: true, tabs: tabs});
+    res.json({success: true, data: tabs});
   });
 }
 
@@ -51,7 +51,7 @@ exports.add = function (req, res, next) {
         return;
       }
 
-      res.json({success: true, category: category});
+      res.json({success: true, data: category});
     });
   });
 }

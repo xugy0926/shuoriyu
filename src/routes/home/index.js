@@ -13,10 +13,10 @@ import fetch from '../../core/fetch';
 
 var getTabs = async function() {
 	const resp = await fetch('api/v1/tabs');
-	const { success, tabs } = await resp.json();
-	if ( !success || !tabs) throw new Error('Failed to load the tabs.');
+	const { success, data } = await resp.json();
+	if ( !success || !data) throw new Error('Failed to load the tabs.');
 
-	return tabs;
+	return data;
 };
 
 
@@ -28,7 +28,6 @@ export default {
     let tabs = await getTabs();
     return <Home tabs={tabs} />;
   },
-
 };
 
 

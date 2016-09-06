@@ -29,13 +29,14 @@ class Home extends Component {
 
   componentWillMount() {
     this.context.setTitle(title);
-    const {actions} = this.props;
-    console.log('get topics by tab.');
-    actions.getTopicsByTab('all');
+    const {actions, tabs} = this.props;
+    console.log(tabs);
+    if (tabs[0].key) {
+      actions.getTopicsByTab(tabs[0].key);
+    }
   }
 
   onSelectedTab(key) {
-    console.log(key);
     const {actions} = this.props;
     actions.getTopicsByTab(key);
   }
@@ -63,7 +64,7 @@ class Home extends Component {
 const LayoutComponent = Home;
 function mapStateToProps(state) {
   return {
-    topics: state.topic.topics || []
+    topics: state.home.topics || []
   }
 }
 

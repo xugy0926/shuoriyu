@@ -28,6 +28,7 @@ class TopicPage extends Component {
   render() {
     return (
       <Col className="col-sm-8 col-sm-offset-2">
+        <h3>{this.props.topic.title}</h3>
         <div className={s.nongshuoshu_body}>
           <div dangerouslySetInnerHTML={{ __html: markdown(this.props.topic.content) }} />
         </div>

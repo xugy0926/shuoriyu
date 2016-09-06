@@ -1,8 +1,8 @@
 // Home
+export const GET_HOME_TABS = 'GET_HOME_TABS';
 export const OPEN_LOGIN_MODAL = 'OPEN_LOGIN_MODAL';
 export const CLOSE_LOGIN_MODAL = 'CLOSE_LOGIN_MODAL';
 export const UPDATE_TAB = 'UPDATE_TAB';
-
 
 // user
 export const CHECK_TOKEN = 'CHECK_TOKEN';
