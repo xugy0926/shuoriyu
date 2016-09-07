@@ -27,9 +27,15 @@ export default function (state = initialState, action) {
 	case types.GET_TOPICS_BY_TAB:
 	  return {
 	    ...state,
-	    topics: action.payload
+	    topics: action.payload,
+	    selectedTab: tab
 	  };
-	  default:
+	case types.UPDATE_TAB:
+	  return {
+	  	...state,
+	  	selectedTab: action.payload
+	  };
+	 default:
 	    return state;
 	}
 }

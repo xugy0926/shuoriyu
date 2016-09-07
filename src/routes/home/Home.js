@@ -24,16 +24,13 @@ class Home extends Component {
   };
 
   static propTypes = {
-    tabs: PropTypes.object.isRequired,
+    
   };
 
   componentWillMount() {
     this.context.setTitle(title);
-    const {actions, tabs} = this.props;
-    console.log(tabs);
-    if (tabs[0].key) {
-      actions.getTopicsByTab(tabs[0].key);
-    }
+    const {actions} = this.props;
+    actions.getHomeTabs();
   }
 
   onSelectedTab(key) {
@@ -42,10 +39,11 @@ class Home extends Component {
   }
 
   render() {
+
     return (
       <div>
         <div className="col-sm-2">
-          <Tab items={this.props.tabs} onSelectedTab={this.onSelectedTab.bind(this)}/>
+          <Tab selectedTab={this.props.selectedTab} items={this.props.tabs || []} onSelectedTab={this.onSelectedTab.bind(this)}/>
         </div>
         <div className="col-sm-6">
           <div className="panel panel-default">
@@ -64,7 +62,9 @@ class Home extends Component {
 const LayoutComponent = Home;
 function mapStateToProps(state) {
   return {
-    topics: state.home.topics || []
+    topics: state.home.topics || [],
+    tabs: state.home.tabs || [],
+    selectedTab: state.home.selectedTab || ''
   }
 }
 

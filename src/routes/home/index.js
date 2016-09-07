@@ -25,8 +25,7 @@ export default {
   path: '/',
 
   async action() {
-    let tabs = await getTabs();
-    return <Home tabs={tabs} />;
+    return <Home />;
   },
 };
 

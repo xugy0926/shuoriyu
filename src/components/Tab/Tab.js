@@ -5,15 +5,28 @@ class Tab extends Component {
 
   static propTypes = {
     items: PropTypes.object.isRequired,
-    onSelectedTab: PropTypes.func.isRequired
+    onSelectedTab: PropTypes.func.isRequired,
+    selectedTab: PropTypes.string.isRequired,
   };
 
   tabsNode() {
-    if (this.props.items) {
+    if (this.props.items && this.props.selectedTab) {
       let nodes = [];
       this.props.items.forEach((item, index) => {
-        nodes.push((
-          <a className="list-group-item" key={index} onClick={this.props.onSelectedTab.bind(this, item.key)}>{item.value}</a>
+        nodes.push(
+          this.props.selectedTab === item.key ?
+          (<a className="list-group-item active" 
+            active
+            key={index} 
+            onClick={this.props.onSelectedTab.bind(this, item.key)}>
+            {item.value}
+          </a>
+          ): (
+          <a className="list-group-item"
+            key={index} 
+            onClick={this.props.onSelectedTab.bind(this, item.key)}>
+            {item.value}
+          </a>
           ));
       });
 

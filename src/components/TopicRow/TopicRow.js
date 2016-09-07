@@ -21,6 +21,7 @@ class TopicRow extends Component {
 
   render() {
     let to = `/topic/${this.props.item.id}`;
+
     return (
       <li className="list-group-item">
          <Link to={to}>{this.props.item.title}</Link>

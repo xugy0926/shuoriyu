@@ -8,11 +8,6 @@ function filterData(data) {
 	}
 }
 
-async function getHomeTabs() {
-  let {success, data} = await requestService.get('/tabs');
-  if (success) {
-  	return data;
-  } else {
-  	return [];
-  }
+export function getTabs() {
+  return requestService.get('/tabs').then(filterData);
 }

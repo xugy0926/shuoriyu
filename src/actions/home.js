@@ -4,7 +4,7 @@ import * as homeService from '../services/homeService';
 import * as topicService from '../services/topicService'
 
 export const getHomeTabs = createAction(types.GET_HOME_TABS, async()=> {
-	const tabs = await homeService.getHomeTabs();
+	const tabs = await homeService.getTabs();
     let selectedTab = '';
 
     if (tabs && tabs.length > 0) {
@@ -12,7 +12,12 @@ export const getHomeTabs = createAction(types.GET_HOME_TABS, async()=> {
     }
 
 	let topics = await topicService.getTopicsByTab(selectedTab);
-
 	return {selectedTab: selectedTab, tabs: tabs, topics: topics};
   }
 );
+
+export const updateTab = createAction(types.UPDATE_TAB, (tab)=> {
+	return {
+		tab
+	}
+});
