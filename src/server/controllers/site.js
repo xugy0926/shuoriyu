@@ -20,26 +20,24 @@ var _            = require('lodash');
 
 
 exports.index = function (req, res, next) {
-  return res.render('cms/index',{tabs: config.tabs, pageTitle: '全部', navTab: 'topic'});
+  return res.render('cms/index',{pageTitle: '全部', navTab: 'topic'});
 }
 
 exports.topics = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
   page = page > 0 ? page : 1;
-  var tab = req.query.tab || 'all';
-
-  
+  var menu = req.query.menu || 'all';
 
   var proxy = new eventproxy();
   proxy.fail(next);
 
   // 取主题
   var query = {};
-  if (tab && tab !== 'all') {
-    if (tab === 'good') {
+  if (menu && menu !== 'all') {
+    if (menu === 'good') {
       query.good = true;
     } else {
-      query.tab = tab;
+      query.menu = menu;
     }
   }
 
@@ -65,18 +63,14 @@ exports.topics = function (req, res, next) {
   }));
   // END 取分页数据
 
-  var tabName = renderHelper.tabName(tab);
   proxy.all('topics', 'pages',
     function (topics, pages) {
       res.json({
         success: 'success',
-        topics: topics,
+        data: topics,
         current_page: page,
         list_topic_count: limit,
-        pages: pages,
-        tabs: config.tabs,
-        tab: tab,
-        pageTitle: tabName,
+        pages: pages
       });
     });
 };

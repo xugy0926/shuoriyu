@@ -1,4 +1,4 @@
-<%- partial('./_navtabs') %>
+<%- partial('./_navMenus') %>
 <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
 <div class="col-sm-2">
   <div class="list-group">
@@ -6,8 +6,8 @@
       操作
     </button>
     <button class="btn list-group-item"
-            v-on:click="onTab"
-            v-for="item in tabs"
+            v-on:click="onMenu"
+            v-for="item in menus"
             v-bind:class="{'active': item.selected}"
             value="{{ item.key }}">
       {{ item.value }}
@@ -31,8 +31,8 @@
     <tr>
       <th>作者</th>
       <th>标题</th>
-      <th>Tab</th>
-      <th>Category</th>
+      <th>Menu</th>
+      <th>Submenu</th>
       <th>时间</th>
       <th>操作</th>
     </tr>
@@ -41,8 +41,8 @@
       <tr v-for="topic in topics">
         <td style="width: 80px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
         <td><a href='/cms/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
-        <td style="width: 80px">{{topic.tabValue}}</td>
-        <td style="width: 80px">{{topic.categoryValue}}</td>
+        <td style="width: 80px">{{topic.menuValue}}</td>
+        <td style="width: 80px">{{topic.submenuValue}}</td>
         <td style="width: 80px">{{topic.create_at}}</td>
         <td style="width: 80px">
           <div class="btn-group disabled">
@@ -71,89 +71,95 @@
     el: '#app',
     data: {
       pageTitle: '全部',
-      tabs: [],
-      selectedTab: 'all',
+      menus: [],
+      selectedMenu: 'all',
       topics: [],
-      categories: [],
+      submenus: [],
       errorMsg: ''
     },
     methods: {
-      getCategories: function() {
-        $.get('/cms/categories', function (result) {
+      getMenus: function() {
+        $.get('/cms/menus', function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
           }
 
-          vue.categories = result.categories;
-          vue.getTabs();
-        });
-      },
-      getTabs: function() {
-        $.get('/cms/tabs', function (result) {
-          if (!result.success) {
-            vue.errorMsg = result.message;
-            return;
-          }
-
-          vue.buildTabs(result.tabs);
+          let data = result.data || [];
+          vue.buildMenus(data);
+          vue.buildSubmenus(data);
           vue.getData();
         });
       },
-      onTab: function(event) {
-        this.selectedTab = event.target.value;
-        this.getData();
+      buildMenus: function(menus) {
+
+        var menusTpl = [{key: 'all', value: '全部', selected: false}, {key: 'good', value: '精选', selected: false}];
+
+        menus.forEach(function(item) {
+          item.selected = false;
+          menusTpl.push(item);
+        });
+
+        vue.menus = menusTpl;
+        vue.updateSelectedMenu(vue.menus[0].key);
+      },
+      buildSubmenus: function(menus) {
+        vue.submenus = [];
+        menus.forEach((menu)=> {
+          if (menu.submenus) {
+            menu.submenus.forEach((submenu)=> {
+              vue.submenus.push(submenu);
+            });
+          }
+        });
+      },
+      onMenu: function(event) {
+        vue.updateSelectedMenu(event.target.value);
+        vue.getData();
       },
       getData: function() {
-        $.post('/cms/topics?tab=' + this.selectedTab, function(result) {
+        $.post('/cms/topics?menu=' + vue.selectedMenu, function(result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
           }
            
-          vue.updateTopics(result.topics);
+          vue.updateTopics(result.data);
         });
-      },
-      buildTabs: function(tabs) {
-        var tabsTpl = [{key: 'all', value: '全部', selected: false}, {key: 'good', value: '精选', selected: false}];
-        tabs.forEach(function(item) {
-          item.selected = false;
-          tabsTpl.push(item);
-        });
-
-        vue.tabs = tabsTpl;
-        vue.updateSelectedTab();
       },
       updateTopics: function(topics) {
-        topics.forEach(function(item) {
-          let index1 = _.findIndex(vue.tabs, function(tab) {
-            return tab.key === item.tab;
+        topics.forEach((item)=> {
+          let index1 = _.findIndex(vue.menus, function(menu) {
+            return menu.key === item.menu;
           });
 
           if (index1 >= 0) {
-            item.tabValue = vue.tabs[index1].value;
+            item.menuValue = vue.menus[index1].value;
           }
 
-          let index2 = _.findIndex(vue.categories, function(category) {
-            return category.key === item.category;
+          let index2 = _.findIndex(vue.submenus, function(submenu) {
+            return submenu.key === item.submenu;
           });
 
           if (index2 >=0 ) {
-            item.categoryValue = vue.categories[index2].value;
+            item.submenuValue = vue.submenus[index2].value;
           }
         });
 
         vue.topics = topics;
       },
-      updateSelectedTab: function() {
-        vue.tabs.forEach(function(item) {
-          if(item.key === vue.selectedTab) {
+      updateSelectedMenu: function(key) {
+        console.log(key);
+        vue.menus.forEach((item)=> {
+          if(item.key === key) {
             item.selected = true;
             vue.pageTitle = item.value;
           } else {
             item.selected = false;
           }
         });
+
+        vue.selectedMenu = key;
       },
       onTop: function(topicId) {
 
@@ -186,5 +192,5 @@
     }
   });
 
-  vue.getCategories();
+  vue.getMenus();
 </script>

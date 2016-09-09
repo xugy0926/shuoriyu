@@ -77,15 +77,6 @@ exports.staticFile = function (filePath) {
   return config.site_static_host + filePath;
 };
 
-exports.tabName = function (tab) {
-  var pair = _.find(config.tabs, function (pair) {
-    return pair[0] === tab;
-  });
-  if (pair) {
-    return pair[1];
-  }
-};
-
 exports.proxy = function (url) {
   return url;
   // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源

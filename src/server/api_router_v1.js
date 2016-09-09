@@ -1,6 +1,6 @@
 var express           = require('express');
 var topicController   = require('./api/v1/topic');
-var categoryController = require('./api/v1/category');
+var menuController = require('./api/v1/menu');
 var topicCollectController   = require('./api/v1/topic_collect');
 var userController    = require('./api/v1/user');
 var toolsController   = require('./api/v1/tools');
@@ -12,9 +12,8 @@ var config            = require('./config');
 
 var router            = express.Router();
 
-//分类
-router.get('/categories', categoryController.getCategories);
-router.get('/tabs', categoryController.getTabs);
+// 菜单
+router.get('/menus', menuController.getMenus);
 
 // 主题
 router.get('/topics', topicController.index);

@@ -14,19 +14,19 @@ var validator    = require('validator');
 var index = function (req, res, next) {
   var page     = parseInt(req.query.page, 10) || 1;
   page         = page > 0 ? page : 1;
-  var tab      = req.query.tab || 'all';
+  var menu      = req.query.menu || 'all';
   var limit    = Number(req.query.limit) || config.list_topic_count;
   var mdrender = req.query.mdrender === 'false' ? false : true;
 
   var query = {};
-  if (tab && tab !== 'all') {
-    if (tab === 'good') {
+  if (menu && menu !== 'all') {
+    if (menu === 'good') {
       query.good = true;
     } else {
-      query.tab = tab;
+      query.menu = menu;
     }
   }
-  
+
   query.deleted = false;
   var options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
 

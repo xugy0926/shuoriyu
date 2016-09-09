@@ -1,0 +1,194 @@
+<%- partial('../cms/_navtabs') %>
+
+<div class="col-sm-8 col-sm-offset-2">
+  <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Menu
+    </div>
+    <div class="panel-body category">
+      <table class="table table-bordered">
+        <thead>
+        <tr>
+          <th>key</th>
+          <th>value</th>
+          <th>status</th>
+          <th>Submenu</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(menuIndex, menu) in menus">
+            <td style="width: 80px">{{menu.key}}</td>
+            <td style="width: 80px">{{menu.value}}</td>
+            <td style="width: 80px">{{menu.enable}}</td>
+            <td>
+              <p v-for="(submenuIndex, submenu) in menu.submenus">
+                <span class="label label-primary" >{{submenu.value}}</span>
+                <span class="glyphicon glyphicon-minus" v-on:click="onDeleteSubmenu(menuIndex, submenuIndex, submenu._id)"></span>
+              </p>
+              <span class="glyphicon glyphicon-plus" v-on:click="onShowDialog(menuIndex, menu._id)"></span>
+            </td>
+            <td style="width: 80px">
+              <div class="btn-group disabled">
+                <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Action <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu disabled">
+                  <li v-if="menu.enable"><a v-on:click="onEnableMenu(menuIndex, menu._id, false)">置为无效</a></li>
+                  <li v-else><a v-on:click="onEnableMenu(menuIndex, menu._id, true)">置为有效</a></li>
+                  <li><a v-on:click="onDeleteMenu(menuIndex, menu._id)">删除</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          添加menu
+        </div>
+        <div class="panel-body">
+          <div class="form-inline">
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Key</div>
+                <input class='form-control' id='menuKey' name='menuKey' size='30' type='text' v-model="menuKey" placeholder=""/>
+              </div>
+            </div>
+            <div class='form-group'>
+              <div class="input-group">
+                <div class="input-group-addon">Value</div>
+                <input class='form-control' id='menuValue' name='menuValue' size='30' type='text' v-model="menuValue" placeholder=""/>
+              </div>
+            </div>
+            <button class="btn btn-default" v-on:click="onAddMenu">添加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade add-submenu-dialog" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div>
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Key</div>
+            <input class='form-control' id='submenuKey' name='submenuKey' size='30' type='text' v-model="submenuKey" placeholder=""/>
+          </div>
+        </div>
+        <div class='form-group'>
+          <div class="input-group">
+            <div class="input-group-addon">Value</div>
+            <input class='form-control' id='submenuValue' name='submenuValue' size='30' type='text' v-model="submenuValue" placeholder=""/>
+          </div>
+        </div>
+        <button class="btn btn-default" v-on:click="onAddSubmenu">添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+
+  var vue = new Vue({
+    el: '#app',
+    data: {
+      // menus
+      menus: [],
+      menuKey: '',
+      menuValue: '',
+      // submenus
+      submenuKey: '',
+      submenuValue: '',
+      // others
+      errorMsg: '',
+
+      // add submenu info
+      addParentId: '',
+      addParentIndex: ''
+    },
+    methods: {
+      getMenus: function() {
+        $.get('/cms/menus', function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.tagKey = '';
+          vue.tagValue = '';
+          console.log(result.data);
+          vue.menus = result.data;
+        });
+      },
+      onDeleteMenu: function(menuIndex, menuId) {
+        $.post('/cms/menu/' + menuId + '/delete', function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.menus.$remove(vue.menus[menuIndex]);
+        });
+      },
+      onAddMenu: function() {
+        $.post('/cms/menu/add', { _csrf: $('#_csrf').val(), key: vue.menuKey, value: vue.menuValue}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.menuKey = '';
+          vue.menuValue = '';
+          const data = result.data;
+          data.submenus = [];
+          vue.menus.push(data);
+        });
+      },
+      onEnableMenu: function(menuIndex, menuId, enable) {
+        $.post('/cms/menu/' + menuId + '/update', {enable: enable}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.menus[menuIndex].enable = enable;
+        });
+      },
+      onShowDialog: function(menuIndex, menuId) {
+        vue.addParentIndex = menuIndex;
+        vue.addParentId = menuId;
+        $('.add-submenu-dialog').modal('show');
+      },
+      onAddSubmenu: function() {
+        $.post('/cms/submenu/add', { _csrf: $('#_csrf').val(), parentId: vue.addParentId, key: vue.submenuKey, value: vue.submenuValue}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.menus[vue.addParentIndex].submenus.push(result.data);
+          vue.submenuKey='';
+          vue.submenuValue='';
+          vue.addParentIndex='';
+          vue.addParentId='';
+          $('.add-submenu-dialog').modal('hide');
+        });       
+      },
+      onDeleteSubmenu: function(menuIndex, submenuIndex, submenuId) {
+        $.post('/cms/submenu/' + submenuId + '/delete', function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+
+          vue.menus[menuIndex].submenus.$remove(vue.menus[menuIndex].submenus[submenuIndex]);
+        });
+      }
+    }
+  });
+
+  vue.getMenus();
+</script>

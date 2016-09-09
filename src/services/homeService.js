@@ -8,6 +8,6 @@ function filterData(data) {
 	}
 }
 
-export function getTabs() {
-  return requestService.get('/tabs').then(filterData);
+export function getMenus() {
+  return requestService.get('/menus').then(filterData);
 }

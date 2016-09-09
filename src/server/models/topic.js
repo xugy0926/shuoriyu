@@ -20,8 +20,8 @@ var TopicSchema = new Schema({
   last_reply: { type: ObjectId },
   last_reply_at: { type: Date, default: Date.now },
   content_is_html: { type: Boolean },
-  tab: {type: String},
-  category: {type: String},
+  menu: {type: String},
+  submenu: {type: String},
   deleted: {type: Boolean, default: false},
 });
 

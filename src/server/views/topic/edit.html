@@ -6,23 +6,23 @@
   </ol>
 
   <div class="form-group">
-  <select class="form-control" v-model="selectedTab">
-    <option v-for="tab in tabs" v-bind:value="tab.key" selected="selectedTab === tab.key">
-    {{ tab.value }}
+  <select class="form-control" v-on:change="updateSubmenusOptions($event)" v-model="selectedMenu">
+    <option v-for="menu in menus" v-bind:value="menu.key">
+    {{ menu.value }}
     </option>
   </select>
   </div>
 
   <div class="form-group">
-    <select class="form-control" v-model="selectedCategory">
-      <option v-for="category in categories" v-bind:value="category.key" selected="selectedCategory === category.key">
-      {{ category.value }}
+    <select class="form-control" v-model="selectedSubmenu">
+      <option v-for="submenu in submenus" v-bind:value="submenu.key">
+      {{ submenu.value }}
       </option>
     </select>
   </div>
 
   <div class="form-group">
-  <input autofocus type="text" class="form-control" id='title' name='title' placeholder="标题字数 10 字以上" v-model="title">
+    <input autofocus type="text" class="form-control" id='title' name='title' placeholder="标题字数 10 字以上" v-model="title">
   </div>
 
   <div class='markdown_editor in_editor'>
@@ -32,7 +32,7 @@
     </div>
   </div>
   <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
-  <button type="submit" class='btn btn-primary' v-on:click="submit">提交</button>
+  <button class='btn btn-primary' v-on:click="onSubmit">提交</button>
   <input type='hidden' name='_csrf' value='<%= csrf %>'>
 </div>
 
@@ -50,40 +50,31 @@
       submitUrl: '/cms/topic/create',
       pageTitle: '新建',
       topic: '',
-      tabs: [],
-      selectedTab: '',
-      categories: [],
-      selectedCategory: '',
+      menus: [],
+      selectedMenu: '',
+      submenus: [],
+      selectedSubmenu: '',
       errorMsg: '',
       successMsg: ''
     },
     methods: {
-      getTabs: function() {
-        $.get('/cms/tabs', function(result) {
+      getMenus: function() {
+        $.get('/cms/menus', function(result) {
           if (result.success) {
-            var tabs = result.tabs;
-            var tabsTpl = [];
-            tabs.forEach(function(tab) {
-              tabsTpl.push({key: tab.key, value: tab.value, selected: false});
-            });
+            var data = result.data || [];
 
-            vue.selectedTab = tabsTpl.length > 0 ? tabsTpl[0].value : '';
-            vue.tabs = tabsTpl;
+            vue.selectedMenu =  data.length > 0 ? data[0].key : '';
+            vue.menus = data;
           }
         });
       },
-      getCategories: function() {
-        $.get('/cms/categories', function(result) {
-          if (result.success) {
-            var categories = result.categories;
-            var categoriesTpl = [];
-            categories.forEach(function(category) {
-              categoriesTpl.push({key: category.key, value: category.value, selected: false});
-            });
-
-            vue.categories = categoriesTpl;
-          }
+      updateSubmenusOptions: function(event) {
+        let index = _.findIndex(vue.menus, function(menu) {
+            return menu.key === event.target.value;
         });
+
+        vue.submenus = vue.menus[index].submenus || [];
+        vue.selectedSubmenu = vue.submenus.length > 0 ? vue.submenus[0].key : '';
       },
       getTopic: function() {
         $.get('/cms/topic_data/' + this.topicId, function (result) {
@@ -91,24 +82,24 @@
             vue.errorMsg = result.error;
           } else {
             vue.topic = result.topic;
-            vue.selectedTab = result.topic.tab;
-            vue.selectedCategory = result.topic.category;
+            vue.selectedMenu = result.topic.menu;
+            vue.selectedSubmenu = result.topic.submenu;
             vue.title = result.topic.title;
             editor.codemirror.setValue(vue.topic.content);
           }
         });
       },
-      submit: function() {
-        if (vue.selectedTab === '') {
-          vue.errorMsg = '没有选类别';
+      onSubmit: function() {
+        if (vue.selectedMenu === '' vue.title) {
+          vue.errorMsg = '有内容为空';
           return;
         }
 
         $.post(this.submitUrl, {
           _csrf: $('#_csrf').val(),
           title: vue.title,
-          tab: vue.selectedTab,
-          category: vue.selectedCategory,
+          menu: vue.selectedMenu,
+          submenu: vue.selectedSubmenu,
           content: editor.codemirror.getValue() },
           function (result) {
             if (!result.success) {
@@ -121,8 +112,7 @@
     }
   });
 
-  vue.getTabs();
-  vue.getCategories();
+  vue.getMenus();
 
   var topicId = $('#topic-id').val();
   if (topicId) {

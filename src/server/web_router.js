@@ -15,7 +15,7 @@ var user = require('./controllers/user');
 var message = require('./controllers/message');
 var topic = require('./controllers/topic');
 var reply = require('./controllers/reply');
-var category = require('./controllers/category');
+var menu = require('./controllers/menu');
 var rss = require('./controllers/rss');
 var staticController = require('./controllers/static');
 var auth = require('./middlewares/auth');
@@ -100,20 +100,19 @@ router.post('/reply/:reply_id/delete', auth.userRequired, reply.delete); // 删�
 router.post('/reply/:reply_id/up', auth.userRequired, reply.up); // 为评论点赞
 router.post('/upload', auth.userRequired, topic.upload); //上传图片
 
-// category page
-router.get('/category', category.index);
+// menu page
+router.get('/menusPage', menu.index);
 
-// category
-router.get('/categories', category.getCategories);
-router.post('/category/add', auth.adminRequired, category.addCategory);
-router.post('/category/:cid/delete', auth.adminRequired, category.deleteCategory);
-router.post('/category/:cid/update',  category.updateCategory);
+// menu
+router.get('/menus', menu.getMenus);
+router.post('/menu/add', auth.adminRequired, menu.addMenu);
+router.post('/menu/:mid/delete', auth.adminRequired, menu.deleteMenu);
+router.post('/menu/:mid/update',  menu.updateMenu);
 
-// tab
-router.get('/tabs', category.getTabs);
-router.post('/tab/add', auth.adminRequired, category.addTab);
-router.post('/tab/:tid/delete', auth.adminRequired, category.deleteTab);
-router.post('/tab/:tid/update',  category.updateTab);
+// submenu
+router.post('/submenu/add', auth.adminRequired, menu.addSubmenu);
+router.post('/submenu/:sid/delete', auth.adminRequired, menu.deleteSubmenu);
+router.post('/submenu/:sid/update',  menu.updateSubmenu);
 
 // static
 router.get('/about', staticController.about);

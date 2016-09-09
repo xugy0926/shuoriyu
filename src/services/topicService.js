@@ -8,6 +8,6 @@ function filterData(data) {
 	}
 }
 
-export function getTopicsByTab(tab = 'all') {
-  return requestService.get('/topics', {tab}).then(filterData);
+export function getTopicsByMenu(menu = 'all') {
+  return requestService.get('/topics', {menu}).then(filterData);
 }

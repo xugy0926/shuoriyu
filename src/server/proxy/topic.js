@@ -74,16 +74,16 @@ exports.getTopicsByQuery = function (query, opt, callback) {
   query.deleted = false;
   Topic.find(query, {}, opt, function (err, topics) {
 
-    var newTopics = [];
-    for (var i = 0, len = topics.length; i < len; i++) {
-      newTopics[i] = topics[i].toObject();
-    }
-
     if (err) {
       return callback(err);
     }
-    if (newTopics.length === 0) {
+    if (topics.length === 0) {
       return callback(null, []);
+    }
+
+    var newTopics = [];
+    for (var i = 0, len = topics.length; i < len; i++) {
+      newTopics[i] = topics[i].toObject();
     }
 
     var proxy = new EventProxy();
@@ -225,12 +225,12 @@ exports.reduceCount = function (id, callback) {
   });
 };
 
-exports.newAndSave = function (title, content, tab, category, authorId, callback) {
+exports.newAndSave = function (title, content, menu, submenu, authorId, callback) {
   var topic       = new Topic();
   topic.title     = title;
   topic.content   = content;
-  topic.tab       = tab;
-  topic.category  = category;
+  topic.menu      = menu;
+  topic.submenu   = submenu;
   topic.author_id = authorId;
 
   topic.save(callback);

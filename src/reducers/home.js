@@ -1,39 +1,39 @@
 import * as types from '../constants/ActionTypes';
 
 const initialState = {
-  selectedTab: '',
-  tabs: [],
+  selectedMenu: '',
+  menus: [],
   topics: []
 };
 
 export default function (state = initialState, action) {
 
   const {payload, error, meta = {}, type} = action;
-  const {sequence = {}, tab, id = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
+  const {sequence = {}, menu, id = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
 
   if (sequence.type === 'start' || error) {
     return state;
   }
 
   switch (action.type) {
-	case types.GET_HOME_TABS:
+	case types.GET_HOME_MENUS:
       let data = action.payload;
 	  return {
         ...state,
-        tabs: data.tabs,
-        selectedTab: data.selectedTab,
+        menus: data.menus,
+        selectedMenu: data.selectedMenu,
         topics: data.topics
 	  };
-	case types.GET_TOPICS_BY_TAB:
+	case types.GET_TOPICS_BY_MENU:
 	  return {
 	    ...state,
 	    topics: action.payload,
-	    selectedTab: tab
+	    selectedMenu: menu
 	  };
-	case types.UPDATE_TAB:
+	case types.UPDATE_MENU:
 	  return {
 	  	...state,
-	  	selectedTab: action.payload
+	  	selectedMenu: action.payload
 	  };
 	 default:
 	    return state;

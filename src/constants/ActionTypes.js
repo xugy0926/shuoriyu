@@ -1,8 +1,8 @@
 // Home
-export const GET_HOME_TABS = 'GET_HOME_TABS';
+export const GET_HOME_MENUS = 'GET_HOME_MENUS';
 export const OPEN_LOGIN_MODAL = 'OPEN_LOGIN_MODAL';
 export const CLOSE_LOGIN_MODAL = 'CLOSE_LOGIN_MODAL';
-export const UPDATE_TAB = 'UPDATE_TAB';
+export const UPDATE_MENU = 'UPDATE_MENU';
 
 // user
 export const CHECK_TOKEN = 'CHECK_TOKEN';
@@ -26,8 +26,8 @@ export const GET_MESSAGES_LIST = 'GET_MESSAGES_LIST';
 
 // topic
 export const GET_TOPICS_FROM_STORAGE = 'GET_TOPICS_FROM_STORAGE';
-export const GET_TOPICS_BY_TAB = 'GET_TOPICS_BY_TAB';
-export const UPDATE_TOPICS_BY_TAB = 'UPDATE_TOPICS_BY_TAB';
+export const GET_TOPICS_BY_MENU = 'GET_TOPICS_BY_MENU';
+export const UPDATE_TOPICS_BY_MENU = 'UPDATE_TOPICS_BY_MENU';
 export const GET_TOPIC_BY_ID = 'GET_TOPIC_BY_ID';
 export const REMOVE_TOPIC_CACHE_BY_ID = 'REMOVE_TOPIC_CACHE_BY_ID';
 export const REPLY_TOPIC_BY_ID = 'REPLY_TOPIC_BY_ID';

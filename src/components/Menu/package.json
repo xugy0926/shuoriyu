@@ -1,6 +1,6 @@
 {
-  "name": "Tab",
+  "name": "Menu",
   "version": "0.0.0",
   "private": true,
-  "main": "./Tab.js"
+  "main": "./Menu.js"
 }

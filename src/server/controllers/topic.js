@@ -87,7 +87,7 @@ exports.topicPage = function (req, res, next) {
         ep.emit('no_reply_topics', no_reply_topics);
       } else {
         Topic.getTopicsByQuery(
-          { reply_count: 0, tab: {$ne: 'job'}},
+          { reply_count: 0, menu: {$ne: 'job'}},
           { limit: 5, sort: '-create_at'},
           ep.done('no_reply_topics', function (no_reply_topics) {
             cache.set('no_reply_topics', no_reply_topics, 60 * 1);
@@ -130,7 +130,7 @@ exports.topic = function (req, res, next) {
 
     return res.json({
       success: 'success',
-      tabs: config.tabs,
+      menus: config.menus,
       topic: topic
     });
   });
@@ -143,8 +143,8 @@ exports.create = function (req, res, next) {
 
 exports.put = function (req, res, next) {
   var title   = validator.trim(req.body.title);
-  var tab     = validator.trim(req.body.tab);
-  var category = validator.trim(req.body.category);
+  var menu     = validator.trim(req.body.menu);
+  var submenu = validator.trim(req.body.submenu);
   var content = validator.trim(req.body.content);
 
   // 验证
@@ -153,7 +153,7 @@ exports.put = function (req, res, next) {
     editError = '标题不能是空的。';
   } else if (title.length < 1 || title.length > 100) {
     editError = '标题字数太多或太少。';
-  } else if (tab === '') {
+  } else if (menu === '') {
     editError = '必须选择一个版块。';
   } else if (content === '') {
     editError = '内容不可为空';
@@ -164,7 +164,7 @@ exports.put = function (req, res, next) {
     return res.json({error: editError});
   }
 
-  Topic.newAndSave(title, content, tab, category, req.session.user._id, function (err, topic) {
+  Topic.newAndSave(title, content, menu, submenu, req.session.user._id, function (err, topic) {
     if (err) {
       return res.json({error: '出错啦！'});
     }
@@ -196,8 +196,8 @@ exports.showEdit = function (req, res, next) {
 exports.update = function (req, res, next) {
   var topic_id = req.params.tid;
   var title    = req.body.title;
-  var tab      = req.body.tab;
-  var category = req.body.category;
+  var menu      = req.body.menu;
+  var submenu = req.body.submenu;
   var content  = req.body.content;
 
   Topic.getTopicById(topic_id, function (err, topic, tags) {
@@ -208,8 +208,8 @@ exports.update = function (req, res, next) {
 
     if (topic.author_id.equals(req.session.user._id) || req.session.user.is_admin) {
       title   = validator.trim(title);
-      tab     = validator.trim(tab);
-      category = validator.trim(category);
+      menu     = validator.trim(menu);
+      submenu = validator.trim(submenu);
       content = validator.trim(content);
 
       // 验证
@@ -218,8 +218,8 @@ exports.update = function (req, res, next) {
         editError = '标题不能是空的。';
       } else if (title.length < 1 || title.length > 100) {
         editError = '标题字数太多或太少。';
-      } else if (tab === '') {
-        editError = '必须选择一个版块。';
+      } else if (menu === '') {
+        editError = '必须选择menu';
       }
       // END 验证
 
@@ -230,8 +230,8 @@ exports.update = function (req, res, next) {
       //保存话题
       topic.title     = title;
       topic.content   = content;
-      topic.tab       = tab;
-      topic.category  = category;
+      topic.menu       = menu;
+      topic.submenu  = submenu;
       topic.update_at = new Date();
 
       topic.save(function (err) {

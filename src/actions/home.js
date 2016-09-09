@@ -3,21 +3,22 @@ import * as types from '../constants/ActionTypes';
 import * as homeService from '../services/homeService';
 import * as topicService from '../services/topicService'
 
-export const getHomeTabs = createAction(types.GET_HOME_TABS, async()=> {
-	const tabs = await homeService.getTabs();
-    let selectedTab = '';
+export const getHomeMenus = createAction(types.GET_HOME_MENUS, async()=> {
+	const menus = await homeService.getMenus();
+    let selectedMenu = '';
+    console.log(menus);
 
-    if (tabs && tabs.length > 0) {
-      selectedTab = tabs[0].key;
+    if (menus && menus.length > 0) {
+      selectedMenu = menus[0].key;
     }
 
-	let topics = await topicService.getTopicsByTab(selectedTab);
-	return {selectedTab: selectedTab, tabs: tabs, topics: topics};
+	let topics = await topicService.getTopicsByMenu(selectedMenu);
+	return {selectedMenu: selectedMenu, menus: menus, topics: topics};
   }
 );
 
-export const updateTab = createAction(types.UPDATE_TAB, (tab)=> {
+export const updateMenu = createAction(types.UPDATE_MENU, (menu)=> {
 	return {
-		tab
+		menu
 	}
 });

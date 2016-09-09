@@ -10,7 +10,7 @@
 import React, { Component, PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Home.css';
-import Tab from '../../components/Tab';
+import Menu from '../../components/Menu';
 import TopicRow from '../../components/TopicRow';
 import { Panel, Col } from 'react-bootstrap';
 import connectComponent from '../../utils/connectComponent';
@@ -30,12 +30,12 @@ class Home extends Component {
   componentWillMount() {
     this.context.setTitle(title);
     const {actions} = this.props;
-    actions.getHomeTabs();
+    actions.getHomeMenus();
   }
 
-  onSelectedTab(key) {
+  onSelectedMenu(key) {
     const {actions} = this.props;
-    actions.getTopicsByTab(key);
+    actions.getTopicsByMenu(key);
   }
 
   render() {
@@ -43,7 +43,7 @@ class Home extends Component {
     return (
       <div>
         <div className="col-sm-2">
-          <Tab selectedTab={this.props.selectedTab} items={this.props.tabs || []} onSelectedTab={this.onSelectedTab.bind(this)}/>
+          <Menu selectedMenu={this.props.selectedMenu} items={this.props.menus || []} onSelectedMenu={this.onSelectedMenu.bind(this)}/>
         </div>
         <div className="col-sm-6">
           <div className="panel panel-default">
@@ -63,8 +63,8 @@ const LayoutComponent = Home;
 function mapStateToProps(state) {
   return {
     topics: state.home.topics || [],
-    tabs: state.home.tabs || [],
-    selectedTab: state.home.selectedTab || ''
+    menus: state.home.menus || [],
+    selectedMenu: state.home.selectedMenu || ''
   }
 }
 
