@@ -90,7 +90,7 @@
         });
       },
       onSubmit: function() {
-        if (vue.selectedMenu === '' vue.title) {
+        if (vue.selectedMenu === '' || vue.title === '') {
           vue.errorMsg = '有内容为空';
           return;
         }
