@@ -14,6 +14,10 @@ import AssetsPlugin from 'assets-webpack-plugin';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
+
+const WEBSITE_HOSTNAME = process.env.WEBSITE_HOSTNAME || '"localhost"';
+const PORT = process.env.PORT || 3000;
+
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -26,9 +30,11 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
+  'process.env.WEBSITE_HOSTNAME': WEBSITE_HOSTNAME,
+  'process.env.PORT': PORT,
   __DEV__: DEBUG,
 };
-
+ 
 //
 // Common configuration chunk to be used for both
 // client-side (client.js) and server-side (server.js) bundles

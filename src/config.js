@@ -10,7 +10,8 @@
 /* eslint-disable max-len */
 
 export const port = process.env.PORT || 3000;
-export const host = process.env.WEBSITE_HOSTNAME || `localhost:${port}`;
+export const website_hostname = process.env.WEBSITE_HOSTNAME || 'localhost';
+export const host = `${website_hostname}:${port}` || `localhost:${port}`;
 export const node_env = process.env.NODE_ENV || 'development';
 
 export const mini_assets = node_env === 'production';
