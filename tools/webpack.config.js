@@ -26,7 +26,6 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
-  'process.env.WEBSITE_HOSTNAME': DEBUG ? '""' : '"shuoriyu.cn"',
   __DEV__: DEBUG,
 };
 
