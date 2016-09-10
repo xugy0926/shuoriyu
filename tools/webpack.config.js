@@ -15,9 +15,6 @@ import AssetsPlugin from 'assets-webpack-plugin';
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
 
-const WEBSITE_HOSTNAME = process.env.WEBSITE_HOSTNAME || '"localhost"';
-const PORT = process.env.PORT || 3000;
-
 const AUTOPREFIXER_BROWSERS = [
   'Android 2.3',
   'Android >= 4',
@@ -30,8 +27,7 @@ const AUTOPREFIXER_BROWSERS = [
 ];
 const GLOBALS = {
   'process.env.NODE_ENV': DEBUG ? '"development"' : '"production"',
-  'process.env.WEBSITE_HOSTNAME': WEBSITE_HOSTNAME,
-  'process.env.PORT': PORT,
+  'process.env.WEBSITE_HOSTNAME': DEBUG ? '""' : '"shuoriyu.cn"',
   __DEV__: DEBUG,
 };
  
