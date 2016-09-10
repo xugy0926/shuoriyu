@@ -29,7 +29,7 @@ var config = require('./config');
 var router = express.Router();
 
 // cms page
-router.get('/', site.index);
+router.get('/', auth.adminRequired, site.index);
 router.post('/topics', site.topics);
 
 // sitemap

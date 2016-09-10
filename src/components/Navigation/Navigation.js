@@ -44,6 +44,8 @@ class Navigation extends Component {
 
           </Nav>
           <Nav pullRight>
+            <NavItem href="/cms/signin">登录</NavItem>
+            <NavItem href="/cms/signup">注册</NavItem>
           </Nav>
         </Collapse>
       </Navbar>
