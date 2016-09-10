@@ -15,6 +15,7 @@ var index = function (req, res, next) {
   var page     = parseInt(req.query.page, 10) || 1;
   page         = page > 0 ? page : 1;
   var menu      = req.query.menu || 'all';
+  var submenu  = req.query.submenu || '';
   var limit    = Number(req.query.limit) || config.list_topic_count;
   var mdrender = req.query.mdrender === 'false' ? false : true;
 
@@ -25,6 +26,10 @@ var index = function (req, res, next) {
     } else {
       query.menu = menu;
     }
+  }
+
+  if (submenu !== '') {
+    query.submenu = submenu;
   }
 
   query.deleted = false;

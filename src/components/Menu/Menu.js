@@ -1,46 +1,77 @@
 import React, { Component, PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
+import { ButtonGroup, Button, DropdownButton, SplitButton, MenuItem } from 'react-bootstrap';
 
 class Menu extends Component {
 
   static propTypes = {
-    items: PropTypes.object.isRequired,
+    menus: PropTypes.object.isRequired,
     onSelectedMenu: PropTypes.func.isRequired,
     selectedMenu: PropTypes.string.isRequired,
   };
 
-  menusNode() {
-    if (this.props.items && this.props.selectedMenu) {
+  buildMenus() {
+    if (this.props.menus && this.props.selectedMenu) {
       let nodes = [];
-      this.props.items.forEach((item, index) => {
-        nodes.push(
-          this.props.selectedMenu === item.key ?
-          (<a className="list-group-item active" 
-            active
-            key={index} 
-            onClick={this.props.onSelectedMenu.bind(this, item.key)}>
-            {item.value}
-          </a>
-          ): (
-          <a className="list-group-item"
-            key={index} 
-            onClick={this.props.onSelectedMenu.bind(this, item.key)}>
-            {item.value}
-          </a>
-          ));
-      });
+      this.props.menus.forEach((menu, index) => {
 
+        if (menu.submenus && menu.submenus.length > 0) {
+          nodes.push(this.buildOptionButton(index, menu));
+        } else {
+          nodes.push(this.buildDefaultButton(index, menu));
+        }
+      });
+      
+      console.log(nodes);
       return (nodes);
     } else {
       return (<div />)
     }
   }
 
+  buildDefaultButton(index, menu) {
+    return this.props.selectedMenu === menu.key ?
+      (<Button className="active"
+        key={index} 
+        onClick={this.props.onSelectedMenu.bind(this, menu.key)}>
+        {menu.value}
+      </Button>
+      ): (
+      <Button
+        key={index} 
+        onClick={this.props.onSelectedMenu.bind(this, menu.key)}>
+        {menu.value}
+      </Button>
+      );
+  }
+
+  buildOptionButton(index, menu) {
+    let submenusNodes = [];
+    const submenus = menu.submenus || [];
+
+    if (submenus && submenus.length > 0) {
+      submenus.forEach((submenu)=> {
+        submenusNodes.push((<MenuItem onClick={this.props.onSelectedMenu.bind(this, menu.key, submenu.key)}>{submenu.value}</MenuItem>));
+      });
+    }
+
+    return this.props.selectedMenu === menu.key ?
+      (<DropdownButton title={menu.value} className="active">
+        {submenusNodes}
+      </DropdownButton>
+      )
+      :
+      (<DropdownButton title={menu.value}>
+        {submenusNodes}
+      </DropdownButton>
+      );
+  }
+
   render() {
     return (
-      <div className="list-group">
-        {this.menusNode()}
-      </div>
+      <ButtonGroup vertical>
+        {this.buildMenus()}
+      </ButtonGroup>
     );
   }
 }

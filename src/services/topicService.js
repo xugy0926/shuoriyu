@@ -8,6 +8,8 @@ function filterData(data) {
 	}
 }
 
-export function getTopicsByMenu(menu = 'all') {
-  return requestService.get('/topics', {menu}).then(filterData);
+export function getTopicsByMenu(menu = 'all', submenu = '') {
+	console.log('-----');
+  console.log(submenu);
+  return requestService.get('/topics', {menu, submenu}).then(filterData);
 }
