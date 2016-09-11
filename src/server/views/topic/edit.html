@@ -6,7 +6,7 @@
   </ol>
 
   <div class="form-group">
-  <select class="form-control" v-on:change="updateSubmenusOptions($event)" v-model="selectedMenu">
+  <select class="form-control" v-on:change="onSelectedMenu($event)" v-model="selectedMenu">
     <option v-for="menu in menus" v-bind:value="menu.key">
     {{ menu.value }}
     </option>
@@ -61,16 +61,28 @@
       getMenus: function() {
         $.get('/cms/menus', function(result) {
           if (result.success) {
-            var data = result.data || [];
+            let data = result.data || [];
 
             vue.selectedMenu =  data.length > 0 ? data[0].key : '';
             vue.menus = data;
+            vue.updateSubmenusOptions(vue.selectedMenu);
+
+            let topicId = $('#topic-id').val();
+            if (topicId) {
+              vue.topicId = topicId;
+              vue.submitUrl = '/cms/topic/' + topicId + '/edit';
+              vue.pageTitle = '编辑';
+              vue.getTopic();
+            }
           }
         });
       },
-      updateSubmenusOptions: function(event) {
+      onSelectedMenu: function(event) {
+        vue.updateSubmenusOptions(event.target.value);
+      },
+      updateSubmenusOptions: function(key) {
         let index = _.findIndex(vue.menus, function(menu) {
-            return menu.key === event.target.value;
+            return menu.key === key;
         });
 
         vue.submenus = vue.menus[index].submenus || [];
@@ -83,6 +95,7 @@
           } else {
             vue.topic = result.topic;
             vue.selectedMenu = result.topic.menu;
+            vue.updateSubmenusOptions(vue.selectedMenu);
             vue.selectedSubmenu = result.topic.submenu;
             vue.title = result.topic.title;
             editor.codemirror.setValue(vue.topic.content);
@@ -113,13 +126,4 @@
   });
 
   vue.getMenus();
-
-  var topicId = $('#topic-id').val();
-  if (topicId) {
-    vue.topicId = topicId;
-    vue.submitUrl = '/cms/topic/' + topicId + '/edit';
-    vue.pageTitle = '编辑';
-    vue.getTopic();
-  }
-
 </script>

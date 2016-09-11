@@ -22,7 +22,7 @@
   </ol>
   <div class="panel panel-default">
     <div class="panel-body">
-      <a href='/cms/topic/create' class="btn btn-primary btn-sm" role="button">添加文章</a>
+      <a href='/cms/topic/create' target="_blank" class="btn btn-primary btn-sm" role="button">添加文章</a>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
               Action <span class="caret"></span>
             </button>
             <ul class="dropdown-menu disabled">
-              <li><a href='/cms/topic/{{topic._id}}/edit'>编辑</a></li>
+              <li><a href='/cms/topic/{{topic._id}}/edit' target="_blank">编辑</a></li>
               <li role="separator" class="divider"></li>
               <li v-if="topic.top"><a href="#">取消置顶</a></li>
               <li v-else><a href="#">置顶</a></li>
