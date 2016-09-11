@@ -5,12 +5,12 @@ export const CLOSE_LOGIN_MODAL = 'CLOSE_LOGIN_MODAL';
 export const UPDATE_MENU = 'UPDATE_MENU';
 
 // user
-export const CHECK_TOKEN = 'CHECK_TOKEN';
+export const SIGNIN = 'SIGNIN';
+export const SIGNUP = 'SIGNUP';
+export const SIGNOUT = 'SIGNOUT';
+export const GET_AUTH_INFO = 'GET_USER_INFO';
 export const GET_USER_FROM_STORAGE = 'GET_USER_FROM_STORAGE';
 export const UPDATE_CLIENT_USER_INFO = 'UPDATE_CLIENT_USER_INFO';
-export const LOGOUT = 'LOGOUT';
-export const GET_USER_INFO = 'GET_USER_INFO';
-export const CLEAR = "CLEAR";
 
 // utils
 export const TOAST = 'TOAST';
@@ -18,7 +18,7 @@ export const OPEN_TOAST = 'OPEN_TOAST';
 export const CLOSE_TOAST = 'CLOSE_TOAST';
 
 
-// message
+// messageLOGIN
 export const GET_UNREAD_MESSAGE_COUNT = 'GET_UNREAD_MESSAGE_COUNT';
 export const MARK_AS_READ = 'MARK_AS_READ';
 export const GET_MESSAGES_LIST = 'GET_MESSAGES_LIST';

@@ -1,0 +1,6 @@
+{
+  "name": "FieldGroup",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./FieldGroup.js"
+}

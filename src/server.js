@@ -204,7 +204,7 @@ app.use(busboy({
 
 // routes
 app.use('/api/v1', cors(), apiRouterV1);
-app.use('/cms', webRouter);
+app.use('/cms', cors(), webRouter);
 
 //
 // Register server-side rendering middleware

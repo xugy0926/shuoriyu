@@ -1,0 +1,6 @@
+{
+  "name": "AlertMessage",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AlertMessage.js"
+}

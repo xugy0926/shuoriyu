@@ -15,22 +15,42 @@ import Link from '../Link';
 import { Nav, Navbar, NavItem, NavDropdown, MenuItem} from 'react-bootstrap';
 import { Header, Brand, Toggle, Collapse } from 'react-bootstrap/lib/Navbar'
 import history from '../../core/history';
+import connectComponent from '../../utils/connectComponent';
 
 class Navigation extends Component {
 
   static propTypes = {
-    className: PropTypes.string
   }
 
-  _onLogin() {
-    history.push('/login');
+  _onSignin() {
+    history.push('/signin');
   }
 
-  _onLogout() {
-    history.push('/logout');
+  _onSignup() {
+    history.push('/signup');
+  }
+
+  _onSignout() {
+
   }
 
   render() {
+    const {user} = this.props;
+
+    let userNode = null;
+    if (user && user._id) {
+      userNode = (<Nav pullRight>
+                    <NavDropdown eventKey={1} title={user.name}>
+                      <MenuItem eventKey={1.1} onClick={this._onSignout.bind(this)}>退出</MenuItem>
+                    </NavDropdown>
+                  </Nav>);
+    } else {
+       userNode = (<Nav pullRight>
+                    <NavItem onClick={this._onSignin.bind(this)}>登录</NavItem>
+                    <NavItem onClick={this._onSignup.bind(this)}>注册</NavItem>
+                  </Nav>);
+    }
+
     return (
       <Navbar>
         <Header>
@@ -41,16 +61,19 @@ class Navigation extends Component {
         </Header>
         <Collapse>
           <Nav>
-
           </Nav>
-          <Nav pullRight>
-            <NavItem href="/cms/signin">登录</NavItem>
-            <NavItem href="/cms/signup">注册</NavItem>
-          </Nav>
+          {userNode}
         </Collapse>
       </Navbar>
     );
   }
 }
 
-export default withStyles(s)(Navigation);
+const LayoutComponent = withStyles(s)(Navigation);
+function mapStateToProps(state) {
+  return {
+    user: state.auth.user || {}
+  }
+}
+
+export default connectComponent({LayoutComponent, mapStateToProps});

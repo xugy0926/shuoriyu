@@ -13,8 +13,8 @@ import App from '../components/App';
 // Child routes
 import home from './home';
 import contact from './contact';
-// import login from './login';
-// import register from './register';
+import signin from './signin';
+import signup from './signup';
 import topicPage from './topicPage'
 import content from './content';
 import error from './error';
@@ -32,8 +32,8 @@ export default {
   children: [
     home,
     contact,
-    // login,
-    // register,
+    signin,
+    signup,
     topicPage,
 
     // place new routes before...

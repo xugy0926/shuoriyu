@@ -1,7 +1,7 @@
 import qs from 'query-string';
 import { host } from '../config';
 
-const urlPrefix = 'http://' + host + '/api/v1'
+const urlPrefix = 'http://' + host + '/cms';
 
 function filterJSON(res) {
 	return res.json();
@@ -49,7 +49,8 @@ export function post(url, body) {
 		method: 'POST',
 		headers: {
 			'Accept': 'application/json',
-			'Content-Type': 'application/json'
+			'Content-Type': 'application/json',
+			'X-API-Key': 'foobar'
 		},
 		body: JSON.stringify(body)
 	})
