@@ -93,7 +93,7 @@
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
-            vue.topic = result.topic;
+            vue.topic = result.data;
             vue.selectedMenu = result.topic.menu;
             vue.updateSubmenusOptions(vue.selectedMenu);
             vue.selectedSubmenu = result.topic.submenu;
