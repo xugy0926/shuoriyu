@@ -31,16 +31,16 @@ class Navigation extends Component {
   }
 
   _onSignout() {
-
+    const { actions } = this.props;
+    actions.onSignout();
   }
 
   render() {
-    const {user} = this.props;
-
+    const {secret} = this.props;
     let userNode = null;
-    if (user && user._id) {
+    if (secret && secret._id) {
       userNode = (<Nav pullRight>
-                    <NavDropdown eventKey={1} title={user.name}>
+                    <NavDropdown eventKey={1} title={secret.name}>
                       <MenuItem eventKey={1.1} onClick={this._onSignout.bind(this)}>退出</MenuItem>
                     </NavDropdown>
                   </Nav>);
@@ -72,7 +72,7 @@ class Navigation extends Component {
 const LayoutComponent = withStyles(s)(Navigation);
 function mapStateToProps(state) {
   return {
-    user: state.auth.user || {}
+    secret: state.auth.secret || {}
   }
 }
 

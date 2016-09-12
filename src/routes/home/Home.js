@@ -30,6 +30,7 @@ class Home extends Component {
   componentWillMount() {
     this.context.setTitle(title);
     const {actions} = this.props;
+    actions.checkToken();
     actions.getHomeMenus();
   }
 
@@ -56,8 +57,8 @@ class Home extends Component {
         <div className="col-sm-6">
           <div className="panel panel-default">
             <ul className="list-group">
-              {this.props.topics.map((item, index) => 
-                (<TopicRow key={item.id} index={index+1} item={item}/>))
+              {this.props.topics.map((topic, index) => 
+                (<TopicRow key={topic._id} index={index+1} item={topic}/>))
               }
             </ul>
           </div>

@@ -6,7 +6,6 @@ import * as topicService from '../services/topicService'
 export const getHomeMenus = createAction(types.GET_HOME_MENUS, async()=> {
 	const menus = await homeService.getMenus();
     let selectedMenu = '';
-    console.log(menus);
 
     if (menus && menus.length > 0) {
       selectedMenu = menus[0].key;

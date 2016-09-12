@@ -13,6 +13,16 @@ exports.showSignup = function (req, res) {
   res.render('sign/signup');
 };
 
+exports.accesstoken = function (req, res, next) {
+  var ep = new eventproxy();
+  ep.fail(next);
+
+  res.send({
+    success: true,
+    data: req.user
+  });
+};
+
 exports.signup = function (req, res, next) {
   var loginname = validator.trim(req.body.loginname).toLowerCase();
   var email     = validator.trim(req.body.email).toLowerCase();

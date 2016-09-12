@@ -1,10 +1,8 @@
 import * as types from '../constants/ActionTypes';
 
-
 const initialState = {
-	user: {}
+	secret: {}
 };
-
 
 export default function (state = initialState, action) {
 	const {payload, error, meta = {}, type} = action;
@@ -13,18 +11,21 @@ export default function (state = initialState, action) {
 		return state;
 	}
 
-    console.log('-------');
-    console.log(payload);
 	switch (type) {
+		case types.CHECK_TOKEN:
+			return {
+				...state,
+				secret: payload
+			}
 		case types.SIGNIN:
 			return {
 				...state,
-				user: payload
+				secret: payload
 			};
 		case types.SIGNUP:
 			return {
                 ...state,
-                user: payload
+                secret: payload
 			};
 		case types.SIGNOUT:
 			return initialState;

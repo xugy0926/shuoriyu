@@ -44,6 +44,8 @@ exports.topics = function (req, res, next) {
   var limit = config.list_topic_count;
   var options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
 
+  console.log(query);
+  console.log(options);
   Topic.getTopicsByQuery(query, options, proxy.done('topics', function (topics) {
     return topics;
   }));
@@ -65,8 +67,8 @@ exports.topics = function (req, res, next) {
 
   proxy.all('topics', 'pages',
     function (topics, pages) {
-      res.json({
-        success: 'success',
+      return res.json({
+        success: true,
         data: topics,
         current_page: page,
         list_topic_count: limit,

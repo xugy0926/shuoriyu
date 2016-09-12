@@ -105,7 +105,7 @@ exports.topicPage = function (req, res, next) {
 }
 
 /**
- * Topic page
+ * 获取topic数据
  *
  * @param  {HttpRequest} req
  * @param  {HttpResponse} res
@@ -115,23 +115,18 @@ exports.topic = function (req, res, next) {
   var topic_id = req.params.tid;
 
   if (topic_id.length !== 24) {
-    return res.json({error: '此话题不存在或已被删除。'});
+    return res.json({success: false, message: '此话题不存在或已被删除。'});
   }
 
   Topic.getTopic(topic_id, function(err, topic) {
 
     if(err || !topic) {
-      return res.json({error: '此话题不存在或已被删除。'});
-    }
-
-    if(!topic.author_id.equals(req.session.user._id)) {
-      return res.json({error: '无权限编辑。'});
+      return res.json({success: false, message: '此话题不存在或已被删除。'});
     }
 
     return res.json({
-      success: 'success',
-      menus: config.menus,
-      topic: topic
+      success: true,
+      data: topic
     });
   });
 };

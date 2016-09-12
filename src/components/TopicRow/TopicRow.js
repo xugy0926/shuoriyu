@@ -20,7 +20,7 @@ class TopicRow extends Component {
   };
 
   render() {
-    let to = `/topic/${this.props.item.id}`;
+    let to = `/topic/${this.props.item._id}`;
 
     return (
       <li className="list-group-item">

@@ -35,7 +35,6 @@ export default {
     signin,
     signup,
     topicPage,
-
     // place new routes before...
     content,
     error,

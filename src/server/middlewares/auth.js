@@ -4,7 +4,29 @@ var Message    = require('../proxy').Message;
 var config     = require('../config');
 var eventproxy = require('eventproxy');
 var UserProxy  = require('../proxy').User;
+var validator  = require('validator');
 import { debug } from '../../config';
+
+
+// 非登录用户也可通过
+exports.tryAuth = function (req, res, next) {
+  var ep = new eventproxy();
+  ep.fail(next);
+
+  var accessToken = String(req.body.accesstoken || req.query.accesstoken || '');
+  accessToken = validator.trim(accessToken);
+
+  UserProxy.getUserById(accessToken, ep.done(function (user) {
+    if (!user) {
+      return next()
+    }
+    if (user.is_block) {
+      return res.send({success: false, message: '您的账户被禁用'});
+    }
+    req.user = user;
+    next();
+  }));
+};
 
 /**
  * 需要管理员权限
@@ -47,6 +69,8 @@ exports.blockUser = function () {
 
 
 function gen_session(user, res) {
+  console.log('gen_session.....');
+  console.log(user);
   var auth_token = user._id + '$$$$'; // 以后可能会存储更多信息，用 $$$$ 来分隔
   var opts = {
     path: '/',

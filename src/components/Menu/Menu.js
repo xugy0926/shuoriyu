@@ -22,7 +22,6 @@ class Menu extends Component {
         }
       });
       
-      console.log(nodes);
       return (nodes);
     } else {
       return (<div />)

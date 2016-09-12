@@ -118,7 +118,7 @@
         vue.getData();
       },
       getData: function() {
-        $.post('/cms/topics?menu=' + vue.selectedMenu, function(result) {
+        $.get('/cms/topics?menu=' + vue.selectedMenu, function(result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;

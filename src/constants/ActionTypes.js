@@ -5,6 +5,7 @@ export const CLOSE_LOGIN_MODAL = 'CLOSE_LOGIN_MODAL';
 export const UPDATE_MENU = 'UPDATE_MENU';
 
 // user
+export const CHECK_TOKEN = 'READ_COOKIE';
 export const SIGNIN = 'SIGNIN';
 export const SIGNUP = 'SIGNUP';
 export const SIGNOUT = 'SIGNOUT';

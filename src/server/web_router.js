@@ -30,7 +30,7 @@ var router = express.Router();
 
 // cms page
 router.get('/', auth.adminRequired, site.index);
-router.post('/topics', site.topics);
+router.get('/topics', site.topics);
 
 // sitemap
 router.get('/sitemap.xml', site.sitemap);
@@ -38,6 +38,7 @@ router.get('/sitemap.xml', site.sitemap);
 router.get('/app/download', site.appDownload);
 
 // sign controller
+router.post('/accesstoken', auth.tryAuth, sign.accesstoken);
 if (config.allow_sign_up) {
   router.get('/signup', sign.showSignup);  // 跳转到注册页面
   router.post('/signup', sign.signup);  // 提交注册信息
@@ -74,7 +75,7 @@ router.get('/my/messages', auth.userRequired, message.index); // 用户个人的
 // topic
 
 // 新建文章界面
-router.get('/topic_data/:tid', auth.userRequired, topic.topic);  // 获取单个topic
+router.get('/topic_data/:tid', topic.topic);  // 获取单个topic
 router.get('/topic_page/:tid', topic.topicPage); // 显示某个话题
 router.get('/topic/create', auth.userRequired, topic.create);
 router.post('/topic/:tid/top', auth.adminRequired, topic.top);  // 将某话题置顶
