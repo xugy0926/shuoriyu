@@ -26,7 +26,7 @@ exports.index = function (req, res, next) {
 exports.topics = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
   page = page > 0 ? page : 1;
-  var menuKey = req.query.menuKey || '';
+  var menuKey = req.query.menuKey || 'all';
   var submenuKey = req.query.submenuKey || '';
 
   if (menuKey === '') {
@@ -35,7 +35,10 @@ exports.topics = function (req, res, next) {
 
   // 获取惨淡
   var query = {};
-  query.menu = menuKey;
+  if (menuKey !== 'all') {
+    query.menu = menuKey;
+  }
+  
   if (submenuKey !== '') {
     query.submenu = submenuKey;
   }
