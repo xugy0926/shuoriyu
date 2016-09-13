@@ -34,25 +34,26 @@ class Home extends Component {
     actions.getHomeMenus();
   }
 
-  onSelectedMenu(menuKey, args2) {
+  onSelectedMenu(selectedMenuKey, args2) {
     const {actions} = this.props;
-    
     let event;
-    let submenuKey = '';
+    let selectedSubmenuKey = '';
 
     if (typeof(args2) === 'string') {
-      submenuKey = args2 || '';
+      selectedSubmenuKey = args2 || '';
     }
 
-    actions.getTopicsByMenu(menuKey ? menuKey : '', submenuKey);
+    actions.getTopicsByMenu(selectedMenuKey, selectedSubmenuKey);
   }
 
   render() {
-
     return (
       <div>
         <div className="col-sm-2">
-          <Menu selectedMenu={this.props.selectedMenu} menus={this.props.menus || []} onSelectedMenu={this.onSelectedMenu.bind(this)}/>
+          <Menu 
+            selectedMenuKey={this.props.selectedMenuKey}
+            menus={this.props.menus || []} 
+            onSelectedMenu={this.onSelectedMenu.bind(this)}/>
         </div>
         <div className="col-sm-6">
           <div className="panel panel-default">
@@ -73,7 +74,8 @@ function mapStateToProps(state) {
   return {
     topics: state.home.topics || [],
     menus: state.home.menus || [],
-    selectedMenu: state.home.selectedMenu || ''
+    selectedMenuKey: state.home.selectedMenuKey || '',
+    selectedSubmenuKey: state.home.selectedSubmenuKey || ''
   }
 }
 

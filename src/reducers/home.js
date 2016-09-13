@@ -1,7 +1,8 @@
 import * as types from '../constants/ActionTypes';
 
 const initialState = {
-  selectedMenu: '',
+  selectedMenuKey: '',
+  selectedSubmenuKey: '',
   menus: [],
   topics: []
 };
@@ -9,31 +10,36 @@ const initialState = {
 export default function (state = initialState, action) {
 
   const {payload, error, meta = {}, type} = action;
-  const {sequence = {}, menu, id = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
+  const {sequence = {}, selectedMenu = {},  id = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
 
   if (sequence.type === 'start' || error) {
     return state;
   }
+
+  console.log(payload);
 
   switch (action.type) {
 	case types.GET_HOME_MENUS:
       let data = action.payload;
 	  return {
         ...state,
-        menus: data.menus,
-        selectedMenu: data.selectedMenu,
-        topics: data.topics
+        menus: payload.menus,
+        selectedMenuKey: payload.selectedMenuKey,
+        selectedSubmenuKey: payload.selectedSubmenuKey,
+        topics: payload.topics
 	  };
 	case types.GET_TOPICS_BY_MENU:
 	  return {
 	    ...state,
-	    topics: action.payload,
-	    selectedMenu: menu
+	    topics: payload,
+	    selectedMenuKey: selectedMenu.selectedMenuKey,
+	    selectedSubmenuKey: selectedMenu.selectedSubmenuKey
 	  };
 	case types.UPDATE_MENU:
 	  return {
 	  	...state,
-	  	selectedMenu: action.payload
+	  	selectedMenuKey: payload.selectedMenuKey,
+	  	selectedSubmenuKey: payload.selectedSubmenuKey
 	  };
 	 default:
 	    return state;

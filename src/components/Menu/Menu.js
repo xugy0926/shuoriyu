@@ -6,12 +6,12 @@ class Menu extends Component {
 
   static propTypes = {
     menus: PropTypes.object.isRequired,
+    selectedMenuKey: PropTypes.string.isRequired,
     onSelectedMenu: PropTypes.func.isRequired,
-    selectedMenu: PropTypes.string.isRequired,
   };
 
   buildMenus() {
-    if (this.props.menus && this.props.selectedMenu) {
+    if (this.props.menus && this.props.selectedMenuKey) {
       let nodes = [];
       this.props.menus.forEach((menu, index) => {
 
@@ -29,7 +29,7 @@ class Menu extends Component {
   }
 
   buildDefaultButton(index, menu) {
-    return this.props.selectedMenu === menu.key ?
+    return this.props.selectedMenuKey === menu.key ?
       (<Button className="active"
         key={index} 
         onClick={this.props.onSelectedMenu.bind(this, menu.key)}>

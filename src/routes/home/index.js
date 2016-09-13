@@ -11,19 +11,8 @@ import React from 'react';
 import Home from './Home';
 import fetch from '../../core/fetch';
 
-var getTabs = async function() {
-	const resp = await fetch('api/v1/tabs');
-	const { success, data } = await resp.json();
-	if ( !success || !data) throw new Error('Failed to load the tabs.');
-
-	return data;
-};
-
-
 export default {
-
   path: '/',
-
   async action() {
     return <Home />;
   },

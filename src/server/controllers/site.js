@@ -26,20 +26,22 @@ exports.index = function (req, res, next) {
 exports.topics = function (req, res, next) {
   var page = parseInt(req.query.page, 10) || 1;
   page = page > 0 ? page : 1;
-  var menu = req.query.menu || 'all';
+  var menuKey = req.query.menuKey || '';
+  var submenuKey = req.query.submenuKey || '';
+
+  if (menuKey === '') {
+    return res.json({success: false, message: '没选菜单'});
+  }
+
+  // 获取惨淡
+  var query = {};
+  query.menu = menuKey;
+  if (submenuKey !== '') {
+    query.submenu = submenuKey;
+  }
 
   var proxy = new eventproxy();
   proxy.fail(next);
-
-  // 取主题
-  var query = {};
-  if (menu && menu !== 'all') {
-    if (menu === 'good') {
-      query.good = true;
-    } else {
-      query.menu = menu;
-    }
-  }
 
   var limit = config.list_topic_count;
   var options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
