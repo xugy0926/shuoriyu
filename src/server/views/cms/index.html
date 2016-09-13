@@ -72,7 +72,7 @@
     data: {
       pageTitle: '全部',
       menus: [],
-      selectedMenu: 'all',
+      selectedMenuKey: 'all',
       topics: [],
       submenus: [],
       errorMsg: ''
@@ -101,7 +101,7 @@
         });
 
         vue.menus = menusTpl;
-        vue.updateSelectedMenu(vue.menus[0].key);
+        vue.updateSelectedMenuKey(vue.menus[0].key);
       },
       buildSubmenus: function(menus) {
         vue.submenus = [];
@@ -114,11 +114,11 @@
         });
       },
       onMenu: function(event) {
-        vue.updateSelectedMenu(event.target.value);
+        vue.updateSelectedMenuKey(event.target.value);
         vue.getData();
       },
       getData: function() {
-        $.get('/cms/topics?menuKey=' + vue.selectedMenu, function(result) {
+        $.get('/cms/topics?menuKey=' + vue.selectedMenuKey, function(result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -148,7 +148,7 @@
 
         vue.topics = topics;
       },
-      updateSelectedMenu: function(key) {
+      updateSelectedMenuKey: function(key) {
         console.log(key);
         vue.menus.forEach((item)=> {
           if(item.key === key) {
