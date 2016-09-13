@@ -93,12 +93,12 @@
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
-            vue.topic = result.data;
-            vue.selectedMenu = result.topic.menu;
+            vue.topic = result.data || {};
+            vue.selectedMenu = vue.topic.menu || '';
             vue.updateSubmenusOptions(vue.selectedMenu);
-            vue.selectedSubmenu = result.topic.submenu;
-            vue.title = result.topic.title;
-            editor.codemirror.setValue(vue.topic.content);
+            vue.selectedSubmenu = vue.topic.submenu || '';
+            vue.title = vue.topic.title || '';
+            editor.codemirror.setValue(vue.topic.content || '');
           }
         });
       },
