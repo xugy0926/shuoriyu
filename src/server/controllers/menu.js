@@ -8,7 +8,15 @@ exports.index = function (req, res, next) {
 }
 
 exports.getMenus = function (req, res, next) {
-  Menu.getMenus({deleted: false}, function (err, menus) {
+  let all = req.body.all || false;
+
+  let query = {deleted: false};
+
+  if (!all) {
+    query.enable = true;
+  }
+
+  Menu.getMenus(query, function (err, menus) {
     if (err) {
       res.json({success: false, message: '获取menus错误'});
       return;

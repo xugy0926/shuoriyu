@@ -105,7 +105,7 @@ router.post('/upload', auth.userRequired, topic.upload); //上传图片
 router.get('/menusPage', menu.index);
 
 // menu
-router.get('/menus', menu.getMenus);
+router.post('/menus', menu.getMenus);
 router.post('/menu/add', auth.adminRequired, menu.addMenu);
 router.post('/menu/:mid/delete', auth.adminRequired, menu.deleteMenu);
 router.post('/menu/:mid/update',  menu.updateMenu);

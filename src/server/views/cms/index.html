@@ -79,7 +79,7 @@
     },
     methods: {
       getMenus: function() {
-        $.get('/cms/menus', function (result) {
+        $.post('/cms/menus', {all: true}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;

@@ -9,5 +9,5 @@ function filterData(data) {
 }
 
 export function getMenus() {
-  return requestService.get('/menus').then(filterData);
+  return requestService.post('/menus').then(filterData);
 }
