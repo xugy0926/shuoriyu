@@ -1,12 +1,13 @@
 import React, { Component, PropTypes } from 'react';
+import s from './Menu.css';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
-import { ButtonGroup, Button, DropdownButton, SplitButton, MenuItem } from 'react-bootstrap';
 
 class Menu extends Component {
 
   static propTypes = {
     menus: PropTypes.object.isRequired,
     selectedMenuKey: PropTypes.string.isRequired,
+    selectedSubmenuKey: PropTypes.string.isRequired,
     onSelectedMenu: PropTypes.func.isRequired,
   };
 
@@ -30,17 +31,13 @@ class Menu extends Component {
 
   buildDefaultButton(index, menu) {
     return this.props.selectedMenuKey === menu.key ?
-      (<Button className="active"
-        key={index} 
-        onClick={this.props.onSelectedMenu.bind(this, menu.key)}>
-        {menu.value}
-      </Button>
+      (<li>
+        <a className={s.active} key={index} onClick={this.props.onSelectedMenu.bind(this, menu.key)}>{menu.value}</a>
+      </li>
       ): (
-      <Button
-        key={index} 
-        onClick={this.props.onSelectedMenu.bind(this, menu.key)}>
-        {menu.value}
-      </Button>
+      <li>
+        <a key={index} onClick={this.props.onSelectedMenu.bind(this, menu.key)}>{menu.value}</a>
+      </li>
       );
   }
 
@@ -50,29 +47,37 @@ class Menu extends Component {
 
     if (submenus && submenus.length > 0) {
       submenus.forEach((submenu)=> {
-        submenusNodes.push((<MenuItem onClick={this.props.onSelectedMenu.bind(this, menu.key, submenu.key)}>{submenu.value}</MenuItem>));
+        submenusNodes.push( this.props.selectedSubmenuKey === submenu.key ? (
+          <li>
+            <a className={s.active} onClick={this.props.onSelectedMenu.bind(this, menu.key, submenu.key)}>
+              {submenu.value}
+            </a>
+          </li>)
+        : (
+          <li>
+            <a onClick={this.props.onSelectedMenu.bind(this, menu.key, submenu.key)}>
+              {submenu.value}
+            </a>
+          </li>));
       });
     }
 
-    return this.props.selectedMenu === menu.key ?
-      (<DropdownButton title={menu.value} className="active">
+    return (<li>
+        <a>{menu.value}</a>
+        <ul>
         {submenusNodes}
-      </DropdownButton>
-      )
-      :
-      (<DropdownButton title={menu.value}>
-        {submenusNodes}
-      </DropdownButton>
+        </ul>
+      </li>
       );
   }
 
   render() {
     return (
-      <ButtonGroup vertical>
+      <ul className={s.level1}>
         {this.buildMenus()}
-      </ButtonGroup>
+      </ul>
     );
   }
 }
 
-export default(Menu);
+export default withStyles(s)(Menu);

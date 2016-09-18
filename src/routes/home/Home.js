@@ -49,13 +49,14 @@ class Home extends Component {
   render() {
     return (
       <div>
-        <div className="col-sm-2">
-          <Menu 
+        <div className={s.siderbarmenu1}>
+          <Menu
             selectedMenuKey={this.props.selectedMenuKey}
+            selectedSubmenuKey={this.props.selectedSubmenuKey}
             menus={this.props.menus || []} 
             onSelectedMenu={this.onSelectedMenu.bind(this)}/>
         </div>
-        <div className="col-sm-6">
+        <div className={s.root}>
           <div className="panel panel-default">
             <ul className="list-group">
               {this.props.topics.map((topic, index) => 
@@ -69,7 +70,7 @@ class Home extends Component {
   }
 }
 
-const LayoutComponent = Home;
+const LayoutComponent = withStyles(s)(Home);
 function mapStateToProps(state) {
   return {
     topics: state.home.topics || [],
