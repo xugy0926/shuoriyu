@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import s from './Menu.css';
+import s from './menu.css';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 
 class Menu extends Component {
