@@ -33,7 +33,7 @@ exports.tryAuth = function (req, res, next) {
  */
 exports.adminRequired = function (req, res, next) {
   if (!req.session.user) {
-    return res.json({success: false, message: '你还没有登录。' });
+    return res.render('sign/signin');
   }
 
   if (!req.session.user.is_admin) {

@@ -82,6 +82,10 @@
         $.post('/cms/menus', {all: true}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
+
+            if(result.url) {
+              window.location.href = result.url;
+            }
             return;
           }
 
