@@ -59,7 +59,7 @@
     },
     methods: {
       getMenus: function() {
-        $.post('/cms/menus', {all: true} function(result) {
+        $.post('/cms/menus', {all: true}, function(result) {
           if (result.success) {
             let data = result.data || [];
 
