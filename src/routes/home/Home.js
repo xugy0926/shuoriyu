@@ -10,7 +10,8 @@
 import React, { Component, PropTypes } from 'react';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Home.css';
-import Menu from '../../components/Menu';
+import classnames from 'classnames';
+import SiderbarMenu from '../../components/SiderbarMenu';
 import TopicRow from '../../components/TopicRow';
 import { Panel, Col } from 'react-bootstrap';
 import connectComponent from '../../utils/connectComponent';
@@ -49,17 +50,15 @@ class Home extends Component {
   render() {
     return (
       <div>
-        <div className={s.siderbarmenu1}>
-          <Menu
-            selectedMenuKey={this.props.selectedMenuKey}
-            selectedSubmenuKey={this.props.selectedSubmenuKey}
-            menus={this.props.menus || []} 
-            onSelectedMenu={this.onSelectedMenu.bind(this)}/>
-        </div>
+        <SiderbarMenu
+          selectedMenuKey={this.props.selectedMenuKey}
+          selectedSubmenuKey={this.props.selectedSubmenuKey}
+          menus={this.props.menus || []} 
+          onSelectedMenu={this.onSelectedMenu.bind(this)}/>
         <div className={s.root}>
           <div className="panel panel-default">
             <ul className="list-group">
-              {this.props.topics.map((topic, index) => 
+              {this.props.topics.map((topic, index) =>
                 (<TopicRow key={topic._id} index={index+1} item={topic}/>))
               }
             </ul>

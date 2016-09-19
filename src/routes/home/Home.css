@@ -7,23 +7,18 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
-.siderbarmenu1 {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    height: calc(100% - 81px);
-    width: 280px;
-    border-right: 1px solid #ececec;
-    overflow: auto;
-    padding: 28px 0;
-    background: #FFF;
-    z-index: 1070;
-}
-
 .root {
     max-width: 1920px;
     padding-left: 280px;
     margin: 0 auto;
+}
+
+@media (max-width: 991px) {
+	.root {
+	    max-width: 1920px;
+	    padding-left: 0px;
+	    margin: 0 auto;
+	}
 }
 
 .container {

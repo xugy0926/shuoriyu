@@ -1,0 +1,6 @@
+{
+  "name": "SiderbarMenu",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./SiderbarMenu.js"
+}
