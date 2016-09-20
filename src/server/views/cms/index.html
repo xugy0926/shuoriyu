@@ -77,6 +77,7 @@
       submenus: [],
       currentPage: 1,
       pages: 1,
+      canLoadData: true,
       errorMsg: ''
     },
     methods: {
@@ -130,6 +131,8 @@
         if (currentPage > vue.pages) return;
 
         $.get('/cms/topics?menuKey=' + vue.selectedMenuKey + '&currentPage=' + currentPage, function(result) {
+          canLoadData = true;
+
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -233,8 +236,11 @@
   }
 
   $(window).on('scroll',function() {
-    if (getScrollTop() + getClientHeight() == getScrollHeight() && vue.currentPage < vue.pages) {
-        vue.getData(vue.currentPage + 1);
+    if ((getScrollTop() + getClientHeight()) >= getScrollHeight() && vue.currentPage < vue.pages) {
+        if (canLoadData) {
+          canLoadData = false;
+          vue.getData(vue.currentPage + 1);
+        }
     }
   });
 
