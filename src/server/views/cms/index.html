@@ -75,6 +75,8 @@
       selectedMenuKey: 'all',
       topics: [],
       submenus: [],
+      currentPage: 1,
+      pages: 1,
       errorMsg: ''
     },
     methods: {
@@ -92,7 +94,7 @@
           let data = result.data || [];
           vue.buildMenus(data);
           vue.buildSubmenus(data);
-          vue.getData();
+          vue.getData(vue.currentPage);
         });
       },
       buildMenus: function(menus) {
@@ -121,14 +123,18 @@
         vue.updateSelectedMenuKey(event.target.value);
         vue.getData();
       },
-      getData: function() {
-        $.get('/cms/topics?menuKey=' + vue.selectedMenuKey, function(result) {
+      getData: function(currentPage) {
+        if (currentPage > vue.pages) return;
+
+        $.get('/cms/topics?menuKey=' + vue.selectedMenuKey + '&currentPage=' + currentPage, function(result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
           }
            
           vue.updateTopics(result.data);
+          vue.currentPage = result.currentPage;
+          vue.pages = result.pages;
         });
       },
       updateTopics: function(topics) {
@@ -150,7 +156,7 @@
           }
         });
 
-        vue.topics = topics;
+        topics.forEach((item)=> {vue.topics.push(item)});
       },
       updateSelectedMenuKey: function(key) {
         console.log(key);
@@ -193,6 +199,39 @@
           });
         }
       }
+    }
+  });
+
+  //获取滚动条当前的位置 
+  function getScrollTop() { 
+    var scrollTop = 0; 
+    if (document.documentElement && document.documentElement.scrollTop) { 
+      scrollTop = document.documentElement.scrollTop; 
+    } else if (document.body) { 
+      scrollTop = document.body.scrollTop; 
+    } 
+    return scrollTop;
+  }
+
+  //获取当前可是范围的高度 
+  function getClientHeight() {
+    var clientHeight = 0; 
+    if (document.body.clientHeight && document.documentElement.clientHeight) { 
+      clientHeight = Math.min(document.body.clientHeight, document.documentElement.clientHeight); 
+    } else { 
+      clientHeight = Math.max(document.body.clientHeight, document.documentElement.clientHeight); 
+    }
+    return clientHeight;
+  }
+
+  //获取文档完整的高度 
+  function getScrollHeight() { 
+    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); 
+  }
+
+  $(window).on('scroll',function() {
+    if (getScrollTop() + getClientHeight() == getScrollHeight() && vue.currentPage < vue.pages) {
+        vue.getData(vue.currentPage + 1);
     }
   });
 

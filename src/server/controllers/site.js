@@ -24,8 +24,8 @@ exports.index = function (req, res, next) {
 }
 
 exports.topics = function (req, res, next) {
-  var page = parseInt(req.query.page, 10) || 1;
-  page = page > 0 ? page : 1;
+  var currentPage = parseInt(req.query.currentPage, 10) || 1;
+  currentPage = currentPage > 0 ? currentPage : 1;
   var menuKey = req.query.menuKey || 'all';
   var submenuKey = req.query.submenuKey || '';
 
@@ -33,7 +33,7 @@ exports.topics = function (req, res, next) {
     return res.json({success: false, message: '没选菜单'});
   }
 
-  // 获取惨淡
+  // 获取菜单查询条件
   var query = {};
   if (menuKey !== 'all') {
     query.menu = menuKey;
@@ -47,10 +47,8 @@ exports.topics = function (req, res, next) {
   proxy.fail(next);
 
   var limit = config.list_topic_count;
-  var options = { skip: (page - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
+  var options = { skip: (currentPage - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
 
-  console.log(query);
-  console.log(options);
   Topic.getTopicsByQuery(query, options, proxy.done('topics', function (topics) {
     return topics;
   }));
@@ -75,8 +73,7 @@ exports.topics = function (req, res, next) {
       return res.json({
         success: true,
         data: topics,
-        current_page: page,
-        list_topic_count: limit,
+        currentPage: currentPage,
         pages: pages
       });
     });
