@@ -121,6 +121,9 @@
       },
       onMenu: function(event) {
         vue.updateSelectedMenuKey(event.target.value);
+        vue.currentPage = 1;
+        vue.pages = 1;
+        vue.topics = [];
         vue.getData();
       },
       getData: function(currentPage) {
