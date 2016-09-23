@@ -1,7 +1,7 @@
 (function(global) {
 
 	var ButtomLoader = function () {
-	}
+	};
 
 	//获取滚动条当前的位置 
 	ButtomLoader.prototype.getScrollTop = function() { 
@@ -12,7 +12,7 @@
 		  scrollTop = document.body.scrollTop; 
 		} 
 		return scrollTop;
-	}
+	};
 
 	//获取当前可是范围的高度 
 	ButtomLoader.prototype.getClientHeight = function() {
@@ -23,12 +23,12 @@
 		  clientHeight = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
 		}
 		return clientHeight;
-	}
+	};
 
 	//获取文档完整的高度 
 	ButtomLoader.prototype.getScrollHeight = function () { 
 	  return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); 
-	}
+	};
 
 	ButtomLoader.prototype.init = function(callback) {
 	  var that = this;
@@ -41,7 +41,7 @@
 		    callback();
 		}
 	  });
-	}
+	};
 
 	global.ButtomLoader = ButtomLoader;
 })(this);

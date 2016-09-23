@@ -24,11 +24,15 @@ var vue = new Vue({
   },
   methods: {
     submit: function(event) {
-      $.post('/cms/signin', { _csrf: $('#_csrf').val(), name: this.username, pass: this.password }, function (result) {
+      $.post('/cms/signin', { _csrf: $('#_csrf').val(), loginname: this.username, password: this.password }, function (result) {
         if (!result.success) {
           vue.errorMsg = result.error;
         } else {
-          location.href = '/';
+          if (result.data && result.data.active) {
+            location.href = '/';
+          } else {
+            vue.errorMsg = '您的账号未激活';
+          }
         }
       });
     }
