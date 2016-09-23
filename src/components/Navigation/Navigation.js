@@ -36,9 +36,9 @@ class Navigation extends Component {
   }
 
   render() {
-    const {secret} = this.props;
+    const {secret, active} = this.props;
     let userNode = null;
-    if (secret && secret._id) {
+    if (secret && secret._id && active) {
       userNode = (<Nav pullRight>
                     <NavDropdown eventKey={1} title={secret.name}>
                       <MenuItem eventKey={1.1} onClick={this._onSignout.bind(this)}>退出</MenuItem>
@@ -72,6 +72,7 @@ class Navigation extends Component {
 const LayoutComponent = withStyles(s)(Navigation);
 function mapStateToProps(state) {
   return {
+    active: state.auth.active || false,
     secret: state.auth.secret || {}
   }
 }

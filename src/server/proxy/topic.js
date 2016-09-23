@@ -221,17 +221,17 @@ exports.reduceCount = function (id, callback) {
 
       topic.save(callback);
     });
-
   });
 };
 
-exports.newAndSave = function (title, content, menu, submenu, authorId, callback) {
-  var topic       = new Topic();
-  topic.title     = title;
-  topic.content   = content;
-  topic.menu      = menu;
-  topic.submenu   = submenu;
-  topic.author_id = authorId;
+exports.newAndSave = function (topic, callback) {
+  var newTopic       = new Topic();
+  newTopic.title     = topic.title;
+  newTopic.content   = topic.content;
+  newTopic.menu      = topic.menu;
+  newTopic.submenu   = topic.submenu;
+  newTopic.author_id = topic.authorId;
+  newTopic.status    = topic.status;
 
   topic.save(callback);
 };

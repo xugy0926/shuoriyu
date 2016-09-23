@@ -19,24 +19,30 @@ exports.accesstoken = function (req, res, next) {
 
   res.send({
     success: true,
-    data: req.user
+    data: req.user,
+    active: req.user.active || false
   });
 };
 
 exports.signup = function (req, res, next) {
   var loginname = validator.trim(req.body.loginname).toLowerCase();
   var email     = validator.trim(req.body.email).toLowerCase();
-  var pass      = validator.trim(req.body.pass);
-  var rePass    = validator.trim(req.body.re_pass);
+  var password      = validator.trim(req.body.password);
+  var rePassword    = validator.trim(req.body.rePassword);
+
+  console.log(req.body.loginname);
+    console.log(req.body.email);
+      console.log(req.body.password);
+  console.log(req.body.rePassword);
 
   var ep = new eventproxy();
   ep.fail(next);
   ep.on('prop_err', function (msg) {
-    res.json({success: false, message: '数据不合法'});
+    res.json({success: false, message: msg});
   });
 
   // 验证信息的正确性
-  if ([loginname, pass, rePass, email].some(function (item) { return item === ''; })) {
+  if ([loginname, password, rePassword, email].some(function (item) { return item === ''; })) {
     ep.emit('prop_err', '信息不完整。');
     return;
   }
@@ -50,7 +56,7 @@ exports.signup = function (req, res, next) {
   if (!validator.isEmail(email)) {
     return ep.emit('prop_err', '邮箱不合法。');
   }
-  if (pass !== rePass) {
+  if (password !== rePassword) {
     return ep.emit('prop_err', '两次密码输入不一致。');
   }
   // END 验证信息的正确性
@@ -68,17 +74,17 @@ exports.signup = function (req, res, next) {
       return;
     }
 
-    tools.bhash(pass, ep.done(function (passhash) {
+    tools.bhash(password, ep.done(function (passhash) {
       // create gravatar
       var avatarUrl = User.makeGravatar(email);
-      User.newAndSave(loginname, loginname, passhash, email, avatarUrl, false, function (err) {
+      User.newAndSave(loginname, loginname, passhash, email, avatarUrl, false, function (err, user) {
         if (err) {
           return next(err);
         }
         // 发送激活邮件
         mail.sendActiveMail(email, utility.md5(email + passhash + config.session_secret), loginname);
         res.json({
-          success: true, message: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'
+          success: true, data: user, active: false, message: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'
         });
       });
 
@@ -116,13 +122,13 @@ var notJump = [
  * @param {Function} next
  */
 exports.login = function (req, res, next) {
-  var loginname = validator.trim(req.body.name).toLowerCase();
-  var pass      = validator.trim(req.body.pass);
+  var loginname = validator.trim(req.body.loginname).toLowerCase();
+  var password  = validator.trim(req.body.password);
   var ep        = new eventproxy();
 
   ep.fail(next);
 
-  if (!loginname || !pass) {
+  if (!loginname || !password) {
     return res.json({ success: false, message: '信息不完整。' });
   }
 
@@ -146,7 +152,7 @@ exports.login = function (req, res, next) {
       return ep.emit('login_error');
     }
     var passhash = user.pass;
-    tools.bcompare(pass, passhash, ep.done(function (bool) {
+    tools.bcompare(password, passhash, ep.done(function (bool) {
       if (!bool) {
         return ep.emit('login_error');
       }
@@ -154,7 +160,7 @@ exports.login = function (req, res, next) {
         // 重新发送激活邮件
         mail.sendActiveMail(user.email, utility.md5(user.email + passhash + config.session_secret), user.loginname);
 //        res.status(403);
-        return res.json({ success: false, message: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });
+        return res.json({ success: true, data: user, active: false, message: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' });
       }
       // store session cookie
       authMiddleWare.gen_session(user, res);
@@ -166,7 +172,7 @@ exports.login = function (req, res, next) {
           break;
         }
       }
-      res.json({success: true, data: user});
+      res.json({success: true, data: user, active: true});
     }));
   });
 };

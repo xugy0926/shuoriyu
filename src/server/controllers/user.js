@@ -248,32 +248,38 @@ exports.top100 = function (req, res, next) {
   });
 };
 
+exports.listTopicsPage = function (req, res, next) {
+  var userName = req.params.name;
+  console.log('sssss');
+  res.render('user/topics', {userName: userName});
+  console.log('fffff');
+};
+
 exports.listTopics = function (req, res, next) {
-  var user_name = req.params.name;
-  var page = Number(req.query.page) || 1;
+  var userName = req.params.name;
+  var currentPage = Number(req.query.currentPage) || 1;
   var limit = config.list_topic_count;
 
-  User.getUserByLoginName(user_name, function (err, user) {
+  User.getUserByLoginName(userName, function (err, user) {
     if (!user) {
-      res.render404('这个用户不存在。');
+      res.json({success: false, message: '这个用户不存在。'});
       return;
     }
 
-    var render = function (topics, pages) {
-      res.render('user/topics', {
+    var proxy = new EventProxy();
+    proxy.assign('topics', 'pages', function(topics, pages) {
+      return res.json({
+        success: true,
         user: user,
-        topics: topics,
-        current_page: page,
+        data: topics,
+        currentPage: currentPage,
         pages: pages
       });
-    };
-
-    var proxy = new EventProxy();
-    proxy.assign('topics', 'pages', render);
+    });
     proxy.fail(next);
 
     var query = {'author_id': user._id};
-    var opt = {skip: (page - 1) * limit, limit: limit, sort: '-create_at'};
+    var opt = {skip: (currentPage - 1) * limit, limit: limit, sort: '-create_at'};
     Topic.getTopicsByQuery(query, opt, proxy.done('topics'));
 
     Topic.getCountByQuery(query, proxy.done(function (all_topics_count) {

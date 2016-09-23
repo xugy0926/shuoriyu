@@ -62,7 +62,8 @@ router.post('/setting', auth.userRequired, user.setting); // 提交个人信息�
 router.get('/stars', user.listStars); // 显示所有达人列表页
 router.get('/users/top100', user.top100);  // 显示积分前一百用户页
 router.get('/user/:name/collections', user.listCollectedTopics);  // 用户收藏的所有话题页
-router.get('/user/:name/topics', user.listTopics);  // 用户发布的所有话题页
+router.get('/user/:name/topicsPage', user.listTopicsPage);  // 用户发布的所有话题页
+router.post('/user/:name/topics', user.listTopics);
 router.get('/user/:name/replies', user.listReplies);  // 用户参与的所有回复页
 router.post('/user/set_star', auth.adminRequired, user.toggleStar); // 把某用户设为达人
 router.post('/user/cancel_star', auth.adminRequired, user.toggleStar);  // 取消某用户的达人身份
@@ -73,15 +74,16 @@ router.post('/user/:name/delete_all', auth.adminRequired, user.deleteAll);  // �
 router.get('/my/messages', auth.userRequired, message.index); // 用户个人的所有消息页
 
 // topic
-
+router.get('/topicConfig', topic.topicConfig);
 // 新建文章界面
 router.get('/topic_data/:tid', topic.topic);  // 获取单个topic
 router.get('/topic_page/:tid', topic.topicPage); // 显示某个话题
 router.get('/topic/create', auth.userRequired, topic.create);
-router.post('/topic/:tid/top', auth.adminRequired, topic.top);  // 将某话题置顶
-router.post('/topic/:tid/good', auth.adminRequired, topic.good); // 将某话题加精
-router.get('/topic/:tid/edit', auth.userRequired, topic.showEdit);  // 编辑某话题
-router.post('/topic/:tid/lock', auth.adminRequired, topic.lock); // 锁定主题，不能再回复
+router.post('/topic/:tid/top', auth.adminRequired, topic.top);       // 将某话题置顶
+router.post('/topic/:tid/good', auth.adminRequired, topic.good);     // 将某话题加精
+router.get('/topic/:tid/edit', auth.userRequired, topic.showEdit);   // 编辑某话题
+router.post('/topic/:tid/status', auth.userRequired, topic.status);  // 更新话题状态
+router.post('/topic/:tid/lock', auth.adminRequired, topic.lock);     // 锁定主题，不能再回复
 
 router.post('/topic/:tid/delete', auth.userRequired, topic.delete);
 

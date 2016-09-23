@@ -11,9 +11,6 @@
       <span>
         作者 <a href="/cms/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
       </span>
-      <span>
-        <%= topic.visit_count %> 次浏览
-      </span>
       <% if (topic.create_at_ago() != topic.update_at_ago()) { %>
         <span>
           最后一次编辑是 <%= topic.update_at_ago() %>
@@ -22,6 +19,19 @@
       <% if (topic.tab) { %>
         <span> 来自 <%= topic.tabName %></span>
       <%}%>
+
+      <button class="btn btn-primary pull-right" v-if="isReviewed">{{statusValue}}</button>
+      <div class="btn-group pull-right" v-else>
+        <button type="button" class="btn btn-danger btn-sm">{{statusValue}}</button>
+        <button type="button" class="btn btn-danger dropdown-toggle btn-sm" data-toggle="dropdown">
+          <span class="caret"></span>
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li v-if="isReviewing"><a v-on:click="onReviewing('saved')">取消审核</a></li>
+          <li v-else><a v-on:click="onReviewing('reviewing')">提交审核</a></li>
+        </ul>
+      </div>
     </div>
   </div>
   <div class='nongshuoshu-body content'>
@@ -98,9 +108,53 @@
         currentUserId: "",
         topicId: '',
         replies: null,
-        content: ''
+        content: '',
+        topicStatus: [],
+        statusKey: 'saved',
+        statusValue: '已保存',
+        isReviewing: false,
+        isReviewed: false
       },
       methods: {
+        getTopicConfig: function() {
+          $.get('/cms/topicConfig', function (result) {
+            if (!result.success) {
+              return;
+            }
+            
+            vue.topicStatus = result.data.topicStatus;
+            vue.updateTopicStatus(vue.statusKey);
+            vue.updateReviewing();
+          });
+        },
+        updateTopicStatus(key) {
+          var index = _.findLastIndex(vue.topicStatus, function(item) {
+            return  item.key == key;
+          });
+
+          if (index > -1) {
+            vue.statusValue = vue.topicStatus[index].value;
+            vue.updateReviewing();
+          } else {
+            vue.errorMsg = '处理出错';
+          }
+        },
+        onReviewing (status) {
+          $.post('/cms/topic/' + vue.topicId + '/status', {status: status}, function (result) {
+            if (!result.success) {
+              vue.errorMsg = result.message;
+              return;
+            }
+            vue.statusKey = status;
+            vue.updateTopicStatus(status);
+          });
+        },
+        updateReviewing() {
+          console.log(vue.statusKey);
+          vue.isReviewing = vue.statusKey === 'reviewing';
+          vue.isReviewed = vue.statusKey === 'reviewed';
+          console.log(vue.isReviewed);
+        },
         getReplies: function() {
           $.get('/cms/' + vue.topicId + '/replies', function (result) {
             if (!result.success) {
@@ -114,7 +168,6 @@
           $.post('/cms/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
-              alert(vue.errorMsg);
               return;
             }
 
@@ -177,6 +230,7 @@
 
     vue.topicId = '<%= typeof(topic) !== "undefined" && topic ? topic._id : "" %>';
     vue.currentUserId = '<%= typeof(current_user) !== "undefined" && current_user ? current_user._id : "" %>';
+    vue.statusKey = '<%= typeof(topic) !== "undefined" && topic ? topic.status : "saved" %>';
 
     if(vue.currentUserId) {
       var editor = new Editor();
@@ -184,5 +238,6 @@
     }
 
     vue.getReplies();
+    vue.getTopicConfig();
   });
 </script>

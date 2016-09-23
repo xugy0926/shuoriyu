@@ -20,6 +20,10 @@ var _            = require('lodash');
 var cache        = require('../common/cache');
 var logger = require('../common/logger')
 
+exports.topicConfig = function (req, res, next) {
+  return res.json({success: true, data: {topicStatus: tools.getTopicStatus()}});
+}
+
 exports.topicPage = function (req, res, next) {
   function isUped(user, reply) {
     if (!reply.ups) {
@@ -141,6 +145,7 @@ exports.put = function (req, res, next) {
   var menu     = validator.trim(req.body.menu);
   var submenu = validator.trim(req.body.submenu);
   var content = validator.trim(req.body.content);
+  var status = validator.trim(req.body.status) || 'saved';
 
   // 验证
   var editError;
@@ -159,7 +164,16 @@ exports.put = function (req, res, next) {
     return res.json({error: editError});
   }
 
-  Topic.newAndSave(title, content, menu, submenu, req.session.user._id, function (err, topic) {
+  var newTopic = {
+    title: title,
+    content: content,
+    menu: menu,
+    submenu: submenu,
+    userId: req.session.user._id,
+    status: status
+  }
+
+  Topic.newAndSave(newTopic, function (err, topic) {
     if (err) {
       return res.json({error: '出错啦！'});
     }
@@ -191,9 +205,10 @@ exports.showEdit = function (req, res, next) {
 exports.update = function (req, res, next) {
   var topic_id = req.params.tid;
   var title    = req.body.title;
-  var menu      = req.body.menu;
-  var submenu = req.body.submenu;
+  var menu     = req.body.menu;
+  var submenu  = req.body.submenu;
   var content  = req.body.content;
+  var status   = req.body.status;
 
   Topic.getTopicById(topic_id, function (err, topic, tags) {
     if (!topic) {
@@ -206,6 +221,7 @@ exports.update = function (req, res, next) {
       menu     = validator.trim(menu);
       submenu = validator.trim(submenu);
       content = validator.trim(content);
+      status = validator.trim(status);
 
       // 验证
       var editError;
@@ -225,8 +241,9 @@ exports.update = function (req, res, next) {
       //保存话题
       topic.title     = title;
       topic.content   = content;
-      topic.menu       = menu;
-      topic.submenu  = submenu;
+      topic.menu      = menu;
+      topic.submenu   = submenu;
+      topic.status    = status;
       topic.update_at = new Date();
 
       topic.save(function (err) {
@@ -428,6 +445,33 @@ exports.de_collect = function (req, res, next) {
     });
   });
 };
+
+exports.status = function (req, res, next) {
+  var topicId = req.params.tid;
+  var status = validator.trim(req.body.status) || 'saved';
+
+  Topic.getTopic(topicId, function (err, topic) {
+    if (err) {
+      return res.json({ success: false, message: '获取数据错误'});
+    }
+
+    if (!req.session.user.is_admin && !(topic.author_id.equals(req.session.user._id))) {
+      return res.json({success: false, message: '无权限'});
+    }
+
+    if (!topic) {
+      return res.json({ success: false, message: '此话题不存在或已被删除。' });
+    }
+
+    topic.status = status;
+    topic.save(function (err) {
+      if (err) {
+        return res.json({ success: false, message: '保存数据出错'});
+      }
+      res.json({ success: true, message: '更新成功' });
+    });
+  });
+}
 
 exports.upload = function (req, res, next) {
   var isFileLimit = false;

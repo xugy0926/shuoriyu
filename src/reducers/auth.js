@@ -1,6 +1,7 @@
 import * as types from '../constants/ActionTypes';
 
 const initialState = {
+	active: false,
 	secret: {}
 };
 
@@ -15,17 +16,20 @@ export default function (state = initialState, action) {
 		case types.CHECK_TOKEN:
 			return {
 				...state,
-				secret: payload
+				active: payload.active || false,
+				secret: payload.user
 			}
 		case types.SIGNIN:
 			return {
 				...state,
-				secret: payload
+				active: payload.active || false,
+				secret: payload.user
 			};
 		case types.SIGNUP:
 			return {
                 ...state,
-                secret: payload
+                active: payload.active || false,
+                secret: payload.user
 			};
 		case types.SIGNOUT:
 			return initialState;

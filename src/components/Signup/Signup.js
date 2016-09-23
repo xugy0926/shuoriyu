@@ -27,7 +27,7 @@ class Signup extends Component {
       return;
     }
 
-    this.props.onSubmit(this.state.name, this.state.password, this.state.rePassword);
+    this.props.onSubmit(this.state.name, this.state.email, this.state.password, this.state.rePassword);
   }
 
   _onNameChange(e) {

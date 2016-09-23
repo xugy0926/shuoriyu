@@ -64,3 +64,12 @@
 div.category {
     margin-right: 15px;
 }
+
+/**
+* menu
+**/
+
+.menu-item-enable {
+    background-color: #dff0d8;
+}
+

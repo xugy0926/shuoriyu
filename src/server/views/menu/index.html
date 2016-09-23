@@ -4,7 +4,7 @@
   <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
   <div class="panel panel-default">
     <div class="panel-heading">
-      Menu
+      菜单
     </div>
     <div class="panel-body category">
       <table class="table table-bordered">
@@ -12,24 +12,32 @@
         <tr>
           <th>key</th>
           <th>value</th>
-          <th>status</th>
-          <th>Submenu</th>
+          <th>子菜单</th>
+          <th>状态</th>
           <th>操作</th>
         </tr>
         </thead>
         <tbody>
-          <tr v-for="(menuIndex, menu) in menus">
+          <tr v-for='(menuIndex, menu) in menus' v-bind:class="{'menu-item-enable': menu.enable}">
             <td style="width: 80px">{{menu.key}}</td>
             <td style="width: 80px">{{menu.value}}</td>
-            <td style="width: 80px">{{menu.enable}}</td>
             <td>
-              <p v-for="(submenuIndex, submenu) in menu.submenus">
-                <span class="label label-primary" >{{submenu.value}}</span>
-                <span class="glyphicon glyphicon-minus" v-on:click="onDeleteSubmenu(menuIndex, submenuIndex, submenu._id)"></span>
-              </p>
+              <!-- Split button -->
+              <div class="btn-group btn-sm" v-for="(submenuIndex, submenu) in menu.submenus">
+                <button type="button" class="btn btn-default btn-sm">{{submenu.value}}</button>
+                <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown">
+                  <span class="caret"></span>
+                  <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a v-on:click="onDeleteSubmenu(menuIndex, submenuIndex, submenu._id)">删除</a></li>
+                </ul>
+              </div>
+
               <span class="glyphicon glyphicon-plus" v-on:click="onShowDialog(menuIndex, menu._id)"></span>
             </td>
-            <td style="width: 80px">
+            <td style="width: 40px">{{menu.enable}}</td>
+            <td style="width: 60px">
               <div class="btn-group disabled">
                 <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Action <span class="caret"></span>
@@ -46,7 +54,7 @@
       </table>
       <div class="panel panel-default">
         <div class="panel-heading">
-          添加menu
+          添加主菜单
         </div>
         <div class="panel-body">
           <div class="form-inline">
@@ -72,7 +80,10 @@
 <div class="modal fade add-submenu-dialog" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
-      <div>
+      <div class="modal-header">
+        添加子菜单
+      </div>
+      <div class="modal-body">
         <div class='form-group'>
           <div class="input-group">
             <div class="input-group-addon">Key</div>
@@ -85,7 +96,10 @@
             <input class='form-control' id='submenuValue' name='submenuValue' size='30' type='text' v-model="submenuValue" placeholder=""/>
           </div>
         </div>
-        <button class="btn btn-default" v-on:click="onAddSubmenu">添加</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button class="btn btn-primary" v-on:click="onAddSubmenu">添加</button>
       </div>
     </div>
   </div>
@@ -111,7 +125,7 @@
     },
     methods: {
       getMenus: function() {
-        $.post('/cms/menus', function (result) {
+        $.post('/cms/menus', {all: true}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;

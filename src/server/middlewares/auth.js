@@ -13,7 +13,7 @@ exports.tryAuth = function (req, res, next) {
   var ep = new eventproxy();
   ep.fail(next);
 
-  var accessToken = String(req.body.accesstoken || req.query.accesstoken || '');
+  var accessToken = String(req.body.accessToken || '');
   accessToken = validator.trim(accessToken);
 
   UserProxy.getUserById(accessToken, ep.done(function (user) {

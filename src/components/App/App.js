@@ -55,6 +55,7 @@ class App extends Component {
     return !this.props.error ? (
         <Col>
           <Navigation />
+          <Col />
           <Grid>
           {this.props.children}
           </Grid>

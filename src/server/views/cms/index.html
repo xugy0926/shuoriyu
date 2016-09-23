@@ -34,16 +34,18 @@
       <th>Menu</th>
       <th>Submenu</th>
       <th>时间</th>
+      <th>审核状态</th>
       <th>操作</th>
     </tr>
     </thead>
     <tbody>
-      <tr v-for="topic in topics">
+      <tr v-for="(index, topic) in topics">
         <td style="width: 80px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
         <td><a href='/cms/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
         <td style="width: 80px">{{topic.menuValue}}</td>
         <td style="width: 80px">{{topic.submenuValue}}</td>
         <td style="width: 80px">{{topic.create_at}}</td>
+        <td style="width: 80px">{{topic.status}}</td>
         <td style="width: 80px">
           <div class="btn-group disabled">
             <button type="button" class="btn btn-default dropdown-toggle btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -59,6 +61,9 @@
               <li v-if="topic.lock"><a href="#">取消锁定</a></li>
               <li v-else><a href="#">锁定</a></li>
               <li><a v-on:click="onDelete(topic._id)">删除</a></li>
+              <li class="divider"></li>
+              <li><a v-on:click="onReviewed(index, topic._id, 'reviewed')">审核通过</a></li>
+              <li><a v-on:click="onReviewed(index, topic._id, 'reject')">审核失败</a></li>
             </ul>
           </div>
         </td>
@@ -165,7 +170,6 @@
         topics.forEach((item)=> {vue.topics.push(item)});
       },
       updateSelectedMenuKey: function(key) {
-        console.log(key);
         vue.menus.forEach((item)=> {
           if(item.key === key) {
             item.selected = true;
@@ -204,43 +208,24 @@
             }
           });
         }
+      },
+      onReviewed: function(index, topicId, status) {
+        $.post('/cms/topic/' + topicId + '/status', {status: status}, function (result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            return;
+          }
+          vue.topics[index].status = status;
+        });
       }
     }
   });
 
-  //获取滚动条当前的位置 
-  function getScrollTop() { 
-    var scrollTop = 0; 
-    if (document.documentElement && document.documentElement.scrollTop) { 
-      scrollTop = document.documentElement.scrollTop; 
-    } else if (document.body) { 
-      scrollTop = document.body.scrollTop; 
-    } 
-    return scrollTop;
-  }
-
-  //获取当前可是范围的高度 
-  function getClientHeight() {
-    var clientHeight = 0; 
-    if (document.body.clientHeight && document.documentElement.clientHeight) { 
-      clientHeight = Math.min(document.body.clientHeight, document.documentElement.clientHeight); 
-    } else { 
-      clientHeight = Math.max(document.body.clientHeight, document.documentElement.clientHeight); 
-    }
-    return clientHeight;
-  }
-
-  //获取文档完整的高度 
-  function getScrollHeight() { 
-    return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight); 
-  }
-
-  $(window).on('scroll',function() {
-    if ((getScrollTop() + getClientHeight()) >= getScrollHeight() && vue.currentPage < vue.pages) {
-        if (canLoadData) {
-          canLoadData = false;
-          vue.getData(vue.currentPage + 1);
-        }
+  var buttomLoader = new ButtomLoader();
+  buttomLoader.init(function() {
+    if (vue.currentPage < vue.pages && canLoadData) {
+      canLoadData = false;
+      vue.getData(vue.currentPage + 1);
     }
   });
 

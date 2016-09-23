@@ -32,7 +32,8 @@
     </div>
   </div>
   <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
-  <button class='btn btn-primary' v-on:click="onSubmit">提交</button>
+  <button class='btn btn-primary' v-on:click="onSave">保存</button>
+  <button class='btn btn-primary' v-on:click="onReviewing">提交审核</button>
   <input type='hidden' name='_csrf' value='<%= csrf %>'>
 </div>
 
@@ -102,7 +103,7 @@
           }
         });
       },
-      onSubmit: function() {
+      onSave: function() {
         if (vue.selectedMenu === '' || vue.title === '') {
           vue.errorMsg = '有内容为空';
           return;
@@ -113,7 +114,29 @@
           title: vue.title,
           menu: vue.selectedMenu,
           submenu: vue.selectedSubmenu,
-          content: editor.codemirror.getValue() },
+          content: editor.codemirror.getValue(),
+          status: 'saved'},
+          function (result) {
+            if (!result.success) {
+              vue.errorMsg = result.error;
+            } else {
+              location.href = result.url;
+            }
+        });
+      },
+      onReviewing: function() {
+        if (vue.selectedMenu === '' || vue.title === '') {
+          vue.errorMsg = '有内容为空';
+          return;
+        }
+
+        $.post(this.submitUrl, {
+          _csrf: $('#_csrf').val(),
+          title: vue.title,
+          menu: vue.selectedMenu,
+          submenu: vue.selectedSubmenu,
+          content: editor.codemirror.getValue(),
+          status: 'reviewing'},
           function (result) {
             if (!result.success) {
               vue.errorMsg = result.error;

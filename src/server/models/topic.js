@@ -23,6 +23,7 @@ var TopicSchema = new Schema({
   menu: {type: String},
   submenu: {type: String},
   deleted: {type: Boolean, default: false},
+  status: {type: String},
 });
 
 TopicSchema.plugin(BaseModel);
