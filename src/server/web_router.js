@@ -30,7 +30,7 @@ var router = express.Router();
 
 // cms page
 router.get('/', auth.adminRequired, site.index);
-router.get('/topics', site.topics);
+router.post('/topics', site.topics);
 
 // sitemap
 router.get('/sitemap.xml', site.sitemap);

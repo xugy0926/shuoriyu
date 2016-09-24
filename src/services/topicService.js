@@ -9,7 +9,7 @@ function filterData(data) {
 }
 
 export function getTopicsByMenu(menuKey = 'all', submenuKey = '') {
-  return requestService.get('/topics', {menuKey, submenuKey}).then(filterData);
+  return requestService.post('/topics', {menuKey, submenuKey}).then(filterData);
 }
 
 export function getTopicById(id) {

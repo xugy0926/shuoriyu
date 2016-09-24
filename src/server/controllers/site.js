@@ -24,10 +24,10 @@ exports.index = function (req, res, next) {
 }
 
 exports.topics = function (req, res, next) {
-  var currentPage = parseInt(req.query.currentPage, 10) || 1;
-  currentPage = currentPage > 0 ? currentPage : 1;
-  var menuKey = req.query.menuKey || 'all';
-  var submenuKey = req.query.submenuKey || '';
+  var currentPage = parseInt(req.body.currentPage, 10) || 1;
+  var menuKey = req.body.menuKey || 'all';
+  var submenuKey = req.body.submenuKey || '';
+  var status = req.body.status || 'reviewed';
 
   if (menuKey === '') {
     return res.json({success: false, message: '没选菜单'});
@@ -41,6 +41,10 @@ exports.topics = function (req, res, next) {
   
   if (submenuKey !== '') {
     query.submenu = submenuKey;
+  }
+
+  if (status !== 'all') {
+    query.status = status;
   }
 
   var proxy = new eventproxy();

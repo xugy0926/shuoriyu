@@ -137,7 +137,7 @@
       getData: function(currentPage) {
         if (currentPage > vue.pages) return;
 
-        $.get('/cms/topics?menuKey=' + vue.selectedMenuKey + '&currentPage=' + currentPage, function(result) {
+        $.post('/cms/topics?', {menuKey: vue.selectedMenuKey, currentPage: vue.currentPage, status: 'all'}, function(result) {
           canLoadData = true;
 
           if (!result.success) {
