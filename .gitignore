@@ -20,6 +20,8 @@ src/server/config.js
 src/server/assets.json
 src/server/public/*.min.*.js
 src/server/public/*.min.*.css
+src/server/public/stylesheets/*.min.*.js
+src/server/public/stylesheets/*.min.*.css
 
 # Ignore Mac OS desktop services store
 .DS_Store

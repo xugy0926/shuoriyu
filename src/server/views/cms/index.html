@@ -1,3 +1,4 @@
+<div>
 <%- partial('./_navtab') %>
 <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
 <div class="col-sm-2">
@@ -71,6 +72,7 @@
     </tbody>
   </table>
 </div>
+</div>
 <script>
   var vue = new Vue({
     el: '#app',
@@ -97,7 +99,7 @@
             return;
           }
 
-          let data = result.data || [];
+          var data = result.data || [];
           vue.buildMenus(data);
           vue.buildSubmenus(data);
           vue.getData(vue.currentPage);
@@ -117,9 +119,9 @@
       },
       buildSubmenus: function(menus) {
         vue.submenus = [];
-        menus.forEach((menu)=> {
+        menus.forEach( function(menu) {
           if (menu.submenus) {
-            menu.submenus.forEach((submenu)=> {
+            menu.submenus.forEach( function(submenu) {
               vue.submenus.push(submenu);
             });
           }
@@ -149,8 +151,8 @@
         });
       },
       updateTopics: function(topics) {
-        topics.forEach((item)=> {
-          let index1 = _.findIndex(vue.menus, function(menu) {
+        topics.forEach( function(item) {
+          var index1 = _.findIndex(vue.menus, function(menu) {
             return menu.key === item.menu;
           });
 
@@ -158,7 +160,7 @@
             item.menuValue = vue.menus[index1].value;
           }
 
-          let index2 = _.findIndex(vue.submenus, function(submenu) {
+          var index2 = _.findIndex(vue.submenus, function(submenu) {
             return submenu.key === item.submenu;
           });
 
@@ -167,10 +169,12 @@
           }
         });
 
-        topics.forEach((item)=> {vue.topics.push(item)});
+        topics.forEach( function(item){
+          vue.topics.push(item)
+        });
       },
       updateSelectedMenuKey: function(key) {
-        vue.menus.forEach((item)=> {
+        vue.menus.forEach(function(item) {
           if(item.key === key) {
             item.selected = true;
             vue.pageTitle = item.value;
@@ -221,8 +225,8 @@
     }
   });
 
-  var buttomLoader = new ButtomLoader();
-  buttomLoader.init(function() {
+  var scrollButtom = new ScrollButtom();
+  scrollButtom.init(function() {
     if (vue.currentPage < vue.pages && canLoadData) {
       canLoadData = false;
       vue.getData(vue.currentPage + 1);

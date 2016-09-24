@@ -2,6 +2,9 @@
 install:
 	@cnpm install
 
+loader_builder:
+    @./node_modules/loader-builder/bin/builder ./src/server/views ./src/server
+
 build-config:
 	cp ./src/server/config.default.js ./src/server/config.js
 

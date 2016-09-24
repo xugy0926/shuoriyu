@@ -13,7 +13,7 @@ export const port = process.env.PORT || 3000;
 export const host = process.env.WEBSITE_HOSTNAME || `localhost:${port}`;
 export const node_env = process.env.NODE_ENV || 'development';
 
-export const mini_assets = node_env === 'production';
+export const mini_assets = true;//node_env === 'production';
 
 export const mongodbUrl = (node_env === 'production') ? 'mongodb://192.168.0.2/shuoriyu_club_product' : 'mongodb://127.0.0.1/shuoriyu_club_test_db';
 export const databaseUrl = process.env.DATABASE_URL || 'sqlite:database.sqlite';
