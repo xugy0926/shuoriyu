@@ -31,9 +31,9 @@ var router = express.Router();
 router.post('/topics', site.topics);
 
 // sign controller
-router.post('/accesstoken', auth.tryAuth, sign.accesstoken);
-router.post('/signup', sign.signup);  // 提交注册信息
-router.post('/signin', sign.login);  // 登录校验
+router.post('/user/accesstoken', auth.tryAuth, sign.accesstoken);
+router.post('/user/signup', sign.signup);  // 提交注册信息
+router.post('/user/signin', sign.login);  // 登录校验
 
 router.post('/user/createSearchPassword', sign.createSearchPassword);  // 触发找回密码命令
 router.post('/user/authSearchPassword', sign.authSearchPassword);

@@ -13,5 +13,5 @@ export function getTopicsByMenu(menuKey = 'all', submenuKey = '') {
 }
 
 export function getTopicById(id) {
-  return requestService.get('/topic_data/' + id).then(filterData);
+  return requestService.post(`/topic/${id}/data`).then(filterData);
 }

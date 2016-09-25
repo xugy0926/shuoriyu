@@ -35,7 +35,7 @@
     },
     methods: {
       submit: function(event) {
-        $.post( dataPrefix + '/signup', 
+        $.post( dataPrefix + '/user/signup', 
           { _csrf: $('#_csrf').val(), 
             loginname: this.loginname, 
             password: this.password, 

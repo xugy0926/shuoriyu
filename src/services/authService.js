@@ -11,15 +11,15 @@ function filterData(data) {
 }
 
 export function signin(loginname, password) {
-  return requestService.post('/signin', {loginname, password}).then(filterData);
+  return requestService.post('/user/signin', {loginname, password}).then(filterData);
 }
 
 export function signup(loginname, email, password, rePassword) {
-  return requestService.post('/signup', {loginname, email, password, rePassword}).then(filterData);
+  return requestService.post('/user/signup', {loginname, email, password, rePassword}).then(filterData);
 }
 
 export function checkToken(accessToken) {
   console.log('------');
   console.log(accessToken);
-  return requestService.post('/accesstoken', {accessToken}).then(filterData);
+  return requestService.post('/user/accesstoken', {accessToken}).then(filterData);
 }
