@@ -145,7 +145,7 @@
         if (currentPage > vue.pages) return;
 
         $.post( dataPrefix + '/topics?', 
-          {menuKey: vue.selectedMenuKey, currentPage: vue.currentPage, status: 'all'}, 
+          {menuKey: vue.selectedMenuKey, currentPage: currentPage, status: 'all'}, 
           function(result) {
             canLoadData = true;
 
