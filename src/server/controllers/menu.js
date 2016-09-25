@@ -21,9 +21,7 @@ exports.getMenus = function (req, res, next) {
   }
 
   Menu.getMenus(query)
-    .then((menus) => {
-      res.json({success: true, data: menus})
-    })
+    .then(menus => res.json({success: true, data: menus}))
     .catch(message => handleError(res, message))
 }
 
@@ -73,7 +71,7 @@ exports.addMenu = function (req, res, next) {
     .then(() => {
       return Menu.newAndSave(key, value)
     })
-    .then((doc) => res.json({success: true, data: doc}))
+    .then(doc => res.json({success: true, data: doc}))
     .catch(message => handleError(res, message))
 }
 
@@ -81,13 +79,13 @@ exports.deleteMenu = function (req, res, next) {
   var menuId = req.params.mid;
 
   Menu.getMenuById(menuId)
-    .then(menu => {
-      if (!menu) throw ResultMsg.DATA_NOT_FOUND
-      else return menu
+    .then(doc => {
+      if (!doc) throw ResultMsg.DATA_NOT_FOUND
+      else return doc
     })
-    .then(menu => {
-      menu.deleted = true
-      menu.save()
+    .then(doc => {
+      doc.deleted = true
+      doc.save()
       return ResultMsg.DELETED_SUCCESS
     })
     .then(message => handleSuccess(res, message))
@@ -106,17 +104,17 @@ exports.updateMenu = function (req, res, next) {
       if (!doc) throw ResultMsg.DATA_NOT_FOUND
       else return doc
     })
-    .then((doc) => {
+    .then(doc => {
       doc.enable = enable
       if (key) {
-        menu.key = key;
+        doc.key = key;
       }
 
       if (value) {
-        menu.value = value;
+        doc.value = value;
       }
 
-      menu.save()
+      doc.save()
       return ResultMsg.UPDATE_SUCCESS
     })
     .then(message => handleSuccess(res, message))
@@ -138,10 +136,8 @@ exports.addSubmenu = function (req, res, next) {
     .then(doc => {
       if (doc) throw ResultMsg.REPEAT_DATA
     })
-    .then(() => {
-      return Submenu.newAndSave(parentId, key, value)
-    })
-    .then((doc) => res.json({success: true, data: doc}))
+    .then(() => {return Submenu.newAndSave(parentId, key, value)})
+    .then(doc => res.json({success: true, data: doc}))
     .catch(message => handleError(res, message))
 }
 
