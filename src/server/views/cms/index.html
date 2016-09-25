@@ -141,11 +141,11 @@
         vue.topics = [];
         vue.getData();
       },
-      getData: function(currentPage) {
-        if (currentPage > vue.pages) return;
+      getData: function(nextPage) {
+        if (nextPage > vue.pages) return;
 
         $.post( dataPrefix + '/topics?', 
-          {menuKey: vue.selectedMenuKey, currentPage: currentPage, status: 'all'}, 
+          {menuKey: vue.selectedMenuKey, currentPage: nextPage, status: 'all'}, 
           function(result) {
             canLoadData = true;
 
