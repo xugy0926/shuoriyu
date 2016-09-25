@@ -140,6 +140,8 @@
       },
       onDeleteMenu: function(menuIndex, menuId) {
         $.post(dataPrefix + '/menu/' + menuId + '/delete', function (result) {
+          console.log('delete menu.......');
+          console.log(result);
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -157,7 +159,7 @@
 
           vue.menuKey = '';
           vue.menuValue = '';
-          const data = result.data;
+          data = result.data;
           data.submenus = [];
           vue.menus.push(data);
         });
@@ -194,6 +196,8 @@
       },
       onDeleteSubmenu: function(menuIndex, submenuIndex, submenuId) {
         $.post(dataPrefix + '/submenu/' + submenuId + '/delete', function (result) {
+          console.log('delete submenu.......');
+          console.log(result);
           if (!result.success) {
             vue.errorMsg = result.message;
             return;

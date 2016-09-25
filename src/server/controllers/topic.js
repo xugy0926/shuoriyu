@@ -25,90 +25,6 @@ exports.config = function (req, res, next) {
   res.json({success: true, data: {topicStatus: tools.getTopicStatus()}});
 }
 
-exports.topicPage = function (req, res, next) {
-  function isUped(user, reply) {
-    if (!reply.ups) {
-      return false;
-    }
-    return reply.ups.indexOf(user._id) !== -1;
-  }
-
-  var topic_id = req.params.tid;
-  var currentUser = req.session.user;
-
-  if (topic_id.length !== 24) {
-    return res.render404('此话题不存在或已被删除。');
-  }
-  var events = ['topic', 'other_topics', 'no_reply_topics', 'is_collect'];
-  var ep = EventProxy.create(events,
-    function (topic, other_topics, no_reply_topics, is_collect) {
-      res.render('topic/index', {
-        topic: topic,
-        author_other_topics: other_topics,
-        no_reply_topics: no_reply_topics,
-        is_uped: isUped,
-        is_collect: is_collect,
-      });
-    });
-
-  ep.fail(next);
-
-  Topic.getFullTopic(topic_id, ep.done(function (message, topic, author, replies) {
-    if (message) {
-      logger.error('getFullTopic error topic_id: ' + topic_id)
-      return res.renderError(message);
-    }
-
-    topic.visit_count += 1;
-    topic.save();
-
-    topic.author  = author;
-    topic.replies = replies;
-
-    // 点赞数排名第三的回答，它的点赞数就是阈值
-    topic.reply_up_threshold = (function () {
-      var allUpCount = replies.map(function (reply) {
-        return reply.ups && reply.ups.length || 0;
-      });
-      allUpCount = _.sortBy(allUpCount, Number).reverse();
-
-      var threshold = allUpCount[2] || 0;
-      if (threshold < 3) {
-        threshold = 3;
-      }
-      return threshold;
-    })();
-
-    ep.emit('topic', topic);
-
-    // get other_topics
-    var options = { limit: 5, sort: '-last_reply_at'};
-    var query = { author_id: topic.author_id, _id: { '$nin': [ topic._id ] } };
-    Topic.getTopicsByQuery(query, options, ep.done('other_topics'));
-
-    // get no_reply_topics
-    cache.get('no_reply_topics', ep.done(function (no_reply_topics) {
-      if (no_reply_topics) {
-        ep.emit('no_reply_topics', no_reply_topics);
-      } else {
-        Topic.getTopicsByQuery(
-          { reply_count: 0, menu: {$ne: 'job'}},
-          { limit: 5, sort: '-create_at'},
-          ep.done('no_reply_topics', function (no_reply_topics) {
-            cache.set('no_reply_topics', no_reply_topics, 60 * 1);
-            return no_reply_topics;
-          }));
-      }
-    }));
-  }));
-
-  if (!currentUser) {
-    ep.emit('is_collect', null);
-  } else {
-    TopicCollect.getTopicCollect(currentUser._id, topic_id, ep.done('is_collect'))
-  }
-}
-
 /**
  * 获取topic数据
  *
@@ -166,7 +82,7 @@ exports.put = function (req, res, next) {
     content: content,
     menu: menu,
     submenu: submenu,
-    userId: req.session.user._id,
+    authorId: req.session.user._id,
     status: status
   }
 
@@ -261,27 +177,28 @@ exports.delete = function (req, res, next) {
 
   var topic_id = req.params.tid;
 
-  Topic.getFullTopic(topic_id, function (err, err_msg, topic, author, replies) {
-    if (err) {
-      return res.send({ success: false, message: err.message });
+  Topic.getTopicById(topic_id, function (err, topic) {
+    if (err || !topic) {
+      res.json({ success: false, message: '出错/或此话题不存在' });
+      return;
     }
+
     if (!req.session.user.is_admin && !(topic.author_id.equals(req.session.user._id))) {
-      res.status(403);
-      return res.send({success: false, message: '无权限'});
+      res.json({success: false, message: '无权限'});
+      return;
     }
-    if (!topic) {
-      res.status(422);
-      return res.send({ success: false, message: '此话题不存在或已被删除。' });
-    }
-    author.score -= 5;
-    author.topic_count -= 1;
-    author.save();
+
+    // author.score -= 5;
+    // author.topic_count -= 1;
+    // author.save();
 
     topic.deleted = true;
     topic.save(function (err) {
       if (err) {
-        return res.send({ success: false, message: err.message });
+        res.json({success: false, message: '无权限'});
+        return;
       }
+
       res.send({ success: true, message: '话题已被删除。' });
     });
   });

@@ -70,15 +70,13 @@ exports.myMessagesPage = function (req, res, next) {
 
 exports.topicPage = function (req, res, next) {
   var topicId = req.params.tid;
-  console.log(topicId);
 
-  Topic.getTopicById(topicId, function(err, topic) {
-    if (err) {
-      return res.json({error: 'topic not found!'});
-    }
+  if (topicId.length !== 24) {
+    return res.render('notify', {message: '此话题不存在或已被删除。'});
+  }
 
-    console.log(topic);
-
+  Topic.getFullTopicById(topicId, function (err, topic, author) {
+    topic.author = author;
     res.render('topic/index', {topic: topic});
   });
 }

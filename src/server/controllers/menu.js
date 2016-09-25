@@ -1,7 +1,15 @@
 var validator = require('validator');
-
 var Menu = require('../proxy').Menu;
 var Submenu = require('../proxy').Submenu;
+import * as ResultMsg from '../constrants/ResultMsg';
+
+function handleError(res, message) {
+  return res.json({success: false, message: message})
+}
+
+function handleSuccess(res, message) {
+  return res.json({success: true, message: message})
+}
 
 exports.getMenus = function (req, res, next) {
   let all = req.body.all || false;
@@ -12,14 +20,11 @@ exports.getMenus = function (req, res, next) {
     query.enable = true;
   }
 
-  Menu.getMenus(query, function (err, menus) {
-    if (err) {
-      res.json({success: false, message: '获取menus错误'});
-      return;
-    }
-
-    res.json({success: true, data: menus});
-  });
+  Menu.getMenus(query)
+    .then((menus) => {
+      res.json({success: true, data: menus})
+    })
+    .catch(message => handleError(res, message))
 }
 
 exports.updateSubmenu = function (req, res, next) {
@@ -28,30 +33,27 @@ exports.updateSubmenu = function (req, res, next) {
   var key = req.body.key || '';
   var value = req.body.value || '';
 
-  Submenu.getSubmenuById(submenuId, function(err, submenu) {
-    if (err) {
-      res.json({success: false, message: '获取tab错误'});
-      return;
-    }
+  Submenu.getSubmenuById(submenuId)
+    .then(doc => {
+      if (!doc) throw ResultMsg.DATA_NOT_FOUND
+      else return doc
+    })
+    .then(doc => {
+      submenu.enable = enable
 
-    if (!submenu) {
-      res.json({success: false, message: '获取tab错误'});
-      return;
-    }
+      if (key) {
+        submenu.key = key
+      }
 
-    submenu.enable = enable;
+      if (value) {
+        submenu.value = value
+      }
 
-    if (key) {
-      submenu.key = key;
-    }
-
-    if (value) {
-      submenu.value = value;
-    }
-
-    submenu.save();
-    res.json({success: true, message: '更新成功'});
-  });
+      submenu.save()
+      return ResultMsg.UPDATE_SUCCESS
+    })
+    .then(message => handleSuccess(res, message))
+    .catch(message => handleError(res, message));
 }
 
 
@@ -64,46 +66,32 @@ exports.addMenu = function (req, res, next) {
   }
 
   var query = {"$or": [{key: key}, {value: value}]};
-  Menu.getMenu(query, function (err, menu) {
-    if (err) {
-      res.json({success: false, message: '添加错误'});
-      return;
-    }
-
-    if(menu) {
-      res.json({success: false, message: '数据重复'});
-      return;
-    }
-
-    Menu.newAndSave(key, value, function(err, menu) {
-      if (err) {
-        res.json({success: false, message: '添加错误'});
-        return;
-      }
-
-      return res.json({success: true, data: menu});
-    });
-  });
+  Menu.getOneMenu(query)
+    .then(menu => {
+      if (menu) throw ResultMsg.REPEAT_DATA
+    })
+    .then(() => {
+      return Menu.newAndSave(key, value)
+    })
+    .then((doc) => res.json({success: true, data: doc}))
+    .catch(message => handleError(res, message))
 }
 
 exports.deleteMenu = function (req, res, next) {
   var menuId = req.params.mid;
 
-  Menu.getMenuById(menuId, function(err, menu) {
-    if (err) {
-      res.json({success: false, message: '获取menu错误'});
-      return;
-    }
-
-    if (!menu) {
-      res.json({success: false, message: '获取menu错误'});
-      return;
-    }
-
-    menu.deleted = true;
-    menu.save();
-    res.json({success: true, message: '删除成功'});
-  });
+  Menu.getMenuById(menuId)
+    .then(menu => {
+      if (!menu) throw ResultMsg.DATA_NOT_FOUND
+      else return menu
+    })
+    .then(menu => {
+      menu.deleted = true
+      menu.save()
+      return ResultMsg.DELETED_SUCCESS
+    })
+    .then(message => handleSuccess(res, message))
+    .catch(message => handleError(res, message))
 }
 
 
@@ -113,30 +101,26 @@ exports.updateMenu = function (req, res, next) {
   var key = req.body.key || '';
   var value = req.body.value || '';
 
-  Menu.getMenuById(menuId, function(err, menu) {
-    if (err) {
-      res.json({success: false, message: '获取menu错误'});
-      return;
-    }
+  Menu.getMenuById(menuId)
+    .then((doc) => {
+      if (!doc) throw ResultMsg.DATA_NOT_FOUND
+      else return doc
+    })
+    .then((doc) => {
+      doc.enable = enable
+      if (key) {
+        menu.key = key;
+      }
 
-    if (!menu) {
-      res.json({success: false, message: '获取menu错误'});
-      return;
-    }
+      if (value) {
+        menu.value = value;
+      }
 
-    menu.enable = enable;
-    
-    if (key) {
-      menu.key = key;
-    }
-
-    if (value) {
-      menu.value = value;
-    }
-
-    menu.save();
-    res.json({success: true, message: '更新成功'});
-  });
+      menu.save()
+      return ResultMsg.UPDATE_SUCCESS
+    })
+    .then(message => handleSuccess(res, message))
+    .catch(message => handleError(res, message))
 }
 
 exports.addSubmenu = function (req, res, next) {
@@ -149,44 +133,31 @@ exports.addSubmenu = function (req, res, next) {
   }
 
   var query = {"$or": [{key: key}, {value: value}]};
-  Submenu.getSubmenu(query, function (err, tag) {
-    if (err) {
-      res.json({success: false, message: '添加错误'});
-      return;
-    }
 
-    if(tag) {
-      res.json({success: false, message: '数据重复'});
-      return;
-    }
-
-    Submenu.newAndSave(parentId, key, value, function(err, submenu) {
-      if (err) {
-        res.json({success: false, message: '添加错误'});
-        return;
-      }
-
-      res.json({success: true, data: submenu});
-    });
-  });
+  Submenu.getOneSubmenu(query)
+    .then(doc => {
+      if (doc) throw ResultMsg.REPEAT_DATA
+    })
+    .then(() => {
+      return Submenu.newAndSave(parentId, key, value)
+    })
+    .then((doc) => res.json({success: true, data: doc}))
+    .catch(message => handleError(res, message))
 }
 
 exports.deleteSubmenu = function (req, res, next) {
   var submenuId = req.params.sid;
 
-  Submenu.getSubmenuById(submenuId, function(err, submenu) {
-    if (err) {
-      res.json({success: false, message: '获取tag错误'});
-      return;
-    }
-
-    if (!submenu) {
-      res.json({success: false, message: '获取tag错误'});
-      return;
-    }
-
-    submenu.deleted = true;
-    submenu.save();
-    res.json({success: true, message: '删除成功'});
-  });
+  Submenu.getSubmenuById(submenuId)
+    .then(doc => {
+      if(!doc) throw ResultMsg.DATA_NOT_FOUND
+      else return doc
+    })
+    .then(doc => {
+      doc.deleted = true
+      doc.save()
+      return ResultMsg.DELETED_SUCCESS
+    })
+    .then(message => handleSuccess(res, message))
+    .catch(message => handleError(res, message));
 }
