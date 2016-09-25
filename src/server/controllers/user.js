@@ -13,6 +13,25 @@ var validator    = require('validator');
 var utility      = require('utility');
 var _            = require('lodash');
 
+exports.userInfo = function (req, res, next) {
+  var userId = validator.trim(req.params.uid) || '';
+
+  console.log(userId);
+  if (req.session.user._id && !req.session.user._id.equals(userId)) {
+    res.json({success: false, message: '没权限查看'});
+    return;
+  }
+
+  User.getUserById(userId, function(err, user) {
+    if (err) {
+      res.json({success: false, message: '获取用户信息错误'});
+      return;
+    }
+    
+    res.json({success: true, data: user});
+  });
+}
+
 exports.index = function (req, res, next) {
   var user_name = req.params.name;
   User.getUserByLoginName(user_name, function (err, user) {
@@ -82,91 +101,28 @@ exports.listStars = function (req, res, next) {
   });
 };
 
-exports.showSetting = function (req, res, next) {
+exports.updateUserInfo = function (req, res, next) {
+  var location = validator.trim(req.body.location) || '';
+  var signature = validator.trim(req.body.signature) || '';
+
   User.getUserById(req.session.user._id, function (err, user) {
     if (err) {
-      return next(err);
+      res.json({success: false, message: 'error'});
+      return;
     }
-    if (req.query.save === 'success') {
-      user.success = '保存成功。';
-    }
-    user.error = null;
-    return res.render('user/setting', user);
+
+    user.location = location;
+    user.signature = signature;
+    user.save(function (err) {
+      if (err) {
+        res.json({success: false, message: 'error'});
+        return;
+      }
+
+      req.session.user = user.toObject({virtual: true});
+      res.json({success: true, message: '更新成功'});
+    });
   });
-};
-
-exports.setting = function (req, res, next) {
-  var ep = new EventProxy();
-  ep.fail(next);
-
-  // 显示出错或成功信息
-  function showMessage(msg, data, isSuccess) {
-    data = data || req.body;
-    var data2 = {
-      loginname: data.loginname,
-      email: data.email,
-      url: data.url,
-      location: data.location,
-      signature: data.signature,
-      weibo: data.weibo,
-      accessToken: data.accessToken,
-    };
-    if (isSuccess) {
-      data2.success = msg;
-    } else {
-      data2.error = msg;
-    }
-    res.render('user/setting', data2);
-  }
-
-  // post
-  var action = req.body.action;
-  if (action === 'change_setting') {
-    var url = validator.trim(req.body.url);
-    var location = validator.trim(req.body.location);
-    var weibo = validator.trim(req.body.weibo);
-    var signature = validator.trim(req.body.signature);
-
-    User.getUserById(req.session.user._id, ep.done(function (user) {
-      user.url = url;
-      user.location = location;
-      user.signature = signature;
-      user.weibo = weibo;
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        req.session.user = user.toObject({virtual: true});
-        return res.redirect('/setting?save=success');
-      });
-    }));
-  }
-  if (action === 'change_password') {
-    var old_pass = validator.trim(req.body.old_pass);
-    var new_pass = validator.trim(req.body.new_pass);
-    if (!old_pass || !new_pass) {
-      return res.send('旧密码或新密码不得为空');
-    }
-
-    User.getUserById(req.session.user._id, ep.done(function (user) {
-      tools.bcompare(old_pass, user.pass, ep.done(function (bool) {
-        if (!bool) {
-          return showMessage('当前密码不正确。', user);
-        }
-
-        tools.bhash(new_pass, ep.done(function (passhash) {
-          user.pass = passhash;
-          user.save(function (err) {
-            if (err) {
-              return next(err);
-            }
-            return showMessage('密码已被修改。', user, true);
-
-          });
-        }));
-      }));
-    }));
-  }
 };
 
 exports.toggleStar = function (req, res, next) {
@@ -246,13 +202,6 @@ exports.top100 = function (req, res, next) {
       pageTitle: 'top100',
     });
   });
-};
-
-exports.listTopicsPage = function (req, res, next) {
-  var userName = req.params.name;
-  console.log('sssss');
-  res.render('user/topics', {userName: userName});
-  console.log('fffff');
 };
 
 exports.listTopics = function (req, res, next) {

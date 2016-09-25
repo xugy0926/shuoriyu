@@ -9,7 +9,7 @@
         发布于 <%= topic.create_at_ago() %>
       </span>
       <span>
-        作者 <a href="/cms/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
+        作者 <a href="<%= apiPrefix.page %>/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
       </span>
       <% if (topic.create_at_ago() != topic.update_at_ago()) { %>
         <span>
@@ -101,6 +101,8 @@
 <%- partial('../includes/editor') %>
 <script>
   $(document).ready(function () {
+    var pagePrefix = '<%= apiPrefix.page %>';
+    var dataPrefix = '<%= apiPrefix.data %>';
 
     var vue = new Vue({
       el: '#app',
@@ -117,7 +119,7 @@
       },
       methods: {
         getTopicConfig: function() {
-          $.get('/cms/topicConfig', function (result) {
+          $.post(dataPrefix + '/topic/config', function (result) {
             if (!result.success) {
               return;
             }
@@ -140,7 +142,7 @@
           }
         },
         onReviewing (status) {
-          $.post('/cms/topic/' + vue.topicId + '/status', {status: status}, function (result) {
+          $.post(dataPrefix + '/topic/' + vue.topicId + '/status', {status: status}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               return;
@@ -156,7 +158,7 @@
           console.log(vue.isReviewed);
         },
         getReplies: function() {
-          $.get('/cms/' + vue.topicId + '/replies', function (result) {
+          $.get(dataPrefix + '/' + vue.topicId + '/replies/data', function (result) {
             if (!result.success) {
               return;
             }
@@ -165,7 +167,7 @@
           });
         },
         onReply: function () {
-          $.post('/cms/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
+          $.post(dataPrefix + '/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               return;
@@ -180,7 +182,7 @@
           editorDialog.init('编辑', atUser);
           editorDialog.show(function (editedContent) {
             if (editedContent) {
-              $.post('/cms/' + vue.topicId + '/reply', {reply_id: replyId, content: editedContent}, function (result) {
+              $.post(dataPrefix + '/' + vue.topicId + '/reply', {reply_id: replyId, content: editedContent}, function (result) {
                 if (!result.success) {
                   vue.errorMsg = result.message;
                   return;
@@ -196,7 +198,7 @@
           editorDialog.init('编辑', content);
           editorDialog.show(function (editedContent) {
             if (editedContent) {
-              $.post('/cms/reply/' + replyId + '/edit', {reply_id: replyId, content: editedContent}, function (result) {
+              $.post(dataPrefix + '/reply/' + replyId + '/edit', {reply_id: replyId, content: editedContent}, function (result) {
                 if (!result.success) {
                   vue.errorMsg = result.message;
                   return;
@@ -212,7 +214,7 @@
           });
         },
         onDeleteReply: function(replyId) {
-          $.post('/cms/reply/' + replyId + '/delete', {reply_id: replyId}, function (result) {
+          $.post(dataPrefix + '/reply/' + replyId + '/delete', {reply_id: replyId}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               return;

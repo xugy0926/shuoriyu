@@ -1,131 +1,41 @@
-
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>主页</a></li>
-        <li class='active'>设置</li>
-      </ul>
+<div class="col-md-6 col-md-offset-3">
+  <ul class='breadcrumb'>
+    <li><a href='/'>主页</a></li>
+    <li class='active'>设置</li>
+  </ul>
+  <div class='panel panel-default'>
+    <div class='panel-heading'>
+    个人信息
     </div>
-    <div class='inner'>
-      <% if(typeof(error) !== 'undefined' && error){ %>
-      <div class="alert alert-error">
-        <a class="close" data-dismiss="alert" href="#">&times;</a>
-        <strong><%= error %></strong>
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label for='name'>用户名</label>
+        <input class='form-control readonly' id='name' size='30' type='text' readonly='true' v-model="loginname"/>
       </div>
-      <% } %>
-      <% if (typeof(success) !== 'undefined' && success) { %>
-      <div class="alert alert-success">
-        <strong><%= success %></strong>
+      <div class='form-group'>
+        <label for='email'>电子邮件</label>
+        <input class='form-control readonly' id='email' size='30' type='text' readonly='true' v-model="email"/>
       </div>
-      <% } %>
-      <form id='setting_form' class='form-horizontal' action='/setting' method='post'>
-        <div class='control-group'>
-          <label class='control-label' for='name'>用户名</label>
-
-          <div class='controls'>
-            <input class='input-xlarge readonly' id='name' name='name' size='30' type='text' readonly='true'
-                   value="<%= loginname %>"/>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='email'>电子邮件</label>
-
-          <div class='controls'>
-            <input class='input-xlarge readonly' id='email' name='email' size='30' type='text'
-                   readonly='true' value="<%= email %>"/>
-
-            <p>同时决定了 Gravatar 头像</p>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='url'>个人网站</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' id='url' name='url' size='30' type='text' value="<%= typeof(url) !== 'undefined' ? url : '' %>"/>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='location'>所在地点</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' id='location' name='location' size='30' type='text'
-                   value="<%= typeof(location) !== 'undefined' ? location : '' %>"/>
-          </div>
-        </div>
-
-        <div class='control-group'>
-          <label class='control-label' for='weibo'>微博</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' id='weibo' name='weibo' size='30' type='text' value="<%= typeof(weibo) !== 'undefined' ? weibo : '' %>"
-                   placeholder="e.g. http://weibo.com/cnodejs"/>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='github'>GitHub</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' id='github' name='github' size='30' type='text'
-                   value="<%= typeof(githubUsername) !== 'undefined' ? '@' + githubUsername : '' %>" placeholder="@username" readonly="readonly" />
-            <p>请通过 GitHub 登陆 CNode 来修改此处</p>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='signature'>个性签名</label>
-
-          <div class='controls'>
-            <textarea class='input-xlarge' id='signature' name='signature' size='30'><%= typeof(signature) !== 'undefined' ? signature : "" %></textarea>
-          </div>
-        </div>
-        <input type='hidden' id='action' name='action' value='change_setting'/>
-        <input type='hidden' name='_csrf' value='<%= csrf %>'/>
-
-        <div class='form-actions'>
-          <input type='submit' class='span-primary submit_btn' data-loading-text="保存中.." value='保存设置'/>
-        </div>
-      </form>
+      <div class='form-group'>
+        <label for='location'>所在地点</label>
+        <input class='form-control' id='location' size='30' type='text' v-model="location"/>
+      </div>
+      <div class='form-group'>
+        <label for='signature'>个性签名</label>
+        <textarea class='form-control' id='signature' name='signature' size='30'>{{signature}}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" v-on:click="updateUserInfo()">保存</button>
     </div>
   </div>
 
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>更改密码</span>
+  <div class='panel panel-default'>
+    <div class='panel-heading'>
+      Access Token
     </div>
-    <div class='inner'>
-      <form id='change_pass_form' class='form-horizontal' action='/setting' method='post'>
-        <div class='control-group'>
-          <label class='control-label' for='old_pass'>当前密码</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' type='password' id='old_pass' name='old_pass' size='30'/>
-          </div>
-        </div>
-        <div class='control-group'>
-          <label class='control-label' for='new_pass'>新密码</label>
-
-          <div class='controls'>
-            <input class='input-xlarge' type='password' id='new_pass' name='new_pass' size='30'/>
-          </div>
-        </div>
-        <input type='hidden' id='action' name='action' value='change_password'/>
-        <input type='hidden' name='_csrf' value='<%= csrf %>'/>
-
-        <div class='form-actions'>
-          <input type='submit' class='span-primary submit_btn' data-loading-text="更改中.." value='更改密码'/>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>Access Token</span>
-    </div>
-    <div class='inner'>
+    <div class='panel-body'>
       <div>
         <span>字符串：</span>
-        <%- accessToken %>
+        {{accessToken}}
       </div>
       <div>
         <span>二维码：</span>
@@ -136,12 +46,60 @@
 </div>
 
 <script type="text/javascript">
-  // qrcode generate
-  var accessToken = "<%- accessToken %>";
-  new QRCode(document.getElementById("access-token-qrcode"), {
-    text: accessToken,
-    width: 200,
-    height: 200,
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
+  var userId = '<%= typeof(userId) !== "undefined" && userId ? userId : ""%>';
+
+  var vue = new Vue({
+    el: '#app',
+    data: {
+      loginname: '',
+      email: '',
+      location: '',
+      signature: '',
+      accessToken: '',
+      errorMsg: '',
+      successMsg: ''
+    },
+    methods: {
+      getUser() {
+        $.post(dataPrefix + '/user/' + userId + '/data', {_csrf: $('#_csrf').val()}, function(result) {
+          if (!result.success) {
+            vue.errorMsg = result.message;
+            vue.successMsg = '';
+            return;
+          }
+
+          vue.loginname =  result.data.loginname;
+          vue.email = result.data.email;
+          vue.location = result.data.location;
+          vue.signature = result.data.signature;
+          vue.accessToken = result.data.accessToken;
+          new QRCode(document.getElementById("access-token-qrcode"), {
+            text: vue.accessToken,
+            width: 200,
+            height: 200,
+          });
+        });
+      },
+      updateUserInfo() {
+        $.post(dataPrefix + '/user/' + userId + '/update', 
+          {_csrf: $('#_csrf').val(), loginname: vue.loginname, email: vue.email, location: vue.location, signature: vue.signature}, 
+          function(result) {
+            if (!result.success) {
+              vue.errorMsg = result.message;
+              vue.successMsg = '';
+              return;
+            }
+
+            vue.errorMsg = '';
+            vue.successMsg = result.message;
+          });
+      }
+    }
   });
-  // END qrcode generate
+
+  if (userId) {
+    vue.getUser();
+  }
 </script>

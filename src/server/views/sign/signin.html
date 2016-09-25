@@ -9,34 +9,37 @@
     <input type='hidden' name='_csrf' value='<%= csrf %>'/>
     <div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
     <button class='btn btn-primary btn-lg btn-block' v-on:click="submit">登录</button>
-    <a class="btn btn-link" href="/auth/github">通过 GitHub 登录</a>
-    <a class="btn btn-link" href='/cms/search_pass'>忘记密码了?</a>
+    <a class="btn btn-link" href='<%= apiPrefix.page %>/user/searchPasswordFromMail'>通过邮箱找密码?</a>
   </div>
 </div>
 <script>
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
 
-var vue = new Vue({
-  el: '#app',
-  data: {
-    username: '',
-    password: '',
-    errorMsg: ''
-  },
-  methods: {
-    submit: function(event) {
-      $.post('/cms/signin', { _csrf: $('#_csrf').val(), loginname: this.username, password: this.password }, function (result) {
-        if (!result.success) {
-          vue.errorMsg = result.error;
-        } else {
-          if (result.data && result.data.active) {
-            location.href = '/';
-          } else {
-            vue.errorMsg = '您的账号未激活';
-          }
-        }
-      });
+  var vue = new Vue({
+    el: '#app',
+    data: {
+      username: '',
+      password: '',
+      errorMsg: ''
+    },
+    methods: {
+      submit: function(event) {
+        $.post( dataPrefix + '/signin', 
+          { _csrf: $('#_csrf').val(), loginname: this.username, password: this.password },
+          function (result) {
+            if (!result.success) {
+              vue.errorMsg = result.message;
+            } else {
+              if (result.data && result.data.active) {
+                location.href =  pagePrefix + '/cms';
+              } else {
+                vue.errorMsg = '您的账号未激活';
+              }
+            }
+        });
+      }
     }
-  }
-});
+  });
 
 </script>

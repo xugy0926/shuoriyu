@@ -4,13 +4,16 @@
   </div>
   <div class='panel-body'>
     <div class="list-group">
-      <a href="/cms/topic_page/{{topic._id}}" class="list-group-item" v-for="(index, topic) in topics">
+      <a href="<%= apiPrefix.page %>/topic/{{topic._id}}/show" class="list-group-item" v-for="(index, topic) in topics">
         <h4 class="list-group-item-heading">{{topic.title}}</h4>
       </a>
     </div>
   </div>
 </div>
 <script type="text/javascript">
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
+
   var vue = new Vue({
     el: '#app',
     data: {
@@ -25,7 +28,7 @@
       getData: function(currentPage) {
         if (currentPage > vue.pages) return;
 
-        $.post('/cms/user/' + vue.userName + '/topics?' + 'currentPage=' + vue.currentPage, function(result) {
+        $.post( dataPrefix + '/user/' + vue.userName + '/topics?' + 'currentPage=' + vue.currentPage, function(result) {
           canLoadData = true;
 
           if (!result.success) {

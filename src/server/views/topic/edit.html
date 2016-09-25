@@ -1,4 +1,4 @@
-<input type="hidden" id="topic-id" value="<%= typeof(topic_id) !== 'undefined' ? topic_id : '' %>"/>
+<input type="hidden" id="topic-id" value="<%= typeof(topicId) !== 'undefined' ? topicId : '' %>"/>
 <div class="col-md-8 col-md-offset-2">
   <ol class="breadcrumb">
     <li><a href="/cms">主页</a></li>
@@ -40,6 +40,10 @@
 <!-- markdown editor -->
 <%- partial('../includes/editor') %>
 <script>
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
+  var submitUrl = dataPrefix + '/topic/create'
+
   var editor = new Editor();
   editor.render($('.editor')[0]);
 
@@ -48,7 +52,6 @@
     data: {
       topicId: '',
       title: '',
-      submitUrl: '/cms/topic/create',
       pageTitle: '新建',
       topic: '',
       menus: [],
@@ -60,7 +63,7 @@
     },
     methods: {
       getMenus: function() {
-        $.post('/cms/menus', {all: true}, function(result) {
+        $.post(dataPrefix + '/menus/data', {all: true}, function(result) {
           if (result.success) {
             let data = result.data || [];
 
@@ -71,7 +74,7 @@
             let topicId = $('#topic-id').val();
             if (topicId) {
               vue.topicId = topicId;
-              vue.submitUrl = '/cms/topic/' + topicId + '/edit';
+              submitUrl = dataPrefix + '/topic/' + topicId + '/edit';
               vue.pageTitle = '编辑';
               vue.getTopic();
             }
@@ -90,7 +93,7 @@
         vue.selectedSubmenu = vue.submenus.length > 0 ? vue.submenus[0].key : '';
       },
       getTopic: function() {
-        $.get('/cms/topic_data/' + this.topicId, function (result) {
+        $.post(dataPrefix + '/topic/' + this.topicId + '/data', function (result) {
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
@@ -109,7 +112,7 @@
           return;
         }
 
-        $.post(this.submitUrl, {
+        $.post(submitUrl, {
           _csrf: $('#_csrf').val(),
           title: vue.title,
           menu: vue.selectedMenu,
@@ -130,7 +133,7 @@
           return;
         }
 
-        $.post(this.submitUrl, {
+        $.post(submitUrl, {
           _csrf: $('#_csrf').val(),
           title: vue.title,
           menu: vue.selectedMenu,

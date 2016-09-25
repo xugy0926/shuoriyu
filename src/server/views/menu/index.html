@@ -105,6 +105,8 @@
   </div>
 </div>
 <script>
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
 
   var vue = new Vue({
     el: '#app',
@@ -125,7 +127,7 @@
     },
     methods: {
       getMenus: function() {
-        $.post('/cms/menus', {all: true}, function (result) {
+        $.post(dataPrefix + '/menu/data', {all: true}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -133,12 +135,11 @@
 
           vue.tagKey = '';
           vue.tagValue = '';
-          console.log(result.data);
           vue.menus = result.data;
         });
       },
       onDeleteMenu: function(menuIndex, menuId) {
-        $.post('/cms/menu/' + menuId + '/delete', function (result) {
+        $.post(dataPrefix + '/menu/' + menuId + '/delete', function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -148,7 +149,7 @@
         });
       },
       onAddMenu: function() {
-        $.post('/cms/menu/add', { _csrf: $('#_csrf').val(), key: vue.menuKey, value: vue.menuValue}, function (result) {
+        $.post(dataPrefix + '/menu/add', { _csrf: $('#_csrf').val(), key: vue.menuKey, value: vue.menuValue}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -162,7 +163,7 @@
         });
       },
       onEnableMenu: function(menuIndex, menuId, enable) {
-        $.post('/cms/menu/' + menuId + '/update', {enable: enable}, function (result) {
+        $.post(dataPrefix + '/menu/' + menuId + '/update', {enable: enable}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -177,7 +178,7 @@
         $('.add-submenu-dialog').modal('show');
       },
       onAddSubmenu: function() {
-        $.post('/cms/submenu/add', { _csrf: $('#_csrf').val(), parentId: vue.addParentId, key: vue.submenuKey, value: vue.submenuValue}, function (result) {
+        $.post(dataPrefix + '/submenu/add', { _csrf: $('#_csrf').val(), parentId: vue.addParentId, key: vue.submenuKey, value: vue.submenuValue}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -192,7 +193,7 @@
         });       
       },
       onDeleteSubmenu: function(menuIndex, submenuIndex, submenuId) {
-        $.post('/cms/submenu/' + submenuId + '/delete', function (result) {
+        $.post(dataPrefix + '/submenu/' + submenuId + '/delete', function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;

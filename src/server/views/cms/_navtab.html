@@ -1,6 +1,6 @@
 <ul id="nav-tabs" class="nav nav-tabs nav-tabs-x">
-  <li role="presentation" v-bind:class="{'active': selectedTopic}"><a href="/cms">文章</a></li>
-  <li role="presentation"  v-bind:class="{'active': selectedCategory}"><a href="/cms/menusPage">分类</a></li>
+  <li role="presentation" v-bind:class="{'active': selectedTopic}"><a href="<%= apiPrefix.page %>/cms">文章</a></li>
+  <li role="presentation"  v-bind:class="{'active': selectedCategory}"><a href="<%= apiPrefix.page %>/menu/show">分类</a></li>
 </ul>
 <script>
 

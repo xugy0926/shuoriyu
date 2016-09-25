@@ -18,10 +18,11 @@ var store        = require('../common/store');
 var config       = require('../config');
 var _            = require('lodash');
 var cache        = require('../common/cache');
-var logger = require('../common/logger')
+var logger       = require('../common/logger');
+import { apiPrefix } from '../../config';
 
-exports.topicConfig = function (req, res, next) {
-  return res.json({success: true, data: {topicStatus: tools.getTopicStatus()}});
+exports.config = function (req, res, next) {
+  res.json({success: true, data: {topicStatus: tools.getTopicStatus()}});
 }
 
 exports.topicPage = function (req, res, next) {
@@ -135,10 +136,6 @@ exports.topic = function (req, res, next) {
   });
 };
 
-exports.create = function (req, res, next) {
-  res.render('topic/edit');
-};
-
 
 exports.put = function (req, res, next) {
   var title   = validator.trim(req.body.title);
@@ -181,7 +178,7 @@ exports.put = function (req, res, next) {
     var proxy = new EventProxy();
 
     proxy.all('score_saved', function () {
-      res.json({success: 'success', url: '/cms/topic_page/' + topic._id});
+      res.json({success: 'success', url: apiPrefix.page + '/topic/' + topic._id + '/show'});
     });
     proxy.fail(next);
     User.getUserById(req.session.user._id, proxy.done(function (user) {
@@ -195,11 +192,6 @@ exports.put = function (req, res, next) {
     //发送at消息
     at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
   });
-};
-
-exports.showEdit = function (req, res, next) {
-  var topic_id = req.params.tid;
-  res.render('topic/edit', {topic_id: topic_id});
 };
 
 exports.update = function (req, res, next) {
@@ -253,7 +245,7 @@ exports.update = function (req, res, next) {
         //发送at消息
         at.sendMessageToMentionUsers(content, topic._id, req.session.user._id);
 
-        res.json({success: true, url: '/cms/topic_page/' + topic._id});
+        res.json({success: true, url: apiPrefix.page + '/topic/' + topic._id + '/show'});
 
       });
     } else {

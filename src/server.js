@@ -28,7 +28,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, debug, port, auth, redisInfo, mini_assets } from './config';
+import { host, debug, port, auth, redisInfo, mini_assets, apiPrefix } from './config';
 
 var serverConfig = require('./server/config');
 if (!debug && serverConfig.oneapm_key) {
@@ -41,8 +41,8 @@ var session = require('express-session');
 
 require('./server/middlewares/mongoose_log'); // 打印 mongodb 查询日志
 require('./server/models');
-var webRouter = require('./server/web_router');
-var apiRouterV1 = require('./server/api_router_v1');
+var pageRouter = require('./server/pageRouter');
+var dataRouter = require('./server/dataRouter');
 var serverAuth = require('./server/middlewares/auth');
 var errorPageMiddleware = require('./server/middlewares/error_page');
 var proxyMiddleware = require('./server/middlewares/proxy');
@@ -153,7 +153,8 @@ serverConfig.mini_assets = mini_assets;
 _.extend(app.locals, {
   config: serverConfig,
   Loader: Loader,
-  assets: serverAssets
+  assets: serverAssets,
+  apiPrefix: apiPrefix
 });
 
 app.use(errorPageMiddleware.errorPage);
@@ -203,8 +204,8 @@ app.use(busboy({
 // })));
 
 // routes
-app.use('/api/v1', cors(), apiRouterV1);
-app.use('/cms', cors(), webRouter);
+app.use(apiPrefix.page, cors(), pageRouter);
+app.use(apiPrefix.data, cors(), dataRouter);
 
 //
 // Register server-side rendering middleware

@@ -8,11 +8,6 @@ var utility        = require('utility');
 var authMiddleWare = require('../middlewares/auth');
 var uuid           = require('node-uuid');
 
-//sign up
-exports.showSignup = function (req, res) {
-  res.render('sign/signup');
-};
-
 exports.accesstoken = function (req, res, next) {
   var ep = new eventproxy();
   ep.fail(next);
@@ -29,11 +24,6 @@ exports.signup = function (req, res, next) {
   var email     = validator.trim(req.body.email).toLowerCase();
   var password      = validator.trim(req.body.password);
   var rePassword    = validator.trim(req.body.rePassword);
-
-  console.log(req.body.loginname);
-    console.log(req.body.email);
-      console.log(req.body.password);
-  console.log(req.body.rePassword);
 
   var ep = new eventproxy();
   ep.fail(next);
@@ -90,17 +80,6 @@ exports.signup = function (req, res, next) {
 
     }));
   });
-};
-
-/**
- * Show user login page.
- *
- * @param  {HttpRequest} req
- * @param  {HttpResponse} res
- */
-exports.showLogin = function (req, res) {
-  req.session._loginReferer = req.headers.referer;
-  res.render('sign/signin');
 };
 
 /**
@@ -177,46 +156,36 @@ exports.login = function (req, res, next) {
   });
 };
 
-// sign out
-exports.signout = function (req, res, next) {
-  req.session.destroy();
-  res.clearCookie(config.auth_cookie_name, { path: '/' });
-  res.redirect('/');
-};
-
 exports.activeAccount = function (req, res, next) {
-  var key  = validator.trim(req.query.key);
-  var name = validator.trim(req.query.name);
+  var key  = validator.trim(req.query.key || '');
+  var loginname = validator.trim(req.query.name || '');
 
-  User.getUserByLoginName(name, function (err, user) {
+  User.getUserByLoginName(loginname, function (err, user) {
     if (err) {
-      return next(err);
+      return res.render('notify', {message: '激活失败'});
     }
     if (!user) {
-      return next(new Error('[ACTIVE_ACCOUNT] no such user: ' + name));
+      return res.render('notify', {message: '激活失败'});
     }
+
     var passhash = user.pass;
     if (!user || utility.md5(user.email + passhash + config.session_secret) !== key) {
-      return res.render('notify/notify', {error: '信息有误，帐号无法被激活。'});
+      return res.render('notify', {message: '信息有误，帐号无法被激活。'});
     }
     if (user.active) {
-      return res.render('notify/notify', {error: '帐号已经是激活状态。'});
+      return res.render('notify', {message: '帐号已经是激活状态。'});
     }
     user.active = true;
     user.save(function (err) {
       if (err) {
         return next(err);
       }
-      res.render('notify/notify', {success: '帐号已被激活，请登录'});
+      res.render('notify', {message: '帐号已被激活，请登录'});
     });
   });
 };
 
-exports.showSearchPass = function (req, res) {
-  res.render('sign/search_pass');
-};
-
-exports.updateSearchPass = function (req, res, next) {
+exports.createSearchPassword = function (req, res, next) {
   var email = validator.trim(req.body.email).toLowerCase();
   if (!validator.isEmail(email)) {
     return res.json({success: false, message: '邮箱不合法'});
@@ -239,67 +208,87 @@ exports.updateSearchPass = function (req, res, next) {
       }
       // 发送重置密码邮件
       mail.sendResetPassMail(email, retrieveKey, user.loginname);
-      return res.json({success: true, message: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'});
+      res.json({success: true, message: '我们已给您填写的电子邮箱发送了一封邮件，请在24小时内点击里面的链接来重置密码。'});
     });
   });
 };
 
-/**
- * reset password
- * 'get' to show the page, 'post' to reset password
- * after reset password, retrieve_key&time will be destroy
- * @param  {http.req}   req
- * @param  {http.res}   res
- * @param  {Function} next
- */
-exports.resetPass = function (req, res, next) {
-  var key  = validator.trim(req.query.key || '');
-  var name = validator.trim(req.query.name || '');
+exports.authSearchPassword = function (req, res, next) {
+  var key = validator.trim(req.body.key || '');
+  var loginname = validator.trim(req.body.loginname || '');
+  var newPassword = validator.trim(req.body.newPassword || '');
+  var reNewPassword = validator.trim(req.body.reNewPassword || '');
 
-  User.getUserByNameAndKey(name, key, function (err, user) {
-    if (!user) {
-      res.status(403);
-      return res.render('notify/notify', {error: '信息有误，密码无法重置。'});
+  User.getUserByNameAndKey(loginname, key, function(err, user) {
+    if (err || !user) {
+      console.log('11');
+      res.json({success: false, message: '找不到用户' + loginname});
+      return;
     }
+
+    console.log('111');
+
     var now = new Date().getTime();
     var oneDay = 1000 * 60 * 60 * 24;
-    if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
-      res.status(403);
-      return res.render('notify/notify', {error: '该链接已过期，请重新申请。'});
-    }
-    return res.render('sign/reset', {name: name, key: key});
-  });
-};
 
-exports.updatePass = function (req, res, next) {
-  var psw   = validator.trim(req.body.psw) || '';
-  var repsw = validator.trim(req.body.repsw) || '';
-  var key   = validator.trim(req.body.key) || '';
-  var name  = validator.trim(req.body.name) || '';
+    if (!user.retrieve_time || now - user.retrieve_time > oneDay) {
+      console.log('2');
+      res.json({success: false, message: '该链接已过期，请重新申请。'});
+      return;
+    }
+
+    user.retrieve_time = null;
+    user.retrieve_key = null;
+    user.save(function(err) {
+      if (err) {
+        res.json({success: false, message: '重置密码失败。'});
+        return;
+      }
+
+      res.json({success: true, message: '重置密码成功。'});
+    });
+  });
+}
+
+exports.updateResetPassword = function (req, res, next) {
+  var userId = req.session.user._id;
+  var oldPassword = validator.trim(req.body.oldPassword) || '';
+  var newPassword = validator.trim(req.body.newPassword) || '';
 
   var ep = new eventproxy();
-  ep.fail(next);
+  ep.fail(function(err) {
+    res.json({success: false, message: '出错'});
+    return;   
+  });
 
-  if (psw !== repsw) {
-    return res.render('sign/reset', {name: name, key: key, error: '两次密码输入不一致。'});
+  if (oldPassword === newPassword) {
+    res.json({success: false, message: '新密码和老密码一致。'});
+    return;
   }
-  User.getUserByNameAndKey(name, key, ep.done(function (user) {
-    if (!user) {
-      return res.render('notify/notify', {error: '错误的激活链接'});
-    }
-    tools.bhash(psw, ep.done(function (passhash) {
-      user.pass          = passhash;
-      user.retrieve_key  = null;
-      user.retrieve_time = null;
-      user.active        = true; // 用户激活
 
-      user.save(function (err) {
-        if (err) {
-          return next(err);
-        }
-        return res.render('notify/notify', {success: '你的密码已重置。'});
-      });
+  User.getUserById(userId, function (err, user) {
+    if (err || !user) {
+      res.json({success: false, message: '用户不存在'});
+      return;
+    }
+
+    tools.bcompare(oldPassword, user.pass, ep.done(function(bool) {
+      if (!bool) {
+        res.json({success: false, message: '老密码错误'});
+        return;
+      }
+
+      tools.bhash(newPassword, ep.done(function (passhash) {
+        user.pass = passhash;
+
+        user.save(function (err) {
+          if (err) {
+            return next(err);
+          }
+          return res.json({success: true, message: '你的密码已重置。'});
+        });
+      }));
     }));
-  }));
+  });
 };
 

@@ -68,3 +68,8 @@ export const auth = {
   },
 
 };
+
+export const apiPrefix = {
+  page: '/p',
+  data: '/api/v1/data'
+}

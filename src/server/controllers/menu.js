@@ -3,10 +3,6 @@ var validator = require('validator');
 var Menu = require('../proxy').Menu;
 var Submenu = require('../proxy').Submenu;
 
-exports.index = function (req, res, next) {
-  res.render('menu/index', {navTab: 'tag'});
-}
-
 exports.getMenus = function (req, res, next) {
   let all = req.body.all || false;
 

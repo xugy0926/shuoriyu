@@ -1,7 +1,7 @@
 import qs from 'query-string';
 import { host } from '../config';
 
-const urlPrefix = 'http://' + host + '/cms';
+const urlPrefix = 'http://' + host + '/api/v1/data';
 
 function filterJSON(res) {
 	return res.json();
@@ -19,7 +19,6 @@ function filterStatus(res) {
 	}
 }
 
-
 export function get(url, params) {
 	url = urlPrefix + url;
 	if (params) {
@@ -35,7 +34,6 @@ export function get(url, params) {
 		.then(filterStatus)
 		.then(filterJSON);
 }
-
 
 export function post(url, body) {
 	url = urlPrefix + url;

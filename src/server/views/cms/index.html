@@ -18,12 +18,12 @@
 
 <div class="col-sm-10">
   <ol class="breadcrumb">
-    <li><a href="/cms">Home</a></li>
+    <li><a href="<%= apiPrefix.page %>/cms">Home</a></li>
     <li><a href="#">{{ pageTitle }}</a></li>
   </ol>
   <div class="panel panel-default">
     <div class="panel-body">
-      <a href='/cms/topic/create' target="_blank" class="btn btn-primary btn-sm" role="button">添加文章</a>
+      <a href='<%= apiPrefix.page %>/topic/create' target="_blank" class="btn btn-primary btn-sm" role="button">添加文章</a>
     </div>
   </div>
 
@@ -41,8 +41,12 @@
     </thead>
     <tbody>
       <tr v-for="(index, topic) in topics">
-        <td style="width: 80px"><a href="/cms/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a></td>
-        <td><a href='/cms/topic_page/{{topic._id}}'>{{topic.title}}</a></td>
+        <td style="width: 80px">
+          <a href="<%= apiPrefix.page %>/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a>
+        </td>
+        <td>
+          <a href='<%= apiPrefix.page %>/topic/{{topic._id}}/show'>{{topic.title}}</a>
+        </td>
         <td style="width: 80px">{{topic.menuValue}}</td>
         <td style="width: 80px">{{topic.submenuValue}}</td>
         <td style="width: 80px">{{topic.create_at}}</td>
@@ -53,7 +57,7 @@
               Action <span class="caret"></span>
             </button>
             <ul class="dropdown-menu disabled">
-              <li><a href='/cms/topic/{{topic._id}}/edit' target="_blank">编辑</a></li>
+              <li><a href='<%= apiPrefix.page %>/topic/{{topic._id}}/edit' target="_blank">编辑</a></li>
               <li role="separator" class="divider"></li>
               <li v-if="topic.top"><a href="#">取消置顶</a></li>
               <li v-else><a href="#">置顶</a></li>
@@ -74,6 +78,9 @@
 </div>
 </div>
 <script>
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
+
   var vue = new Vue({
     el: '#app',
     data: {
@@ -88,8 +95,8 @@
       errorMsg: ''
     },
     methods: {
-      getMenus: function() {
-        $.post('/cms/menus', {all: true}, function (result) {
+      getMenu: function() {
+        $.post( dataPrefix + '/menu/data', {all: true}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
 
@@ -119,9 +126,9 @@
       },
       buildSubmenus: function(menus) {
         vue.submenus = [];
-        menus.forEach( function(menu) {
-          if (menu.submenus) {
-            menu.submenus.forEach( function(submenu) {
+        menus.forEach( function(item) {
+          if (item.submenus) {
+            item.submenus.forEach( function(submenu) {
               vue.submenus.push(submenu);
             });
           }
@@ -137,17 +144,19 @@
       getData: function(currentPage) {
         if (currentPage > vue.pages) return;
 
-        $.post('/cms/topics?', {menuKey: vue.selectedMenuKey, currentPage: vue.currentPage, status: 'all'}, function(result) {
-          canLoadData = true;
+        $.post( dataPrefix + '/topics?', 
+          {menuKey: vue.selectedMenuKey, currentPage: vue.currentPage, status: 'all'}, 
+          function(result) {
+            canLoadData = true;
 
-          if (!result.success) {
-            vue.errorMsg = result.message;
-            return;
-          }
-           
-          vue.updateTopics(result.data);
-          vue.currentPage = result.currentPage;
-          vue.pages = result.pages;
+            if (!result.success) {
+              vue.errorMsg = result.message;
+              return;
+            }
+             
+            vue.updateTopics(result.data);
+            vue.currentPage = result.currentPage;
+            vue.pages = result.pages;
         });
       },
       updateTopics: function(topics) {
@@ -191,16 +200,9 @@
       onGood: function(topicId) {
 
       },
-      onLock: function(topicId) {
-        if (topicId && confirm('确定要锁定吗？')) {
-          $.get('/cms/topic/' + topicId + '/lock', function(result) {
-
-          });
-        }
-      },
       onDelete: function(topicId) {
         if (topicId && confirm('确定要删除吗？')) {
-          $.post('/cms/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
+          $.post( dataPrefix + '/topic/' + topicId + '/delete', { _csrf: $('#_csrf').val() }, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
             } else {
@@ -214,7 +216,7 @@
         }
       },
       onReviewed: function(index, topicId, status) {
-        $.post('/cms/topic/' + topicId + '/status', {status: status}, function (result) {
+        $.post( dataPrefix + '/topic/' + topicId + '/status', {status: status}, function (result) {
           if (!result.success) {
             vue.errorMsg = result.message;
             return;
@@ -233,5 +235,5 @@
     }
   });
 
-  vue.getMenus();
+  vue.getMenu();
 </script>
