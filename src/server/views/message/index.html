@@ -1,30 +1,70 @@
-
-<div id='content'>
-  <div class='panel'>
-    <div class='header'>
-      <ul class='breadcrumb'>
-        <li><a href='/'>主页</a></li>
-        <li class='active'>新消息</li>
-      </ul>
+<div>
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a v-on:click="onSelected('un_read')">未读消息</a></li>
+    <li role="presentation"><a v-on:click="onSelected('read')">已读消息</a></li>
+  </ul>
+  <div class='panel panel-default'>
+    <div class="panel-body">
+      <div class="list-group">
+        <a href="" v-for="(index, message) in messages">
+          <p class="text-primary" v-if="message.type === 'reply'">{{message.author.loginname}} 回复了 {{message.topic.title}}</p>
+          <p class="text-success" v-if="message.type === 'reply2'">{{message.author.loginname}} 回复了 {{message.topic.title}} 的评论</p>
+          <p class="text-warning" v-if="message.type === 'follow'">{{message.author.loginname}} follow 了你</p>
+          <p class="text-danger" v-if="message.type === 'at'">{{message.author.loginname}} @ 了你</p>
+        </a>
+      </div>
     </div>
-    <% if (typeof(hasnot_read_messages) !== 'undefined' && hasnot_read_messages.length > 0) { %>
-    <%- partial('../message/message', { collection: hasnot_read_messages, as: 'message' }) %>
-    <% } else { %>
-    <div class='inner'>
-      <p>无消息</p>
-    </div>
-    <% } %>
-  </div>
-  <div class='panel'>
-    <div class='header'>
-      <span class='col_fade'>过往信息</span>
-    </div>
-    <% if (typeof(has_read_messages) !== 'undefined' && has_read_messages.length > 0) { %>
-    <%- partial('../message/message', { collection: has_read_messages, as: 'message' }) %>
-    <% } else { %>
-    <div class='inner'>
-      <p>无消息</p>
-    </div>
-    <% } %>
   </div>
 </div>
+<script>
+  var pagePrefix = '<%= apiPrefix.page %>';
+  var dataPrefix = '<%= apiPrefix.data %>';
+
+  var vue = new Vue({
+    el: '#app',
+    data: {
+      errorMsg: '',
+      successMsg: '',
+      userId: '',
+      type: 'un_read',
+      messages: [],
+      currentPage: 1,
+      pages: 1,
+      canLoadData: true
+    },
+    methods: {
+      onSelected: function(type) {
+        if (vue.type !== type) {
+          vue.type = type
+          vue.currentPage = 1
+          vue.pages = 1
+          vue.messages = []
+          vue.getData(vue.currentPage)
+        }
+      },
+      getData: function(nextPage) {
+        $.post(dataPrefix + '/message/' + vue.userId + '/data', {type: vue.type, currentPage: nextPage}, function(result) {
+          vue.canLoadData = true
+          if (!result.success) return vue.errorMsg = result.message
+          vue.currentPage = result.currentPage
+          vue.pages = result.pages
+          result.data.forEach( function(item){
+            vue.messages.push(item)
+          })
+        })
+      },
+    }
+  })
+
+  vue.userId = '<%= typeof(userId) !== "undefined" && userId ? userId : "" %>'
+
+  var scrollButtom = new ScrollButtom();
+  scrollButtom.init(function() {
+    if (vue.currentPage < vue.pages && vue.canLoadData) {
+      vue.canLoadData = false;
+      vue.getData(vue.currentPage + 1);
+    }
+  });
+
+  vue.getData(vue.currentPage)
+</script>

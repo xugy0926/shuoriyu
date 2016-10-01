@@ -50,8 +50,8 @@
     vue.getData(vue.currentPage);
   }
 
-  var buttomLoader = new ButtomLoader();
-  buttomLoader.init(function() {
+  var scrollButtom = new ScrollButtom();
+  scrollButtom.init(function() {
     if (vue.currentPage < vue.pages && canLoadData) {
       canLoadData = false;
       vue.getData(vue.currentPage + 1);

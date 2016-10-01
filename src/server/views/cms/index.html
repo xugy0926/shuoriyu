@@ -1,6 +1,5 @@
 <div>
 <%- partial('./_navtab') %>
-<div class="alert alert-danger" role="alert" v-if="errorMsg">{{errorMsg}}</div>
 <div class="col-sm-2">
   <div class="list-group">
     <button href="#" class="list-group-item disabled">
@@ -88,6 +87,7 @@
       menus: [],
       selectedMenuKey: 'all',
       topics: [],
+      authors: [],
       submenus: [],
       currentPage: 1,
       pages: 1,
@@ -147,16 +147,17 @@
         $.post( dataPrefix + '/topics?', 
           {menuKey: vue.selectedMenuKey, currentPage: nextPage, status: 'all'}, 
           function(result) {
-            canLoadData = true;
+            vue.canLoadData = true;
 
             if (!result.success) {
               vue.errorMsg = result.message;
               return;
             }
              
-            vue.updateTopics(result.data);
+            vue.authors = result.authors;
             vue.currentPage = result.currentPage;
             vue.pages = result.pages;
+            vue.updateTopics(result.data);
         });
       },
       updateTopics: function(topics) {
@@ -177,6 +178,16 @@
             item.submenuValue = vue.submenus[index2].value;
           }
         });
+
+        topics.forEach( function(item) {
+          var index = _.findIndex(vue.authors, function(i) {
+            return i._id === item.author_id
+          })
+
+          if (index >= 0) {
+            item.author = vue.authors[index]
+          }
+        })
 
         topics.forEach( function(item){
           vue.topics.push(item)
@@ -229,8 +240,8 @@
 
   var scrollButtom = new ScrollButtom();
   scrollButtom.init(function() {
-    if (vue.currentPage < vue.pages && canLoadData) {
-      canLoadData = false;
+    if (vue.currentPage < vue.pages && vue.canLoadData) {
+      vue.canLoadData = false;
       vue.getData(vue.currentPage + 1);
     }
   });

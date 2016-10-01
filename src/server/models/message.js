@@ -4,7 +4,7 @@ var Schema    = mongoose.Schema;
 var ObjectId  = Schema.ObjectId;
 
 /*
- * type:
+ * [type]
  * reply: xx 回复了你的话题
  * reply2: xx 在话题中回复了你
  * follow: xx 关注了你
@@ -13,8 +13,8 @@ var ObjectId  = Schema.ObjectId;
 
 var MessageSchema = new Schema({
   type: { type: String },
-  master_id: { type: ObjectId},
-  author_id: { type: ObjectId },
+  master_id: { type: ObjectId},    // 给谁的？
+  author_id: { type: ObjectId },   // 谁发的？
   topic_id: { type: ObjectId },
   reply_id: { type: ObjectId },
   has_read: { type: Boolean, default: false },

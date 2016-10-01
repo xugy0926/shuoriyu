@@ -1,6 +1,7 @@
-var User         = require('../proxy').User;
-var Topic        = require('../proxy').Topic;
-var Reply        = require('../proxy').Reply;
+import Base from './Base'
+var UserProxy         = require('../proxy').User;
+var TopicProxy        = require('../proxy').Topic;
+var ReplyProxy        = require('../proxy').Reply;
 var TopicCollect = require('../proxy').TopicCollect;
 var utility      = require('utility');
 var util         = require('util');
@@ -12,328 +13,91 @@ var EventProxy   = require('eventproxy');
 var validator    = require('validator');
 var utility      = require('utility');
 var _            = require('lodash');
+import Promise from 'promise';
+import * as ResultMsg from '../constrants/ResultMsg';
 
-exports.userInfo = function (req, res, next) {
-  var userId = validator.trim(req.params.uid) || '';
-
-  console.log(userId);
-  if (req.session.user._id && !req.session.user._id.equals(userId)) {
-    res.json({success: false, message: '没权限查看'});
-    return;
+class User extends Base {
+  handleError(res, message) {
+    return res.json({success: false, message: message})
   }
 
-  User.getUserById(userId, function(err, user) {
-    if (err) {
-      res.json({success: false, message: '获取用户信息错误'});
+  handleSuccess(res, message) {
+    return res.json({success: true, message: message})
+  }
+
+  userInfo(req, res, next) {
+    var userId = validator.trim(req.params.uid) || '';
+
+    if (req.session.user._id && !req.session.user._id.equals(userId)) {
+      res.json({success: false, message: '没权限查看'});
       return;
     }
-    
-    res.json({success: true, data: user});
-  });
+
+    UserProxy.getUserById(userId)
+      .then(user => res.json({success: true, data: user}))
+      .catch(err => handleError(res, err))
+  }
+
+  updateUserInfo(req, res, next) {
+    let location = validator.trim(req.body.location) || '';
+    let signature = validator.trim(req.body.signature) || '';
+
+    UserProxy.getUserById(req.session.user._id)
+      .then(user => {
+        user.location = location
+        user.signature = signature
+
+        let thenable = {
+          then: function(resolve, reject) {
+            UserProxy.update(user)
+              .then(user => resolve(user))
+              .catch(err => reject(err))
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
+      .then(user => {
+        req.session.user = user.toObject({virtual: true})
+        return ResultMsg.UPDATE_SUCCESS
+      })
+      .then(msg => handleSuccess(res, msg))
+      .catch(err => handleError(res, err))
+  }
+
+  toggleStar(req, res, next) {
+    let user_id = req.body.user_id;
+
+    UserProxy.getUserById(req.session.user._id)
+      .then(doc => {
+        doc.is_star = !doc.is_star;
+        doc.save()
+        req.session.user = user.toObject({virtual: true})
+        return ResultMsg.UPDATE_SUCCESS
+      })
+      .then(msg => handleSuccess(res, msg))
+      .catch(err => handleError(res, message))
+  }
+
+  block(req, res, next) {
+    let loginname = req.params.name;
+    let action = req.body.action;
+
+    User.getUserByLoginName(loginname)
+      .then(doc => {
+        if (action === 'set_block') {
+          user.is_block = true
+          user.save()
+        } else if (action === 'cancel_block') {
+          user.is_block = false
+          user.save()
+        }
+
+        return ResultMsg.UPDATE_SUCCESS
+      })
+      .then(msg => handleSuccess(err, msg))
+      .catch(err => handleError(err, err))
+  }
 }
 
-exports.index = function (req, res, next) {
-  var user_name = req.params.name;
-  User.getUserByLoginName(user_name, function (err, user) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      res.render404('这个用户不存在。');
-      return;
-    }
-
-    var render = function (recent_topics, recent_replies) {
-      user.url = (function () {
-        if (user.url && user.url.indexOf('http') !== 0) {
-          return 'http://' + user.url;
-        }
-        return user.url;
-      })();
-      // 如果用户没有激活，那么管理员可以帮忙激活
-      var token = '';
-      if (!user.active && req.session.user && req.session.user.is_admin) {
-        token = utility.md5(user.email + user.pass + config.session_secret);
-      }
-      res.render('user/index', {
-        user: user,
-        recent_topics: recent_topics,
-        recent_replies: recent_replies,
-        token: token,
-        pageTitle: util.format('@%s 的个人主页', user.loginname),
-      });
-    };
-
-    var proxy = new EventProxy();
-    proxy.assign('recent_topics', 'recent_replies', render);
-    proxy.fail(next);
-
-    var query = {author_id: user._id};
-    var opt = {limit: 5, sort: '-create_at'};
-    Topic.getTopicsByQuery(query, opt, proxy.done('recent_topics'));
-
-    Reply.getRepliesByAuthorId(user._id, {limit: 20, sort: '-create_at'},
-      proxy.done(function (replies) {
-
-        var topic_ids = replies.map(function (reply) {
-          return reply.topic_id.toString()
-        })
-        topic_ids = _.uniq(topic_ids).slice(0, 5); //  只显示最近5条
-
-        var query = {_id: {'$in': topic_ids}};
-        var opt = {};
-        Topic.getTopicsByQuery(query, opt, proxy.done('recent_replies', function (recent_replies) {
-          recent_replies = _.sortBy(recent_replies, function (topic) {
-            return topic_ids.indexOf(topic._id.toString())
-          })
-          return recent_replies;
-        }));
-      }));
-  });
-};
-
-exports.listStars = function (req, res, next) {
-  User.getUsersByQuery({is_star: true}, {}, function (err, stars) {
-    if (err) {
-      return next(err);
-    }
-    res.render('user/stars', {stars: stars});
-  });
-};
-
-exports.updateUserInfo = function (req, res, next) {
-  var location = validator.trim(req.body.location) || '';
-  var signature = validator.trim(req.body.signature) || '';
-
-  User.getUserById(req.session.user._id, function (err, user) {
-    if (err) {
-      res.json({success: false, message: 'error'});
-      return;
-    }
-
-    user.location = location;
-    user.signature = signature;
-    user.save(function (err) {
-      if (err) {
-        res.json({success: false, message: 'error'});
-        return;
-      }
-
-      req.session.user = user.toObject({virtual: true});
-      res.json({success: true, message: '更新成功'});
-    });
-  });
-};
-
-exports.toggleStar = function (req, res, next) {
-  var user_id = req.body.user_id;
-  User.getUserById(user_id, function (err, user) {
-    if (err) {
-      return next(err);
-    }
-    if (!user) {
-      return next(new Error('user is not exists'));
-    }
-    user.is_star = !user.is_star;
-    user.save(function (err) {
-      if (err) {
-        return next(err);
-      }
-      res.json({ status: 'success' });
-    });
-  });
-};
-
-exports.listCollectedTopics = function (req, res, next) {
-  var name = req.params.name;
-  var page = Number(req.query.page) || 1;
-  var limit = config.list_topic_count;
-
-  User.getUserByLoginName(name, function (err, user) {
-    if (err || !user) {
-      return next(err);
-    }
-
-    var render = function (topics, pages) {
-      res.render('user/collect_topics', {
-        topics: topics,
-        current_page: page,
-        pages: pages,
-        user: user
-      });
-    };
-
-    var proxy = EventProxy.create('topics', 'pages', render);
-    proxy.fail(next);
-
-    var opt = {
-      skip: (page - 1) * limit,
-      limit: limit,
-    };
-
-    TopicCollect.getTopicCollectsByUserId(user._id, opt, proxy.done(function (docs) {
-      var ids = docs.map(function (doc) {
-        return String(doc.topic_id)
-      })
-      var query = { _id: { '$in': ids } };
-
-      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
-        topics = _.sortBy(topics, function (topic) {
-          return ids.indexOf(String(topic._id))
-        })
-        return topics
-      }));
-      Topic.getCountByQuery(query, proxy.done(function (all_topics_count) {
-        var pages = Math.ceil(all_topics_count / limit);
-        proxy.emit('pages', pages);
-      }));
-    }));
-  });
-};
-
-exports.top100 = function (req, res, next) {
-  var opt = {limit: 100, sort: '-score'};
-  User.getUsersByQuery({is_block: false}, opt, function (err, tops) {
-    if (err) {
-      return next(err);
-    }
-    res.render('user/top100', {
-      users: tops,
-      pageTitle: 'top100',
-    });
-  });
-};
-
-exports.listTopics = function (req, res, next) {
-  var userName = req.params.name;
-  var currentPage = Number(req.query.currentPage) || 1;
-  var limit = config.list_topic_count;
-
-  User.getUserByLoginName(userName, function (err, user) {
-    if (!user) {
-      res.json({success: false, message: '这个用户不存在。'});
-      return;
-    }
-
-    var proxy = new EventProxy();
-    proxy.assign('topics', 'pages', function(topics, pages) {
-      return res.json({
-        success: true,
-        user: user,
-        data: topics,
-        currentPage: currentPage,
-        pages: pages
-      });
-    });
-    proxy.fail(next);
-
-    var query = {'author_id': user._id};
-    var opt = {skip: (currentPage - 1) * limit, limit: limit, sort: '-create_at'};
-    Topic.getTopicsByQuery(query, opt, proxy.done('topics'));
-
-    Topic.getCountByQuery(query, proxy.done(function (all_topics_count) {
-      var pages = Math.ceil(all_topics_count / limit);
-      proxy.emit('pages', pages);
-    }));
-  });
-};
-
-exports.listReplies = function (req, res, next) {
-  var user_name = req.params.name;
-  var page = Number(req.query.page) || 1;
-  var limit = 50;
-
-  User.getUserByLoginName(user_name, function (err, user) {
-    if (!user) {
-      res.render404('这个用户不存在。');
-      return;
-    }
-
-    var render = function (topics, pages) {
-      res.render('user/replies', {
-        user: user,
-        topics: topics,
-        current_page: page,
-        pages: pages
-      });
-    };
-
-    var proxy = new EventProxy();
-    proxy.assign('topics', 'pages', render);
-    proxy.fail(next);
-
-    var opt = {skip: (page - 1) * limit, limit: limit, sort: '-create_at'};
-    Reply.getRepliesByAuthorId(user._id, opt, proxy.done(function (replies) {
-      // 获取所有有评论的主题
-      var topic_ids = replies.map(function (reply) {
-        return reply.topic_id.toString();
-      });
-      topic_ids = _.uniq(topic_ids);
-
-      var query = {'_id': {'$in': topic_ids}};
-      Topic.getTopicsByQuery(query, {}, proxy.done('topics', function (topics) {
-        topics = _.sortBy(topics, function (topic) {
-          return topic_ids.indexOf(topic._id.toString())
-        })
-        return topics;
-      }));
-    }));
-
-    Reply.getCountByAuthorId(user._id, proxy.done('pages', function (count) {
-      var pages = Math.ceil(count / limit);
-      return pages;
-    }));
-  });
-};
-
-exports.block = function (req, res, next) {
-  var loginname = req.params.name;
-  var action = req.body.action;
-
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-  User.getUserByLoginName(loginname, ep.done(function (user) {
-    if (!user) {
-      return next(new Error('user is not exists'));
-    }
-    if (action === 'set_block') {
-      ep.all('block_user',
-        function (user) {
-          res.json({status: 'success'});
-        });
-      user.is_block = true;
-      user.save(ep.done('block_user'));
-
-    } else if (action === 'cancel_block') {
-      user.is_block = false;
-      user.save(ep.done(function () {
-
-        res.json({status: 'success'});
-      }));
-    }
-  }));
-};
-
-exports.deleteAll = function (req, res, next) {
-  var loginname = req.params.name;
-
-  var ep = EventProxy.create();
-  ep.fail(next);
-
-  User.getUserByLoginName(loginname, ep.done(function (user) {
-    if (!user) {
-      return next(new Error('user is not exists'));
-    }
-    ep.all('del_topics', 'del_replys', 'del_ups',
-      function () {
-        res.json({status: 'success'});
-      });
-    // 删除主题
-    TopicModel.update({author_id: user._id}, {$set: {deleted: true}}, {multi: true}, ep.done('del_topics'));
-    // 删除评论
-    ReplyModel.update({author_id: user._id}, {$set: {deleted: true}}, {multi: true}, ep.done('del_replys'));
-    // 点赞数也全部干掉
-    ReplyModel.update({}, {$pull: {'ups': user._id}}, {multi: true}, ep.done('del_ups'));
-  }));
-};
+module.exports = User

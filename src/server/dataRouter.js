@@ -8,81 +8,90 @@
  * Module dependencies.
  */
 
-var express = require('express');
-var sign = require('./controllers/sign');
-var site = require('./controllers/site');
-var user = require('./controllers/user');
-var message = require('./controllers/message');
-var topic = require('./controllers/topic');
-var reply = require('./controllers/reply');
-var menu = require('./controllers/menu');
-var rss = require('./controllers/rss');
-var auth = require('./middlewares/auth');
-var limit = require('./middlewares/limit');
-var github = require('./controllers/github');
-var search = require('./controllers/search');
-var passport = require('passport');
-var configMiddleware = require('./middlewares/conf');
-var config = require('./config');
+import express 	from 'express'
+import Sign 	from './controllers/Sign'
+import User 	from './controllers/User'
+import Message 	from './controllers/Message'
+import Topic 	from './controllers/Topic'
+import Reply 	from './controllers/Reply'
+import Menu 	from './controllers/Menu'
+import Rss 		from './controllers/Rss'
+import Search 	from './controllers/Search'
+import passport from 'passport'
 
-var router = express.Router();
+class DataRouter {
+  constructor() {
+  	this.router = express.Router()
+    this.sign = new Sign()
+	this.user = new User()
+	this.message = new Message()
+	this.topic = new Topic()
+	this.reply = new Reply()
+	this.menu = new Menu()
+	this.rss = new Rss()
+	this.search = new Search()
+	this.auth = require('./middlewares/auth')
+ 
+	 // 获取 topics数据
+	this.router.post('/topics', (req, res, next) => this.topic.topics(req, res, next));
 
-// 获取 topics数据
-router.post('/topics', site.topics);
+	// sign controller
+	this.router.post('/user/accesstoken', this.auth.tryAuth, (req, res, next) => this.sign.accesstoken(req, res, next));
+	this.router.post('/user/signup', (req, res, next) => this.sign.signup(req, res, next));  // 提交注册信息
+	this.router.post('/user/signin', (req, res, next) => this.sign.login(req, res, next));  // 登录校验
 
-// sign controller
-router.post('/user/accesstoken', auth.tryAuth, sign.accesstoken);
-router.post('/user/signup', sign.signup);  // 提交注册信息
-router.post('/user/signin', sign.login);  // 登录校验
+	this.router.post('/user/createSearchPassword', (req, res, next) => this.sign.createSearchPassword(req, res, next));  // 触发找回密码命令
+	this.router.post('/user/authSearchPassword', (req, res, next) => this.sign.authSearchPassword(req, res, next));
+	this.router.post('/user/:uid/resetPassword', this.auth.userRequired, (req, res, next) => this.sign.updateResetPassword(req, res, next));    // 重置密码
 
-router.post('/user/createSearchPassword', sign.createSearchPassword);  // 触发找回密码命令
-router.post('/user/authSearchPassword', sign.authSearchPassword);
-router.post('/user/:uid/resetPassword', auth.userRequired, sign.updateResetPassword);    // 重置密码
+	// user controller
+	this.router.post('/user/:uid/topics', this.auth.userRequired, (req, res, next) => this.topic.userTopics(req, res, next));
+	this.router.post('/user/:uid/update', this.auth.userRequired, (req, res, next) => this.user.updateUserInfo(req, res, next)); // 提交个人信息设置
+	this.router.post('/user/:uid/data', this.auth.userRequired, (req, res, next) => this.user.userInfo(req, res, next));         // 获取用户信息
+	this.router.post('/user/set_star', this.auth.adminRequired, (req, res, next) => this.user.toggleStar(req, res, next));       // 把某用户设为达人
+	this.router.post('/user/cancel_star', this.auth.adminRequired, (req, res, next) => this.user.toggleStar(req, res, next));    // 取消某用户的达人身份
+	this.router.post('/user/:name/block', this.auth.adminRequired, (req, res, next) => this.user.block(req, res, next));         // 禁言某用户
 
-// user controller
-router.post('/user/:uid/update', auth.userRequired, user.updateUserInfo); // 提交个人信息设置
-router.post('/user/:uid/data', auth.userRequired, user.userInfo);      // 获取用户信息
-router.post('/user/:name/topics', user.listTopics);
-router.post('/user/set_star', auth.adminRequired, user.toggleStar); // 把某用户设为达人
-router.post('/user/cancel_star', auth.adminRequired, user.toggleStar);  // 取消某用户的达人身份
-router.post('/user/:name/block', auth.adminRequired, user.block);  // 禁言某用户
-router.post('/user/:name/delete_all', auth.adminRequired, user.deleteAll);  // 删除某用户所有发言
+	// topic
+	this.router.post('/topic/config', (req, res, next) => this.topic.config(req, res, next));
+	this.router.post('/topic/:tid/data', (req, res, next) => this.topic.topic(req, res, next));  // 获取单个topic
+	this.router.post('/topic/:tid/top', this.auth.adminRequired, (req, res, next) => this.topic.top(req, res, next));         // 将某话题置顶
+	this.router.post('/topic/:tid/good', this.auth.adminRequired, (req, res, next) => this.topic.good(req, res, next));       // 将某话题加精
+	this.router.post('/topic/:tid/status', this.auth.userRequired, (req, res, next) => this.topic.status(req, res, next));    // 更新话题状态
+	this.router.post('/topic/:tid/lock', this.auth.adminRequired, (req, res, next) => this.topic.lock(req, res, next));       // 锁定主题，不能再回复
+	this.router.post('/topic/:tid/delete', this.auth.userRequired, (req, res, next) => this.topic.delete(req, res, next));
+	this.router.post('/topic/create', this.auth.userRequired, (req, res, next) => this.topic.put(req, res, next));            // 保存新建的文章
+	this.router.post('/topic/:tid/edit', this.auth.userRequired, (req, res, next) => this.topic.update(req, res, next));
+	this.router.post('/topic/collect', this.auth.userRequired, (req, res, next) => this.topic.collect(req, res, next));       // 关注某话题
+	this.router.post('/topic/de_collect', this.auth.userRequired, (req, res, next) => this.topic.de_collect(req, res, next)); // 取消关注某话题
 
-// topic
-router.post('/topic/config', topic.config);
-router.post('/topic/:tid/data', topic.topic);  // 获取单个topic
-router.post('/topic/:tid/top', auth.adminRequired, topic.top);       // 将某话题置顶
-router.post('/topic/:tid/good', auth.adminRequired, topic.good);     // 将某话题加精
-router.post('/topic/:tid/status', auth.userRequired, topic.status);  // 更新话题状态
-router.post('/topic/:tid/lock', auth.adminRequired, topic.lock);     // 锁定主题，不能再回复
+	// reply controller
+	this.router.get('/:tid/replies/data', (req, res, next) => this.reply.Replies(req, res, next));                       // 获取回复列表
+	this.router.post('/reply/:tid/reply', this.auth.userRequired, (req, res, next) => this.reply.add(req, res, next));        // 提交一级回复
+	this.router.post('/reply/:rid/edit', this.auth.userRequired, (req, res, next) => this.reply.update(req, res, next));      // 修改某评论
+	this.router.post('/reply/:rid/delete', this.auth.userRequired, (req, res, next) => this.reply.delete(req, res, next));    // 删除某评论
+	this.router.post('/reply/:rid/up', this.auth.userRequired, (req, res, next) => this.reply.up(req, res, next));            // 为评论点赞
+	this.router.post('/upload', this.auth.userRequired, (req, res, next) => this.topic.upload(req, res, next));               // 上传图片
 
-router.post('/topic/:tid/delete', auth.userRequired, topic.delete);
+	// message controller
+	this.router.post('/message/:uid/data', this.auth.userRequired, (req, res, next) => this.message.userMessages(req, res, next));
 
-// 保存新建的文章
-router.post('/topic/create', auth.userRequired, limit.peruserperday('create_topic', config.create_post_per_day, false), topic.put);
+	// menu
+	this.router.post('/menu/data', (req, res, next) => this.menu.getMenus(req, res, next));
+	this.router.post('/menu/add', this.auth.adminRequired, (req, res, next) => this.menu.addMenu(req, res, next));
+	this.router.post('/menu/:mid/delete', this.auth.adminRequired, (req, res, next) => this.menu.deleteMenu(req, res, next));
+	this.router.post('/menu/:mid/update',  (req, res, next) => this.menu.updateMenu(req, res, next));
 
-router.post('/topic/:tid/edit', auth.userRequired, topic.update);
-router.post('/topic/collect', auth.userRequired, topic.collect); // 关注某话题
-router.post('/topic/de_collect', auth.userRequired, topic.de_collect); // 取消关注某话题
+	// submenu
+	this.router.post('/submenu/add', this.auth.adminRequired, (req, res, next) => this.menu.addSubmenu(req, res, next));
+	this.router.post('/submenu/:sid/delete', this.auth.adminRequired, (req, res, next) => this.menu.deleteSubmenu(req, res, next));
+	this.router.post('/submenu/:sid/update',  (req, res, next) => this.menu.updateSubmenu(req, res, next));
+  }
 
-// reply controller
-router.get('/:topic_id/replies/data', reply.Replies);
-router.post('/:topic_id/reply', auth.userRequired, limit.peruserperday('create_reply', config.create_reply_per_day, false), reply.add); // 提交一级回复
-router.post('/reply/:reply_id/edit', auth.userRequired, reply.update); // 修改某评论
-router.post('/reply/:reply_id/delete', auth.userRequired, reply.delete); // 删除某评论
-router.post('/reply/:reply_id/up', auth.userRequired, reply.up); // 为评论点赞
-router.post('/upload', auth.userRequired, topic.upload); //上传图片
+  getRouter() {
+    return this.router
+  }
+}
 
-// menu
-router.post('/menu/data', menu.getMenus);
-router.post('/menu/add', auth.adminRequired, menu.addMenu);
-router.post('/menu/:mid/delete', auth.adminRequired, menu.deleteMenu);
-router.post('/menu/:mid/update',  menu.updateMenu);
-
-// submenu
-router.post('/submenu/add', auth.adminRequired, menu.addSubmenu);
-router.post('/submenu/:sid/delete', auth.adminRequired, menu.deleteSubmenu);
-router.post('/submenu/:sid/update',  menu.updateSubmenu);
-
-module.exports = router;
+module.exports = DataRouter
 

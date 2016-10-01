@@ -1,42 +1,46 @@
 var models       = require('../models');
-var eventproxy   = require('eventproxy');
 var Message      = models.Message;
-var User         = require('../proxy').User;
-var messageProxy = require('../proxy/message');
 var _            = require('lodash');
+var logger       = require('./logger');
 
-exports.sendReplyMessage = function (master_id, author_id, topic_id, reply_id, callback) {
-  callback = callback || _.noop;
-  var ep = new eventproxy();
-  ep.fail(callback);
+exports.sendReplyMessage = function ({masterId, authorId, topicId, replyId}) {
+
+  if (!masterId || !authorId || !topicId || !replyId) {
+    logger.debug(('sendAtMessage').red, 'type=at', `${masterId}&${authorId}&${topicId}&${replyId}`);
+    return
+  }
 
   var message       = new Message();
   message.type      = 'reply';
-  message.master_id = master_id;
-  message.author_id = author_id;
-  message.topic_id  = topic_id;
-  message.reply_id  = reply_id;
+  message.master_id = masterId;
+  message.author_id = authorId;
+  message.topic_id  = topicId;
+  message.reply_id  = replyId;
 
-  message.save(ep.done('message_saved'));
-  ep.all('message_saved', function (msg) {
-    callback(null, msg);
+  message.save(function(err) {
+    if (err) {
+      logger.debug(('sendReplyMessage').red, 'type=reply', `${masterId}&${authorId}&${topicId}&${replyId}. db error!!!`);
+    }
   });
 };
 
-exports.sendAtMessage = function (master_id, author_id, topic_id, reply_id, callback) {
-  callback = callback || _.noop;
-  var ep = new eventproxy();
-  ep.fail(callback);
+exports.sendAtMessage = function ({masterId, authorId, topicId, replyId}) {
+
+  if (!masterId || !authorId || !topicId || !replyId) {
+    logger.debug(('sendAtMessage').red, 'type=at', `${masterId}&${authorId}&${topicId}&${replyId}`);
+    return
+  }
 
   var message       = new Message();
   message.type      = 'at';
-  message.master_id = master_id;
-  message.author_id = author_id;
-  message.topic_id  = topic_id;
-  message.reply_id  = reply_id;
+  message.master_id = masterId;
+  message.author_id = authorId;
+  message.topic_id  = topicId;
+  message.reply_id  = replyId;
 
-  message.save(ep.done('message_saved'));
-  ep.all('message_saved', function (msg) {
-    callback(null, msg);
-  });
+  message.save(function(err) {
+    if (err) {
+      logger.debug(('sendAtMessage').red, 'type=at', `${masterId}&${authorId}&${topicId}&${replyId}. db error!!!`);
+    }
+  })
 };

@@ -27,12 +27,12 @@ exports.validateId = function (str) {
   return (/^[a-zA-Z0-9\-_]+$/i).test(str);
 };
 
-exports.bhash = function (str, callback) {
-  bcrypt.hash(str, 10, callback);
+exports.bhash = function (str) {
+  return bcrypt.hashSync(str, 10);
 };
 
-exports.bcompare = function (str, hash, callback) {
-  bcrypt.compare(str, hash, callback);
+exports.bcompare = function (str, hash) {
+  return bcrypt.compareSync(str, hash);
 };
 
 exports.getTopicStatus = function() {

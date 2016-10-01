@@ -1,11 +1,13 @@
 var mongoose   = require('mongoose');
 var UserModel  = mongoose.model('User');
-var Message    = require('../proxy').Message;
+var MessageProxy    = require('../proxy').Message;
 var config     = require('../config');
 var eventproxy = require('eventproxy');
 var UserProxy  = require('../proxy').User;
 var validator  = require('validator');
 import { debug } from '../../config';
+import Promise from 'promise';
+import * as ResultMsg from '../constrants/ResultMsg';
 
 
 // 非登录用户也可通过
@@ -16,23 +18,21 @@ exports.tryAuth = function (req, res, next) {
   var accessToken = String(req.body.accessToken || '');
   accessToken = validator.trim(accessToken);
 
-  UserProxy.getUserById(accessToken, ep.done(function (user) {
-    if (!user) {
-      return next()
-    }
-    if (user.is_block) {
-      return res.send({success: false, message: '您的账户被禁用'});
-    }
-    req.user = user;
-    next();
-  }));
+  UserProxy.getUserById(accessToken)
+    .then(user => {
+      if (user.is_block) return res.json({success: false, message: '您的账户被禁用'})
+      req.use = user
+      next()
+    })
+    .catch(err => next(err))
 };
 
 /**
  * 需要管理员权限
  */
 exports.adminRequired = function (req, res, next) {
-  if (!req.session.user) {
+  if (!req.session || !req.session.user) {
+    req.session._loginReferer = req.headers.referer
     return res.render('sign/signin');
   }
 
@@ -48,7 +48,7 @@ exports.adminRequired = function (req, res, next) {
  */
 exports.userRequired = function (req, res, next) {
   if (!req.session || !req.session.user || !req.session.user._id) {
-    return res.status(403).send('forbidden!');
+    return res.json({success: false, message: 'forbidden!'});
   }
 
   next();
@@ -61,7 +61,7 @@ exports.blockUser = function () {
     }
 
     if (req.session.user && req.session.user.is_block && req.method !== 'GET') {
-      return res.status(403).send('您已被管理员屏蔽了。有疑问请联系 @alsotang。');
+      return res.json({success: false, message: '您已被管理员屏蔽了。有疑问请联系 @shuoriyu。'});
     }
     next();
   };
@@ -69,8 +69,6 @@ exports.blockUser = function () {
 
 
 function gen_session(user, res) {
-  console.log('gen_session.....');
-  console.log(user);
   var auth_token = user._id + '$$$$'; // 以后可能会存储更多信息，用 $$$$ 来分隔
   var opts = {
     path: '/',
@@ -85,47 +83,40 @@ exports.gen_session = gen_session;
 
 // 验证用户是否登录
 exports.authUser = function (req, res, next) {
-  var ep = new eventproxy();
-  ep.fail(next);
 
   // Ensure current_user always has defined.
   res.locals.current_user = null;
 
-  if (debug && req.cookies['mock_user']) {
-    var mockUser = JSON.parse(req.cookies['mock_user']);
-    req.session.user = new UserModel(mockUser);
-    if (mockUser.is_admin) {
-      req.session.user.is_admin = true;
-    }
-    return next();
-  }
-
-  ep.all('get_user', function (user) {
-    if (!user) {
-      return next();
-    }
-    user = res.locals.current_user = req.session.user = new UserModel(user);
-
+  if (req.session.user) { 
+    let user = new UserModel(req.session.user)
     if (config.admins.hasOwnProperty(user.loginname)) {
-      user.is_admin = true;
+      user.is_admin = true
     }
 
-    Message.getMessagesCount(user._id, ep.done(function (count) {
-      user.messages_count = count;
-      next();
-    }));
-  });
-
-  if (req.session.user) {
-    ep.emit('get_user', req.session.user);
+    res.locals.current_user = req.session.user = user
+    next()
   } else {
-    var auth_token = req.signedCookies[config.auth_cookie_name];
+    let auth_token = req.signedCookies[config.auth_cookie_name];
     if (!auth_token) {
       return next();
     }
 
-    var auth = auth_token.split('$$$$');
-    var user_id = auth[0];
-    UserProxy.getUserById(user_id, ep.done('get_user'));
+    let auth = auth_token.split('$$$$');
+    let userId = auth[0];
+    if (userId) {
+      UserProxy.getUserById(userId)
+        .then((user) => {
+          user = new UserModel(user)
+          if (config.admins.hasOwnProperty(user.loginname)) {
+            user.is_admin = true
+          }
+
+          res.locals.current_user = req.session.user = user
+          next()
+        })
+        .catch(err => next(err))
+    } else {
+      next()
+    }
   }
 };

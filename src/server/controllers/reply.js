@@ -1,212 +1,221 @@
+import Base from './Base'
 var validator  = require('validator');
 var _          = require('lodash');
 var at         = require('../common/at');
 var message    = require('../common/message');
 var EventProxy = require('eventproxy');
-var User       = require('../proxy').User;
-var Topic      = require('../proxy').Topic;
-var Reply      = require('../proxy').Reply;
+var UserProxy  = require('../proxy').User;
+var TopicProxy = require('../proxy').Topic;
+var ReplyProxy = require('../proxy').Reply;
 var config     = require('../config');
+import Promise from 'promise';
+import * as ResultMsg from '../constrants/ResultMsg';
 
-/**
- * 获取回复列表
- */
-exports.Replies = function (req, res, next) {
-  var topic_id = req.params.topic_id;
+class Reply extends Base {
+  constructor() {
+    super()
+  }
+  /**
+   * 获取回复列表
+   */
+  Replies(req, res, next) {
+    var topicId = req.params.tid;
 
-  Reply.getRepliesByTopicId(topic_id, function(err, replies) {
-    if (err) {
-      return res.json({success: false, message: '出错'});
-    } else {
-      return res.json({success: true, replies: replies});
-    }
-  });
-}
+    ReplyProxy.getRepliesByTopicId(topicId)
+      .then(replies => {
+        let thenable = {
+          then: function(resolve, reject) {
+            let replyAuthorIds = [];
 
-/**
- * 添加回复
- */
-exports.add = function (req, res, next) {
-  var content = req.body.content;
-  var topic_id = req.params.topic_id;
-  var reply_id = req.body.reply_id;
+            replies.forEach(item => {
+              if (item.author_id) replyAuthorIds.push(item.author_id.toString())
+            })
 
-  var str = validator.trim(String(content));
-  if (str === '') {
-    return res.json({success: false, message: '回复内容不能为空。'});
+            replyAuthorIds = _.uniq(replyAuthorIds)
+            resolve([replies, replyAuthorIds])
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
+      .then(([replies, replyAuthorIds]) => {
+        let thenable = {
+          then: function(resolve, reject) {
+            UserProxy.getUsersByIds(replyAuthorIds)
+              .then(authors => resolve([replies, authors]))
+              .then(err => reject(err))
+          }
+        }
+        
+        return Promise.resolve(thenable)
+      })
+      .then(([replies, authors]) => res.json({success: true, data: replies, authors: authors}))
+      .catch(err => res.json({success: false, message: err}))
   }
 
-  var ep = EventProxy.create();
-  ep.fail(next);
+  /**
+   * 添加回复
+   */
+  add(req, res, next) {
+    var content = req.body.content;
+    var topicId = req.params.tid;
+    var replyId = req.body.reply_id || '';
+    var authorId = req.session.user._id;
 
-  Topic.getTopic(topic_id, ep.doneLater(function (topic) {
-    if (!topic) {
-      ep.unbind();
-      // just 404 page
-      return next();
+    content = validator.trim(String(content));
+    if (content === '') {
+      return res.json({success: false, message: '回复内容不能为空。'})
     }
 
-    if (topic.lock) {
-      return res.json({success: false, message: '此主题已锁定。'});
-    }
-    ep.emit('topic', topic);
-  }));
-
-  ep.all('topic', function (topic) {
-    User.getUserById(topic.author_id, ep.done('topic_author'));
-  });
-
-  ep.all('topic', 'topic_author', function (topic, topicAuthor) {
-    Reply.newAndSave(content, topic_id, req.session.user._id, reply_id, ep.done(function (reply) {
-      Topic.updateLastReply(topic_id, reply._id, ep.done(function () {
-        ep.emit('reply_saved', reply);
-        //发送at消息，并防止重复 at 作者
-        var newContent = content.replace('@' + topicAuthor.loginname + ' ', '');
-        at.sendMessageToMentionUsers(newContent, topic_id, req.session.user._id, reply._id);
-      }));
-    }));
-
-    User.getUserById(req.session.user._id, ep.done(function (user) {
-      user.score += 5;
-      user.reply_count += 1;
-      user.save();
-      req.session.user = user;
-      ep.emit('score_saved');
-    }));
-  });
-
-  ep.all('reply_saved', 'topic', function (reply, topic) {
-    if (topic.author_id.toString() !== req.session.user._id.toString()) {
-      message.sendReplyMessage(topic.author_id, req.session.user._id, topic._id, reply._id);
-    }
-    ep.emit('message_saved');
-  });
-
-  ep.all('reply_saved', 'message_saved', 'score_saved', function (reply) {
-    Reply.getReplyById(reply._id, function (err, reply) {
-      if (err) {
-        return res.json({success: false, message: '数据库错误'});
-      }
-
-      return res.json({success: true, reply: reply});
-    });
-
-  });
-};
-
-/**
- * 删除回复信息
- */
-exports.delete = function (req, res, next) {
-  var reply_id = req.body.reply_id;
-  Reply.getReply(reply_id, function (err, reply) {
-    if (err) {
-      return next(err);
+    if (!topicId || !authorId) {
+      return res.json({success: false, message: '参数错误'})
     }
 
-    if (!reply) {
-      res.json({success: false, message: 'no' + reply_id + ' exists'});
-      return;
-    }
-    if (reply.author_id.toString() === req.session.user._id.toString() || req.session.user.is_admin) {
-      reply.deleted = true;
-      reply.save();
-
-      User.getUserById(req.session.user._id, function (err, author) {
-        author.score -= 5;
-        author.reply_count -= 1;
-        author.save();
-        res.json({success: true});
-      });
-    } else {
-      res.json({success: false, message: 'failed'});
-      return;
-    }
-
-    Topic.reduceCount(reply.topic_id, _.noop);
-  });
-};
-/*
- 打开回复编辑器
- */
-exports.showEdit = function (req, res, next) {
-  var reply_id = req.params.reply_id;
-
-  Reply.getReplyById(reply_id, function (err, reply) {
-    if (!reply) {
-      return res.render404('此回复不存在或已被删除。');
-    }
-    if (req.session.user._id.equals(reply.author_id) || req.session.user.is_admin) {
-      res.render('reply/edit', {
-        reply_id: reply._id,
-        content: reply.content
-      });
-    } else {
-      return res.renderError('对不起，你不能编辑此回复。', 403);
-    }
-  });
-};
-/*
- 提交编辑回复
- */
-exports.update = function (req, res, next) {
-  var reply_id = req.params.reply_id;
-  var content = req.body.content;
-
-  Reply.getReplyById(reply_id, function (err, reply) {
-    if (!reply) {
-      return res.json({success: false, message: '此回复不存在或已被删除。'});
-    }
-
-    if (String(reply.author_id) === req.session.user._id.toString() || req.session.user.is_admin) {
-
-      if (content.trim().length > 0) {
-        reply.content = content;
-        reply.save(function (err) {
-          if (err) {
-            return next(err);
+    TopicProxy.getTopicById(topicId)
+      .then(topic => ReplyProxy.newAndSave({authorId, replyId, topicId, content}))
+      .then(reply => {
+        let thenable = {
+          then: function(resolve, reject) {
+            TopicProxy.updateLastReply(topicId, reply._id)
+              .then(topic => {
+                let masterId = topic.author_id
+                resolve([reply, masterId])
+              })
+              .catch(err => reject(err))
           }
-          return res.json({success: true});
-        });
-      } else {
-        return res.json({success: false, message: '回复的字数太少。'});
-      }
-    } else {
-      return res.json({success: false, message: '对不起，你不能编辑此回复。'});
-    }
-  });
-};
+        }
+        
+        return Promise.resolve(thenable)
+      })
+      .then(([reply, masterId]) => {
+        let replyId = reply._id
+        at.sendMessageToMentionUsers({content, topicId, authorId, replyId})
+        message.sendReplyMessage({masterId, authorId, topicId, replyId})
+          
+        let thenable = {
+          then: function(resolve, reject) {
+            let replyCount = 1
+            UserProxy.increaseScore(authorId, {replyCount})
+            .then((author) => {
+              reply = reply.toObject()
+              reply.author = author
+              resolve(reply)
+            })
+            .catch(err => reject(err))
+          }
+        }
 
-exports.up = function (req, res, next) {
-  var replyId = req.params.reply_id;
-  var userId = req.session.user._id;
-  Reply.getReplyById(replyId, function (err, reply) {
-    if (err) {
-      return next(err);
+        return Promise.resolve(thenable)
+      })
+      .then((reply) => {
+        res.json({success: true, data: reply})
+      })
+      .catch(err => {
+        res.json({success: false, message: err})
+      })
+  }
+
+  /**
+   * 删除回复信息
+   */
+  delete(req, res, next) {
+    let replyId = req.body.reply_id
+    let userId = req.session.user._id.toString()
+
+    ReplyProxy.getReplyById(replyId)
+      .then(reply => {
+        if (!reply)  throw '找不到消息'
+        else if (reply.author_id.toString() !== userId && !req.session.user.is_admin) throw '没有权限'
+        else return reply
+      })
+      .then(reply => {
+        reply.deleted = true
+
+        let thenable = {
+          then: function(resolve, reject) {
+            ReplyProxy.update(reply).then(() => resolve(reply)).catch(err => reject(err))
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
+      .then(reply => {
+        let thenable = {
+          then: function(resolve, reject) {
+            ReplyProxy.getLastReplyByTopicId(reply.topic_id)
+              .then(lastReply => resolve([reply, lastReply]))
+              .catch(err => reject(err))
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
+      .then(([reply, lastReply]) => {return TopicProxy.reduceTopicCount(reply.topic_id, lastReply._id)})
+      .then(res.json({success: true, message: '删除成功'}))
+      .catch(err => res.json({success: false, message: err}))
+  }
+
+  /*
+   提交编辑回复
+   */
+  update(req, res, next) {
+    let replyId = req.params.reply_id
+    let content = req.body.content
+    let userId = req.session.user._id.toString()
+
+    if (content.trim().length > 0) {
+      return res.json({success: false, message: '回复字数太少'})
     }
-    if (reply.author_id.equals(userId) && !config.debug) {
-      // 不能帮自己点赞
-      res.send({
-        success: false,
-        message: '呵呵，不能帮自己点赞。',
-      });
-    } else {
-      var action;
-      reply.ups = reply.ups || [];
-      var upIndex = reply.ups.indexOf(userId);
-      if (upIndex === -1) {
-        reply.ups.push(userId);
-        action = 'up';
-      } else {
-        reply.ups.splice(upIndex, 1);
-        action = 'down';
+
+    ReplyProxy.getReplyById(replyId)
+      .then(reply => {
+        if (!reply) throw '找不到消息'
+        else if (reply.author_id.toString() !== userId && !req.session.user.is_admin) throw '没有权限'
+        else return reply
+      })
+      .then(reply => {
+        reply.content = content
+        return ReplyProxy.update(reply)
+      })
+      .then(reply => {
+        res.json({success: true, message: '更新成功'})
+      })
+      .catch(err => console.log(err))
+  }
+
+  up(req, res, next) {
+    var replyId = req.params.reply_id;
+    var userId = req.session.user._id;
+    ReplyProxy.getReplyById(replyId, function (err, reply) {
+      if (err) {
+        return next(err);
       }
-      reply.save(function () {
+      if (reply.author_id.equals(userId) && !config.debug) {
+        // 不能帮自己点赞
         res.send({
-          success: true,
-          action: action
+          success: false,
+          message: '呵呵，不能帮自己点赞。',
         });
-      });
-    }
-  });
-};
+      } else {
+        var action;
+        reply.ups = reply.ups || [];
+        var upIndex = reply.ups.indexOf(userId);
+        if (upIndex === -1) {
+          reply.ups.push(userId);
+          action = 'up';
+        } else {
+          reply.ups.splice(upIndex, 1);
+          action = 'down';
+        }
+        reply.save(function () {
+          res.send({
+            success: true,
+            action: action
+          });
+        });
+      }
+    });
+  }
+}
+
+module.exports = Reply

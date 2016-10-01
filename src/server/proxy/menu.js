@@ -1,7 +1,7 @@
 
 var EventProxy = require('eventproxy');
 var Menu = require('../models').Menu;
-var SubmenuProxy = require('./sub_menu');
+var SubmenuProxy = require('./submenu');
 var Submenu = require('../models').Submenu;
 
 import Promise from 'promise';
@@ -19,8 +19,6 @@ exports.getMenuById = function (id, callback) {
 exports.getOneMenu = function (opt) {
   return new Promise(function(resolove, reject) {
     Menu.findOne(opt, function(err, doc) {
-      console.log('get menu ...1');
-      console.log(doc);
       if (err) reject(ResultMsg.DB_ERROR)
       else resolove(doc)     
     })
@@ -58,7 +56,6 @@ exports.getMenus = function (opt) {
 
           newMenus[i].submenus = sub;
         }
-
         resolove(newMenus)
       });
     });   

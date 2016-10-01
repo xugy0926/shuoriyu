@@ -53,11 +53,11 @@ class Menu extends Component {
 
   buildDefaultButton(index, menu) {
     return this.props.selectedMenuKey === menu.key ?
-      (<li>
-        <a className={s.active} key={index} onClick={this._onSelectedMenu.bind(this, menu.key)}>{menu.value}</a>
+      (<li key={index}>
+        <a className={s.active} onClick={this._onSelectedMenu.bind(this, menu.key)}>{menu.value}</a>
       </li>
       ): (
-      <li>
+      <li key={index}>
         <a key={index} onClick={this._onSelectedMenu.bind(this, menu.key)}>{menu.value}</a>
       </li>
       );
@@ -70,13 +70,13 @@ class Menu extends Component {
     if (submenus && submenus.length > 0) {
       submenus.forEach((submenu)=> {
         submenusNodes.push( this.props.selectedSubmenuKey === submenu.key ? (
-          <li>
+          <li key={submenu._id}>
             <a className={s.active} onClick={this._onSelectedMenu.bind(this, menu.key, submenu.key)}>
               {submenu.value}
             </a>
           </li>)
         : (
-          <li>
+          <li key={submenu._id}>
             <a onClick={this._onSelectedMenu.bind(this, menu.key, submenu.key)}>
               {submenu.value}
             </a>

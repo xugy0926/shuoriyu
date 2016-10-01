@@ -13,6 +13,7 @@ var User       = require('../proxy').User;
 var Message    = require('./message');
 var EventProxy = require('eventproxy');
 var _          = require('lodash');
+var logger = require('./logger');
 
 /**
  * 从文本中提取出@username 标记的用户名数组
@@ -56,38 +57,37 @@ exports.fetchUsers = fetchUsers;
  * 根据文本内容中读取用户，并发送消息给提到的用户
  * Callback:
  * - err, 数据库异常
- * @param {String} text 文本内容
+ * @param {String} content 文本内容
  * @param {String} topicId 主题ID
  * @param {String} authorId 作者ID
- * @param {String} reply_id 回复ID
- * @param {Function} callback 回调函数
+ * @param {String} replyId 回复ID
  */
-exports.sendMessageToMentionUsers = function (text, topicId, authorId, reply_id, callback) {
-  if (typeof reply_id === 'function') {
-    callback = reply_id;
-    reply_id = null;
+exports.sendMessageToMentionUsers = function ({content, topicId, authorId, replyId}) {
+
+  if (!content || !authorId || !topicId || !replyId) {
+    logger.debug(('sendMessageToMentionUsers').red, `${topicId}&${authorId}&${replyId}`);
+    return
   }
-  callback = callback || _.noop;
 
-  User.getUsersByNames(fetchUsers(text), function (err, users) {
-    if (err || !users) {
-      return callback(err);
-    }
-    var ep = new EventProxy();
-    ep.fail(callback);
+  replyId = !replyId ? null : replyId
 
-    users = users.filter(function (user) {
-      return !user._id.equals(authorId);
-    });
+  User.getUsersByNames(fetchUsers(content))
+    .then(users => {
+      if (users && users.length > 0) {
+        users = users.filter(function(user) {
+          if (!user) return false
+          else !user._id.equals(authorId)
+        })
 
-    ep.after('sent', users.length, function () {
-      callback();
-    });
-
-    users.forEach(function (user) {
-      Message.sendAtMessage(user._id, authorId, topicId, reply_id, ep.done('sent'));
-    });
-  });
+        users.forEach(function(user) {
+          if (user) {
+            let userId = user._id
+            Message.sendAtMessage({userId, authorId, topicId, replyId})
+          }
+        })
+      }
+    })
+    .catch(err => console.log('sendMessageToMentionUsers error.'))
 };
 
 /**
@@ -98,14 +98,11 @@ exports.sendMessageToMentionUsers = function (text, topicId, authorId, reply_id,
  * @param {String} text 文本内容
  * @param {Function} callback 回调函数
  */
-exports.linkUsers = function (text, callback) {
-  var users = fetchUsers(text);
+exports.linkUsers = function (text) {
+  var users = fetchUsers(text)
   for (var i = 0, l = users.length; i < l; i++) {
-    var name = users[i];
-    text = text.replace(new RegExp('@' + name + '\\b(?!\\])', 'g'), '[@' + name + '](/user/' + name + ')');
+    var name = users[i]
+    text = text.replace(new RegExp('@' + name + '\\b(?!\\])', 'g'), '[@' + name + '](/user/' + name + ')')
   }
-  if (!callback) {
-    return text;
-  }
-  return callback(null, text);
+  return text
 };

@@ -8,10 +8,10 @@
 /**
  * Module dependencies.
  */
-var multiline    = require('multiline');
-var validator    = require('validator');
-var User         = require('../proxy').User;
-var Topic        = require('../proxy').Topic;
+import multiline  from 'multiline';
+import validator  from 'validator';
+var UserProxy         = require('../proxy').User;
+var TopicProxy        = require('../proxy').Topic;
 var config       = require('../config');
 var eventproxy   = require('eventproxy');
 var cache        = require('../common/cache');
@@ -19,159 +19,123 @@ var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
 var _            = require('lodash');
 import { apiPrefix } from '../../config';
+import Promise from 'promise';
+import * as ResultMsg from '../constrants/ResultMsg';
 
-
-exports.cmsPage = function (req, res) {
-  res.render('cms/index',{pageTitle: '全部', navTab: 'topic'});
-}
-
-exports.signupPage = function (req, res) {
-  res.render('sign/signup');
-};
-
-exports.signinPage = function (req, res) {
-  req.session._loginReferer = req.headers.referer;
-  res.render('sign/signin');
-};
-
-// sign out
-exports.signout = function (req, res, next) {
-  req.session.destroy();
-  res.clearCookie(config.auth_cookie_name, { path: '/' });
-  res.redirect( apiPrefix.page + '/cms');
-};
-
-exports.searchPasswordFromMailPage = function (req, res) {
-  res.render('sign/searchPasswordFromMail');
-};
-
-exports.inputSearchPasswordPage = function (req, res) {
-  var key = validator.trim(req.query.key || '');
-  var loginname = validator.trim(req.query.loginname || '');
-
-  User.getUserByNameAndKey(loginname, key, function(err, user) {
-    if (err || !user) {
-      res.json({success: false, message: '找不到用户' + loginname});
-      return;
-    }
-
-    res.render('sign/inputSearchPassword', {key: key, loginname: loginname});
-  });
-}
-
-exports.resetPasswordPage = function (req, res, next) {
-  var userId = req.session.user._id;
-  res.render('sign/resetPassword', {userId: userId});
-};
-
-exports.myMessagesPage = function (req, res, next) {
-  res.render('message/index');
-};
-
-exports.topicPage = function (req, res, next) {
-  var topicId = req.params.tid;
-
-  if (topicId.length !== 24) {
-    return res.render('notify', {message: '此话题不存在或已被删除。'});
+class Page {
+  cmsPage(req, res) {
+    res.render('cms/index',{pageTitle: '全部', navTab: 'topic'});
   }
 
-  Topic.getFullTopicById(topicId, function (err, topic, author) {
-    topic.author = author;
-    res.render('topic/index', {topic: topic});
-  });
-}
+  signupPage (req, res) {
+    res.render('sign/signup');
+  };
 
-exports.createTopicPage = function (req, res, next) {
-  res.render('topic/edit');
-}
+  signinPage (req, res) {
+    req.session._loginReferer = req.headers.referer;
+    res.render('sign/signin');
+  };
 
-exports.editTopicPage = function (req, res, next) {
-  var topicId = req.params.tid;
-  console.log(topicId);
-  res.render('topic/edit', {topicId: topicId});
-}
+  // sign out
+  signout (req, res, next) {
+    req.session.destroy();
+    res.clearCookie(config.auth_cookie_name, { path: '/' });
+    res.redirect( apiPrefix.page + '/cms');
+  };
 
-exports.menuPage = function (req, res, next) {
-  res.render('menu/index', {navTab: 'tag'});
-}
+  searchPasswordFromMailPage (req, res) {
+    res.render('sign/searchPasswordFromMail');
+  };
 
-exports.userPage = function (req, res, next) {
-  res.render('user/index');
-}
+  inputSearchPasswordPage (req, res) {
+    let key = validator.trim(req.query.key || '');
+    let loginname = validator.trim(req.query.loginname || '');
 
-exports.userTopicsPage = function (req, res, next) {
-  var userName = req.params.name;
-  res.render('user/topics', {userName: userName});
-};
+    UserProxy.getUserByNameAndKey(loginname, key)
+      .then(doc => {
+        res.render('sign/inputSearchPassword', {key: key, loginname: loginname})
+      })
+      .catch(message => res.json({success: false, message: message}))
+  }
 
-exports.userRepliesPage = function (req, res, next) {
-  var userName = req.params.name;
-  res.render('user/replies', {userName: userName});
-};
+  resetPasswordPage (req, res, next) {
+    let userId = req.session.user._id;
+    res.render('sign/resetPassword', {userId: userId});
+  };
 
-exports.settingPage = function (req, res, next) {
-  var userId = req.session.user._id;
-  res.render('user/setting', {userId, userId});
-};
+  myMessagesPage (req, res, next) {
+    let userId = validator.trim(req.session.user._id || '')
+    res.render('message/index', {userId: userId});
+  };
 
-// static page
-// About
-exports.aboutPage = function (req, res, next) {
-  res.render('static/about', {
-    pageTitle: '关于我们'
-  });
-};
+  topicPage (req, res, next) {
+    let topicId = req.params.tid;
 
-// FAQ
-exports.faqPage = function (req, res, next) {
-  res.render('static/faq');
-};
-
-exports.getstartPage = function (req, res) {
-  res.render('static/getstart', {
-    pageTitle: 'Node.js 新手入门'
-  });
-};
-
-exports.apiPage = function (req, res, next) {
-  res.render('static/api');
-};
-
-
-exports.sitemap = function (req, res, next) {
-  var urlset = xmlbuilder.create('urlset',
-    {version: '1.0', encoding: 'UTF-8'});
-  urlset.att('xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-
-  var ep = new eventproxy();
-  ep.fail(next);
-
-  ep.all('sitemap', function (sitemap) {
-    res.type('xml');
-    res.send(sitemap);
-  });
-
-  cache.get('sitemap', ep.done(function (sitemapData) {
-    if (sitemapData) {
-      ep.emit('sitemap', sitemapData);
-    } else {
-      Topic.getLimit5w(function (err, topics) {
-        if (err) {
-          return next(err);
-        }
-        topics.forEach(function (topic) {
-          urlset.ele('url').ele('loc', 'http://cnodejs.org/topic/' + topic._id);
-        });
-
-        var sitemapData = urlset.end();
-        // 缓存一天
-        cache.set('sitemap', sitemapData, 3600 * 24);
-        ep.emit('sitemap', sitemapData);
-      });
+    if (topicId.length !== 24) {
+      return res.render('notify', {message: '此话题不存在或已被删除。'});
     }
-  }));
-};
 
-exports.appDownload = function (req, res, next) {
-  res.redirect('https://github.com/soliury/noder-react-native/blob/master/README.md')
-};
+    TopicProxy.getTopicById(topicId)
+      .then(topic => res.render('topic/index', {topic: topic}))
+      .catch(err => res.json({success: false, message: err}))
+  }
+
+  createTopicPage (req, res, next) {
+    res.render('topic/edit');
+  }
+
+  editTopicPage (req, res, next) {
+    let topicId = req.params.tid;
+    res.render('topic/edit', {topicId: topicId});
+  }
+
+  menuPage (req, res, next) {
+    res.render('menu/index', {navTab: 'tag'});
+  }
+
+  userPage (req, res, next) {
+    res.render('user/index');
+  }
+
+  userTopicsPage (req, res, next) {
+    let userName = req.params.name;
+    res.render('user/topics', {userName: userName});
+  };
+
+  userRepliesPage (req, res, next) {
+    let userName = req.params.name;
+    res.render('user/replies', {userName: userName});
+  };
+
+  settingPage (req, res, next) {
+    let userId = req.session.user._id;
+    res.render('user/setting', {userId, userId});
+  };
+
+  // static page
+  // About
+  aboutPage (req, res, next) {
+    res.render('static/about', {pageTitle: '关于我们'});
+  };
+
+  // FAQ
+  faqPage (req, res, next) {
+    res.render('static/faq');
+  };
+
+  getstartPage (req, res) {
+    res.render('static/getstart', {
+      pageTitle: 'Node.js 新手入门'
+    });
+  };
+
+  apiPage (req, res, next) {
+    res.render('static/api');
+  };
+
+  appDownload (req, res, next) {
+    res.redirect('https://github.com/soliury/noder-react-native/blob/master/README.md')
+  };
+}
+
+module.exports = Page

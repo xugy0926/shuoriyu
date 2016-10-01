@@ -41,8 +41,8 @@ var session = require('express-session');
 
 require('./server/middlewares/mongoose_log'); // 打印 mongodb 查询日志
 require('./server/models');
-var pageRouter = require('./server/pageRouter');
-var dataRouter = require('./server/dataRouter');
+var PageRouter = require('./server/pageRouter');
+var DataRouter = require('./server/dataRouter');
 var serverAuth = require('./server/middlewares/auth');
 var errorPageMiddleware = require('./server/middlewares/error_page');
 var proxyMiddleware = require('./server/middlewares/proxy');
@@ -204,8 +204,9 @@ app.use(busboy({
 // })));
 
 // routes
-app.use(apiPrefix.page, cors(), pageRouter);
-app.use(apiPrefix.data, cors(), dataRouter);
+
+app.use(apiPrefix.page, cors(), (new PageRouter()).getRouter());
+app.use(apiPrefix.data, cors(), (new DataRouter()).getRouter());
 
 //
 // Register server-side rendering middleware

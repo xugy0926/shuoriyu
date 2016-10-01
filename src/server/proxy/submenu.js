@@ -1,6 +1,8 @@
 
 var assert = require('power-assert');
 var Submenu = require('../models').Submenu;
+import Promise from 'promise';
+import * as ResultMsg from '../constrants/ResultMsg';
 
 exports.getSubmenuById = function (id) {
   return new Promise(function(resolove, reject) {

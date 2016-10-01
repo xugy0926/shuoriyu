@@ -155,25 +155,43 @@
           console.log(vue.statusKey);
           vue.isReviewing = vue.statusKey === 'reviewing';
           vue.isReviewed = vue.statusKey === 'reviewed';
-          console.log(vue.isReviewed);
         },
         getReplies: function() {
           $.get(dataPrefix + '/' + vue.topicId + '/replies/data', function (result) {
             if (!result.success) {
-              return;
+              vue.errorMsg = result.message
+              return
             }
+            vue.authors = result.authors
+            vue.updateReplies(result.data)
+          });
+        },
+        updateReplies: function(replies) {
+          replies.forEach( function(item) {
+            var index = _.findIndex(vue.authors, function(i) {
+              return i._id === item.author_id
+            })
 
-            vue.replies = result.replies && result.replies.length === 0 ? null : result.replies;
+            if (index >= 0) {
+              item.author = vue.authors[index]
+            }
+          })
+
+          replies.forEach( function(item){
+            vue.replies.push(item)
           });
         },
         onReply: function () {
-          $.post(dataPrefix + '/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
+          $.post(dataPrefix + '/reply/' + vue.topicId + '/reply', {content: editor.codemirror.getValue() || ''}, function (result) {
             if (!result.success) {
               vue.errorMsg = result.message;
               return;
             }
 
-            vue.replies.push(result.reply);
+            console.log(result.data)
+            console.log(result.data.author)
+
+            vue.replies.push(result.data);
           });
         },
         onReplyReply: function (replyId, loginname) {

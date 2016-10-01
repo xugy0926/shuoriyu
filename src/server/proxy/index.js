@@ -4,4 +4,4 @@ exports.Topic        = require('./topic');
 exports.Reply        = require('./reply');
 exports.TopicCollect = require('./topic_collect');
 exports.Menu         = require('./menu');
-exports.Submenu      = require('./sub_menu');
+exports.Submenu      = require('./submenu');
