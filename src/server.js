@@ -41,8 +41,8 @@ var session = require('express-session');
 
 require('./server/middlewares/mongoose_log'); // 打印 mongodb 查询日志
 require('./server/models');
-var PageRouter = require('./server/pageRouter');
-var DataRouter = require('./server/dataRouter');
+import PageRouter from './server/PageRouter';
+import DataRouter from './server/DataRouter';
 var serverAuth = require('./server/middlewares/auth');
 var errorPageMiddleware = require('./server/middlewares/error_page');
 var proxyMiddleware = require('./server/middlewares/proxy');
