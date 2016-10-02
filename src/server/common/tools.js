@@ -20,7 +20,6 @@ exports.formatDate = function (date, friendly) {
   } else {
     return date.format('YYYY-MM-DD HH:mm');
   }
-
 };
 
 exports.validateId = function (str) {

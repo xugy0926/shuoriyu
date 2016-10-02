@@ -7,9 +7,9 @@ import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
 class Message extends Base {
-  getPages(userId) {
+  getPages(userId, hasRead) {
     let limit = config.list_topic_count
-    let key = JSON.stringify(userId) + 'messages+pages1'
+    let key = JSON.stringify(userId + hasRead.toString()) + 'messages+pages'
 
     return new Promise(function(resolove, reject) {
       cache.get(key)
@@ -17,7 +17,7 @@ class Message extends Base {
           if (pages) {
             resolove(pages)
           } else {
-            MessageProxy.getMessagesCount(userId)
+            MessageProxy.getMessagesCount(userId, hasRead)
               .then(count => {
                 let pages = Math.ceil(count / limit);
                 cache.set(key, pages, 60 * 1)
@@ -29,6 +29,15 @@ class Message extends Base {
         })
         .catch(err => reject(err))
     })
+  }
+
+  unreadCount(req, res, next) {
+    let that = this
+    let userId = req.params.uid
+
+    MessageProxy.getMessagesCount(userId, false)
+      .then(count => that.success(res, {count}))
+      .catch(message => that.error(res, {message}))
   }
 
   userMessages(req, res, next) {
@@ -45,17 +54,9 @@ class Message extends Base {
     let limit = config.list_topic_count;
     let options = { skip: (currentPage - 1) * limit, limit: limit, sort: '-top -last_reply_at'};
 
-    let func = null
+    let hasRead = (type === 'un_read') ? false : true
 
-    if (type === 'un_read') {
-      func = MessageProxy.getUnreadMessageByUserId
-    } else if (type === 'read') {
-      func = MessageProxy.getReadMessagesByUserId
-    } else {
-      return res.json({success: false, message: '消息类型错误'})
-    }
-
-    func(userId, options)
+    MessageProxy.getMessagesByUserId(userId, hasRead, options)
       .then(messages => {
         if (messages.length > 0) return MessageProxy.getFullMessages(messages)
         else return messages
@@ -63,7 +64,7 @@ class Message extends Base {
       .then(messages => {
         let thenable = {
           then: function(resolve, reject) {
-            that.getPages(userId)
+            that.getPages(userId, hasRead)
               .then(pages => resolve([messages, pages]))
               .catch(err => reject(err))
           }

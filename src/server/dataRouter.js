@@ -74,6 +74,7 @@ class DataRouter {
 	this.router.post('/upload', this.auth.userRequired, (req, res, next) => this.topic.upload(req, res, next));               // 上传图片
 
 	// message controller
+	this.router.post('/message/:uid/unread/count', this.auth.userRequired, (req, res, next) => this.message.unreadCount(req, res, next))
 	this.router.post('/message/:uid/data', this.auth.userRequired, (req, res, next) => this.message.userMessages(req, res, next));
 
 	// menu

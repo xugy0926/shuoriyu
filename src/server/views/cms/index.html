@@ -28,18 +28,18 @@
 
   <table class="table table-bordered">
     <thead>
-    <tr>
-      <th>作者</th>
-      <th>标题</th>
-      <th>Menu</th>
-      <th>Submenu</th>
-      <th>时间</th>
-      <th>审核状态</th>
-      <th>操作</th>
-    </tr>
+      <tr>
+        <th>作者</th>
+        <th>标题</th>
+        <th>Menu</th>
+        <th>Submenu</th>
+        <th>时间</th>
+        <th>审核状态</th>
+        <th>操作</th>
+      </tr>
     </thead>
     <tbody>
-      <tr v-for="(index, topic) in topics">
+      <tr v-if="topics.length > 0" v-for="(index, topic) in topics">
         <td style="width: 80px">
           <a href="<%= apiPrefix.page %>/user/{{ topic.author.loginname}}">{{topic.author.loginname}}</a>
         </td>
@@ -48,7 +48,7 @@
         </td>
         <td style="width: 80px">{{topic.menuValue}}</td>
         <td style="width: 80px">{{topic.submenuValue}}</td>
-        <td style="width: 80px">{{topic.create_at}}</td>
+        <td style="width: 80px">{{topic.create_at_ago}}</td>
         <td style="width: 80px">{{topic.status}}</td>
         <td style="width: 80px">
           <div class="btn-group disabled">
@@ -74,6 +74,7 @@
       </tr>
     </tbody>
   </table>
+  <p v-show="topics.length < 1">无数据</p>
 </div>
 </div>
 <script>
@@ -161,7 +162,9 @@
         });
       },
       updateTopics: function(topics) {
+        moment.locale('zh-cn')
         topics.forEach( function(item) {
+          item.create_at_ago = moment(item.update_at).fromNow()
           var index1 = _.findIndex(vue.menus, function(menu) {
             return menu.key === item.menu;
           });

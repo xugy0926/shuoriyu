@@ -1,19 +1,22 @@
 <ul id="nav-tabs" class="nav nav-tabs nav-tabs-x">
   <li role="presentation" v-bind:class="{'active': selectedTopic}"><a href="<%= apiPrefix.page %>/cms">文章</a></li>
-  <li role="presentation"  v-bind:class="{'active': selectedCategory}"><a href="<%= apiPrefix.page %>/menu/show">分类</a></li>
+  <li role="presentation"  v-bind:class="{'active': selectedMenu}"><a href="<%= apiPrefix.page %>/menu/show">分类</a></li>
 </ul>
 <script>
+  function navTab() {
+    var navTab = '<%=navTab%>';
 
-  var navTab = '<%=navTab%>';
+    var navTabVue = new Vue({
+      el: '#nav-tabs',
+      data: {
+        selectedTopic: true,
+        selectedMenu: false
+      }
+    });
 
-  var navTabVue = new Vue({
-    el: '#nav-tabs',
-    data: {
-      selectedTopic: false,
-      selectedCategory: false
-    }
-  });
+    navTabVue.selectedTopic = navTab === 'topic';
+    navTabVue.selectedMenu = navTab === 'menu';
+  }
 
-  navTabVue.selectedTopic = navTab === 'topic';
-  navTabVue.selectedCategory = navTab === 'category';
+  navTab()
 </script>

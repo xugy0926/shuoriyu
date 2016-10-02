@@ -18,9 +18,9 @@ import * as ResultMsg from '../constrants/ResultMsg';
  * - count, 未读消息数量
  * @param {String} id 用户ID
  */
-exports.getMessagesCount = function (id) {
+exports.getMessagesCount = function (id, hasRead=false) {
   return new Promise(function(resolve, reject) {
-    Message.count({master_id: id, has_read: false}, function(err, count) {
+    Message.count({master_id: id, has_read: hasRead}, function(err, count) {
       if (err) return reject(ResultMsg.DB_ERROR)
       else resolve(count)
     })    
@@ -72,27 +72,10 @@ exports.getMessageById = function (id) {
  * - messages, 消息列表
  * @param {String} userId 用户ID
  */
-exports.getReadMessagesByUserId = function (userId, options) {
+exports.getMessagesByUserId = function (userId, hasRead=false, options) {
   options = options ? options : {}
   return new Promise(function(resolve, reject) {
-    Message.find({master_id: userId, has_read: true}, {}, options, function(err, docs) {
-      if (err) reject(ResultMsg.DB_ERROR)
-      else resolve(docs)
-    })
-  })
-};
-
-/**
- * 根据用户ID，获取未读消息列表
- * Callback:
- * - err, 数据库异常
- * - messages, 未读消息列表
- * @param {String} userId 用户ID
- */
-exports.getUnreadMessageByUserId = function (userId, options) {
-  options = options ? options : {}
-  return new Promise(function(resolve, reject) {
-    Message.find({master_id: userId, has_read: false}, {}, options, function(err, docs) {
+    Message.find({master_id: userId, has_read: hasRead}, {}, options, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(docs)
     })

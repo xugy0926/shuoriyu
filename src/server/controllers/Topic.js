@@ -108,10 +108,8 @@ class Topic extends Base {
         
         return Promise.resolve(thenable)
       })
-      .then(([topics, pages, authors]) => {
-        that.success(res, {data: topics, currentPage: currentPage, pages: pages, authors: authors})
-      })
-      .catch(err => that.error(res, {message: err}))
+      .then(([topics, pages, authors]) => that.success(res, {data: topics, currentPage: currentPage, pages: pages, authors: authors}))
+      .catch(message => that.error(res, {message}))
   }
 
   userTopics(req, res, next) {
@@ -137,7 +135,7 @@ class Topic extends Base {
           then: function(resolve, reject) {
             Promise.all([TopicProxy.getTopicsByQuery(query, options), that.getPages(query)])
               .then(([topics, pages]) => resolve([topics, pages]))
-              .catch(err => console.log(err))
+              .catch(err => reject(err))
           }
         }
         return Promise.resolve(thenable)
@@ -150,7 +148,7 @@ class Topic extends Base {
                 pages: pages
               });
       })
-      .catch(err => that.error(res, {message: err}))
+      .catch(message => that.error(res, {message}))
   }
 
   /**

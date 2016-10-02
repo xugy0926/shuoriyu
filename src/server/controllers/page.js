@@ -90,7 +90,7 @@ class Page {
   }
 
   menuPage (req, res, next) {
-    res.render('menu/index', {navTab: 'tag'});
+    res.render('menu/index', {navTab: 'menu'});
   }
 
   userPage (req, res, next) {

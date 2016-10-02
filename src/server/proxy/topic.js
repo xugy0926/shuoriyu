@@ -9,44 +9,12 @@ var _          = require('lodash');
 import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
-
-/**
- * 根据主题ID获取主题
- * Callback:
- * - err, 数据库错误
- * - topic, 主题
- * - author, 作者
- * @param {String} id 主题ID
- * @param {Function} callback 回调函数
- */
-// exports.getTopicById = function (id, callback) {
-//   Topic.findOne({_id: id}, function (err, topic) {
-//     if (err) {
-//       return callback(err);
-//     }
-
-//     if (!topic) {
-//       callback(null, null);
-//       return;
-//     }
-
-//     at.linkUsers(topic.content, function (err, str) {
-//       topic.linkedContent = str;
-//       User.getUserById(topic.author_id, function (err, author) {
-//         topic.author = author || null;
-//         callback(null, topic);
-//       });
-//     });
-//   });
-// };
-
 /**
  * 获取关键词能搜索到的主题数量
  * Callback:
  * - err, 数据库错误
  * - count, 主题数量
  * @param {String} query 搜索关键词
- * @param {Function} callback 回调函数
  */
 exports.getCountByQuery = function (query) {
   return new Promise(function(resolve, reject) {
@@ -64,7 +32,6 @@ exports.getCountByQuery = function (query) {
  * - count, 主题列表
  * @param {String} query 搜索关键词
  * @param {Object} opt 搜索选项
- * @param {Function} callback 回调函数
  */
 exports.getTopicsByQuery = function (query, opt) {
   query.deleted = false;
@@ -72,55 +39,9 @@ exports.getTopicsByQuery = function (query, opt) {
   return new Promise(function(resolve, reject) {
     Topic.find(query, {}, opt, function (err, topics) {
       if (err) return reject(ResultMsg.DB_ERROR)
-      if (topics.length === 0) return reject(ResultMsg.DB_ERROR)
-      resolve(topics)
+      else resolve(topics)
     })
   })
-
-  // Topic.find(query, {}, opt, function (err, topics) {
-
-  //   if (err) {
-  //     return callback(err);
-  //   }
-  //   if (topics.length === 0) {
-  //     return callback(null, []);
-  //   }
-
-  //   var newTopics = [];
-  //   for (var i = 0, len = topics.length; i < len; i++) {
-  //     newTopics[i] = topics[i].toObject();
-  //   }
-
-  //   var proxy = new EventProxy();
-  //   proxy.after('topic_ready', newTopics.length, function () {
-  //     newTopics = _.compact(newTopics); // 删除不合规的 topic
-  //     return callback(null, newTopics);
-  //   });
-  //   proxy.fail(callback);
-
-  //   newTopics.forEach(function (topic, i) {
-
-  //     topic.create_at = tools.formatDate(topic.create_at, true);
-
-  //     var ep = new EventProxy();
-  //     ep.all('author', 'reply', function (author, reply) {
-  //       // 保证顺序
-  //       // 作者可能已被删除
-  //       if (author) {
-
-  //         topic.author = author;
-  //         topic.reply = reply;
-  //       } else {
-  //         topic = null;
-  //       }
-  //       proxy.emit('topic_ready');
-  //     });
-
-  //     User.getUserById(topic.author_id, ep.done('author'));
-  //     // 获取主题的最后回复
-  //     Reply.getReplyById(topic.last_reply, ep.done('reply'));
-  //   });
-  // });
 };
 
 // for sitemap
@@ -132,30 +53,6 @@ exports.getLimit5w = function () {
     })
   })
 };
-
-/**
- * 获取所有信息的主题
- * Callback:
- * - err, 数据库异常
- * - message, 消息
- * - topic, 主题
- * - author, 主题作者
- * @param {String} id 主题ID
- */
-// exports.getFullTopicById = function (id) {
-//   Topic.findOne({_id: id, deleted: false}, function (err, topic) {
-//     if (err || !topic) {
-//       return callback('此话题不存在或已被删除。');
-//     }
-
-//     at.linkUsers(topic.content, function (err, str) {
-//       topic.linkedContent = str;
-//       User.getUserById(topic.author_id, function (err, author) {
-//         callback(null, topic, author);
-//       });
-//     });
-//   });
-// };
 
 /**
  * 更新主题的最后回复信息
@@ -193,7 +90,6 @@ exports.updateLastReply = function (topicId, replyId) {
  * @param {String} id 主题ID
  */
 exports.getTopicById = function (id) {
-
   return new Promise(function(resolve, reject) {
     Topic.findOne({_id: id}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
@@ -231,32 +127,6 @@ exports.reduceTopicCount = function (topicId, lastReplyId) {
       })
     })
   })
-
-  // Topic.findOne({_id: id}, function (err, topic) {
-  //   if (err) {
-  //     return callback(err);
-  //   }
-
-  //   if (!topic) {
-  //     return callback(new Error('该主题不存在'));
-  //   }
-  //   topic.reply_count -= 1;
-  //   topic.
-
-  //   Reply.getLastReplyByTopId(id, function (err, reply) {
-  //     if (err) {
-  //       return callback(err);
-  //     }
-
-  //     if (reply.length !== 0) {
-  //       topic.last_reply = reply[0]._id;
-  //     } else {
-  //       topic.last_reply = null;
-  //     }
-
-  //     topic.save(callback);
-  //   });
-  // });
 };
 
 exports.newAndSave = function (topic) {

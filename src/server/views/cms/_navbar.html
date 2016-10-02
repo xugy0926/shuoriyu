@@ -1,5 +1,5 @@
 <!-- navbar -->
-<nav class="navbar navbar-default">
+<nav id="nav" class="navbar navbar-default">
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -30,10 +30,7 @@
         </li>
         <li>
           <a href='<%= apiPrefix.page %>/user/messages'>
-            <% if (current_user.messages_count) { %>
-            <span class='big messages_count'><%= current_user.messages_count %></span>
-            <% } %>
-            未读消息
+            未读消息<span class='badge'>{{count}}</span>
           </a>
         </li>
         <% } %>
@@ -67,3 +64,33 @@
     </div>
   </div>
 </nav>
+<script type="text/javascript">
+  function nav() {
+    var dataPrefix = '<%= apiPrefix.data %>';
+    var userId = '<%= typeof(current_user) !== 'undefined' && current_user ? current_user._id : "" %>'
+
+    var vue = new Vue({
+      el: '#nav',
+      data: {
+        count: 0
+      },
+      methods: {
+        getMessageCount() {
+          $.post(dataPrefix + '/message/' + userId + '/unread/count', function(result) {
+            if (!result.success) {
+              return
+            }
+            vue.count = result.count
+          })
+        }
+      }
+    })
+
+    if (userId) {
+      vue.getMessageCount()
+    }    
+  }
+
+  nav()
+
+</script>
