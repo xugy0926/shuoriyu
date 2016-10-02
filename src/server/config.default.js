@@ -14,6 +14,7 @@ var config = {
   site_headers: [
     '<meta name="xxx" content="xxx@gmail.com" />'
   ],
+
   site_logo: '/public/images/cnodejs_light.svg', // default is `name`
   site_icon: '/public/images/cnode_icon_32.png', // 默认没有 favicon, 这里填写网址
 
@@ -26,29 +27,50 @@ var config = {
   // 默认的cnzz tracker ID，自有站点请修改
   cnzz_tracker_id: '',
 
-  session_secret: '', // 务必修改
-  auth_cookie_name: '', // 务必修改
+
+  app_id_pro: '56c6c309243cb728205a3dff',
+  app_id_dev: '56c6c309243cb728205a3dee',
+
+  session_secret: 'node_club_secret', // 务必修改
+  auth_cookie_name: 'shuoriyu_site_001', // 务必修改
+
+  mongodb_pro: 'mongodb://192.168.0.2/shuoriyu_club_product',
+  mongodb_dev: 'mongodb://127.0.0.1/shuoriyu_club_test_db',
+
+  redis_pro: {
+    host: '192.168.0.3',
+    port: 6379,
+    db: 0,
+    password: ''
+  },
+
+  redis_dev: {
+    host: '127.0.0.1',
+    port: 6379,
+    db: 0,
+    password: ''
+  },
 
   // 话题列表显示的话题数量
   list_topic_count: 50,
 
   // RSS配置
   rss: {
-    title: '',
-    link: 'http://xxx.cn',
+    title: '说日语',
+    link: 'http://shuoriyu.cn',
     language: 'zh-cn',
-    description: '',
+    description: 'shuoriyu：日语学习社区',
     //最多获取的RSS Item数量
     max_rss_items: 50
   },
 
   // 邮箱配置
   mail_opts: {
-    host: '',
-    port: 465,
+    host: 'smtp.qq.com',
+    port: 25,
     auth: {
-      user: '',
-      pass: ''
+      user: 'young_xu@qq.com',
+      pass: 'ydpilwnjzuqhbgcj'
     }
   },
 
@@ -75,10 +97,10 @@ var config = {
 
   // 7牛的access信息，用于文件上传
   qn_access: {
-    accessKey: '',
-    secretKey: '',
-    bucket: '',
-    origin: '',
+    accessKey: 'hwRpmKTAHOo3OpJBmKuL6VwqsGV5oHZ8DMffohHk',
+    secretKey: 'kE51DWulIo8M0dyqIRZh8uQZ7FPTVtN3_m1EO82j',
+    bucket: 'speak-japanese',
+    origin: 'http://qiniu.shuoriyu.cn',
     // 如果vps在国外，请使用 http://up.qiniug.com/ ，这是七牛的国际节点
     // 如果在国内，此项请留空
     uploadURL: '',
