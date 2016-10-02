@@ -25,7 +25,7 @@ async function copy({ watch } = {}) {
     // [begin][add] add by xugy
     ncp('src/server/public', 'build/public'),
     ncp('src/server/views', 'build/views'),
-    ncp('upload/', 'build/public/upload')
+    //ncp('upload/', 'build/public/upload')
     // [end][add]
   ]);
 

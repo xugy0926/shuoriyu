@@ -13,14 +13,14 @@ import * as ResultMsg from '../constrants/ResultMsg';
  * @param {Array} names 用户名列表
  */
 exports.getUsersByNames = function (names) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     if (names.length === 0) {
-      return resolove([])
+      return resolve([])
     }
 
     User.find({ loginname: { $in: names } }, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(docs)
+      else resolve(docs)
     })
   })
 };
@@ -33,10 +33,10 @@ exports.getUsersByNames = function (names) {
  * @param {String} loginName 登录名
  */
 exports.getUserByLoginName = function (loginName) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     User.findOne({'loginname': new RegExp('^'+loginName+'$', "i")}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(doc)
+      else resolve(doc)
     })
   })
 };
@@ -49,11 +49,11 @@ exports.getUserByLoginName = function (loginName) {
  * @param {String} id 用户ID
  */
 exports.getUserById = function (id) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     if (!id) return reject(ResultMsg.PARAMS_ERROR)
     User.findOne({_id: id}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(doc)     
+      else resolve(doc)     
     });
   })
 };
@@ -66,10 +66,10 @@ exports.getUserById = function (id) {
  * @param {String} email 邮箱地址
  */
 exports.getUserByMail = function (email) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     User.findOne({email: email}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(doc)
+      else resolve(doc)
     });
   })
 };
@@ -82,12 +82,12 @@ exports.getUserByMail = function (email) {
  * @param {Array} ids 用户ID列表
  */
 exports.getUsersByIds = function (ids) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     User.find({'_id': {'$in': ids}}, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else {
         console.log(docs)
-        resolove(docs)
+        resolve(docs)
       }   
     })
   })
@@ -102,10 +102,10 @@ exports.getUsersByIds = function (ids) {
  * @param {Object} opt 选项
  */
 exports.getUsersByQuery = function (query, opt) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     User.find(query, '', opt, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(docs)       
+      else resolve(docs)       
     })    
   })
 };
@@ -119,10 +119,10 @@ exports.getUsersByQuery = function (query, opt) {
  * @param {String} key 激活码
  */
 exports.getUserByNameAndKey = function (loginname, key) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     User.findOne({loginname: loginname, retrieve_key: key}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else resolove(doc)       
+      else resolve(doc)       
     })
   })
 };
@@ -156,7 +156,7 @@ exports.increaseScore = function (authorId, {topicCount, replyCount}) {
 
 exports.newAndSave = function ({loginname, passwordHash, email, avatarUrl, active}) {
   return new Promise(function(resolve, reject) {
-    if (!loginname || !password || !email) {
+    if (!loginname || !passwordHash || !email) {
       return reject(ResultMsg.PARAMS_ERROR)
     }
 

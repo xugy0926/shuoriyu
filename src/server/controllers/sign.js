@@ -55,7 +55,7 @@ class Sign extends Base {
     }
     // END 验证信息的正确性
 
-    UserProxy.getUserByQuery({'$or': [{'loginname': loginname},{'email': email}]}, {})
+    UserProxy.getUsersByQuery({'$or': [{'loginname': loginname},{'email': email}]}, {})
       .then(users => {
         if (users.length > 0) { throw new Error(ResultMsg.ACCOUNT_EXIST)}
         let passwordHash = tools.bhash(password)
