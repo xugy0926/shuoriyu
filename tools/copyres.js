@@ -14,6 +14,7 @@ async function copyres() {
 
   await del(['./upload/*'], { dot: true });
   await fs.makeDir('./upload');
+  await fs.createFile('./build/logs/cheese.log');
 
   try {
     await Promise.all([

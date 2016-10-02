@@ -55,9 +55,11 @@ class Sign extends Base {
     }
     // END 验证信息的正确性
 
+    let that = this
+
     UserProxy.getUsersByQuery({'$or': [{'loginname': loginname},{'email': email}]}, {})
       .then(users => {
-        if (users.length > 0) { throw new Error(ResultMsg.ACCOUNT_EXIST)}
+        if (users.length > 0) { throw ResultMsg.ACCOUNT_EXIST}
         let passwordHash = tools.bhash(password)
         let active = false
         let avatarUrl = UserProxy.makeGravatar(email)
@@ -76,7 +78,7 @@ class Sign extends Base {
         mail.sendActiveMail(user.email, utility.md5(email + user.pass + config.session_secret), loginname)
         res.json({success: true, data: user, active: false, message: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'})
       })
-      .catch(err => console.log(err))
+      .catch(message => that.error(res, {message}))
   }
 
   /**
@@ -105,7 +107,7 @@ class Sign extends Base {
       .then(user => {
         let isOK = tools.bcompare(password, user.pass)
         if (isOK) {
-          return reject('用户密码错误')
+          throw '用户密码错误'
         }
 
         if (!user.active) {
