@@ -26,18 +26,18 @@ exports.getOneMenu = function (opt) {
 }
 
 exports.getMenus = function (opt) {
-  return new Promise(function(resolove, reject) {
+  return new Promise(function(resolve, reject) {
     Menu.find(opt, function(err, menus) {
       if (err) {
         return reject(ResultMsg.DB_ERROR)
       }
 
       if (menus.length === 0) {
-        return reject(ResultMsg.DATA_NOT_FOUND)
+        return resolve(menus)
       }
       
-      var newMenus = [];
-      for (var i = 0, len = menus.length; i < len; i++) {
+      let newMenus = [];
+      for (let i = 0, len = menus.length; i < len; i++) {
         newMenus[i] = menus[i].toObject()
       }
 
@@ -46,7 +46,7 @@ exports.getMenus = function (opt) {
           return reject(ResultMsg.DB_ERROR)
         }
 
-        for(var i = 0; i < newMenus.length; i++) {
+        for(let i = 0; i < newMenus.length; i++) {
           let sub = [];
           submenus.forEach((item2)=> {
             if (newMenus[i]._id.toString() === item2.parent_id.toString()) {
@@ -56,21 +56,21 @@ exports.getMenus = function (opt) {
 
           newMenus[i].submenus = sub;
         }
-        resolove(newMenus)
+        resolve(newMenus)
       });
     });   
   })
 };
 
 exports.newAndSave = function (key, value) {
-  return new Promise(function(resolove, reject) {
-    var menu  = new Menu()
+  return new Promise(function(resolve, reject) {
+    let menu  = new Menu()
     menu.key  = key
     menu.value = value
 
     menu.save(function(err, doc) {
       if (err) reject(err)
-      else resolove(doc)
+      else resolve(doc)
     })
   })
 };

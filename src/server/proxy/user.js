@@ -85,10 +85,7 @@ exports.getUsersByIds = function (ids) {
   return new Promise(function(resolve, reject) {
     User.find({'_id': {'$in': ids}}, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
-      else {
-        console.log(docs)
-        resolve(docs)
-      }   
+      else resolve(docs) 
     })
   })
 };

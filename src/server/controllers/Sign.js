@@ -103,6 +103,8 @@ class Sign extends Base {
       getUser = UserProxy.getUserByLoginName;
     }
 
+    let that = this
+
     getUser(loginname)
       .then(user => {
         let isOK = tools.bcompare(password, user.pass)
@@ -125,9 +127,10 @@ class Sign extends Base {
             break;
           }
         }
-        res.json({success: true, data: user, active: true});
+
+        that.success(res, {data: user, active: true})
       })
-      .catch(err => console.log(err))
+      .catch(message => that.error(res, {message}))
   }
 
   activeAccount(req, res, next) {
