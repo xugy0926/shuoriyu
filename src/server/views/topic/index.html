@@ -38,6 +38,22 @@
     <%- markdown(topic.linkedContent) %>
   </div>
 
+  <% if (typeof(current_user) !== 'undefined' && current_user) { %>
+  <div class='panel panel-default'>
+    <div class='panel-heading'>
+      <span class='col_fade'>添加回复</span>
+    </div>
+    <div class='panel-body reply'>
+        <div class='markdown_editor in_editor'>
+          <div class='markdown_in_editor'>
+            <textarea class='editor' name='content' rows='8' v-model="content"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-default" v-on:click="onReply">提交</button>
+        <input type='hidden' name='_csrf' id="_csrf" value='<%= csrf %>'/>
+    </div>
+  </div>
+  <% } %>
 
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -77,24 +93,6 @@
       <div v-else>没有评论</div>
     </div>
   </div>
-
-
-  <% if (typeof(current_user) !== 'undefined' && current_user) { %>
-  <div class='panel panel-default'>
-    <div class='panel-heading'>
-      <span class='col_fade'>添加回复</span>
-    </div>
-    <div class='panel-body reply'>
-        <div class='markdown_editor in_editor'>
-          <div class='markdown_in_editor'>
-            <textarea class='editor' name='content' rows='8' v-model="content"></textarea>
-          </div>
-        </div>
-        <button class="btn btn-default" v-on:click="onReply">提交</button>
-        <input type='hidden' name='_csrf' id="_csrf" value='<%= csrf %>'/>
-    </div>
-  </div>
-  <% } %>
 </div>
 
 <!-- markdown editor -->
@@ -115,7 +113,11 @@
         statusKey: 'saved',
         statusValue: '已保存',
         isReviewing: false,
-        isReviewed: false
+        isReviewed: false,
+        currentPage: 1,
+        pages: 1,
+        canLoadData: true,
+        errorMsg: ''
       },
       methods: {
         getTopicConfig: function() {
@@ -152,18 +154,25 @@
           });
         },
         updateReviewing() {
-          console.log(vue.statusKey);
           vue.isReviewing = vue.statusKey === 'reviewing';
           vue.isReviewed = vue.statusKey === 'reviewed';
         },
-        getReplies: function() {
-          $.get(dataPrefix + '/' + vue.topicId + '/replies/data', function (result) {
-            if (!result.success) {
-              vue.errorMsg = result.message
-              return
-            }
-            vue.authors = result.authors
-            vue.updateReplies(result.data)
+        getReplies: function(nextPage) {
+          $.post(dataPrefix + '/' + vue.topicId + '/replies/data', 
+            {currentPage: nextPage},
+            function (result) {
+              vue.canLoadData = true
+              
+              if (!result.success) {
+                vue.errorMsg = result.message
+                return
+              }
+
+              vue.currentPage = result.data.currentPage || 1
+              vue.pages = result.data.pages || 1
+              vue.authors = result.data.authors || []
+              var replies = result.data.replies || []
+              vue.updateReplies(replies)
           });
         },
         updateReplies: function(replies) {
@@ -187,9 +196,6 @@
               vue.errorMsg = result.message;
               return;
             }
-
-            console.log(result.data)
-            console.log(result.data.author)
 
             vue.replies.push(result.data);
           });
@@ -257,7 +263,16 @@
       editor.render($('.editor')[0]);
     }
 
-    vue.getReplies();
     vue.getTopicConfig();
+
+    var scrollButtom = new ScrollButtom();
+    scrollButtom.init(function() {
+      if (vue.currentPage < vue.pages && vue.canLoadData) {
+        vue.canLoadData = false;
+        vue.getReplies(vue.currentPage + 1);
+      }
+    });
+
+    vue.getReplies(vue.currentPage);
   });
 </script>

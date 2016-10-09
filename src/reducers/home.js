@@ -4,13 +4,14 @@ const initialState = {
   selectedMenuKey: '',
   selectedSubmenuKey: '',
   menus: [],
-  topics: []
+  topics: [],
+  replies: {}
 };
 
 export default function (state = initialState, action) {
 
   const {payload, error, meta = {}, type} = action;
-  const {sequence = {}, selectedMenu = {},  id = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
+  const {sequence = {}, selectedMenu = {},  id = '0', topicId = '0', replyId = '0', userId = '0', content = '', user = {}} = meta;
 
   if (sequence.type === 'start' || error) {
     return state;
@@ -41,6 +42,18 @@ export default function (state = initialState, action) {
 	  	selectedMenuKey: payload.selectedMenuKey,
 	  	selectedSubmenuKey: payload.selectedSubmenuKey
 	  };
+	case types.GET_REPLIES_BY_TOPIC_ID:
+	   return {
+	     ...state,
+         replies: {
+         	...replies,
+         	[topicId]: {
+         	  currentPage: currentPage,
+         	  pages: pages,
+         	  list: replies
+         	}
+         }
+	   }
 	 default:
 	    return state;
 	}

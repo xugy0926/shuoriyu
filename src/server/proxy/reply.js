@@ -10,6 +10,22 @@ import * as ResultMsg from '../constrants/ResultMsg';
 
 
 /**
+ * 获取关键词能搜索到的主题数量
+ * Callback:
+ * - err, 数据库错误
+ * - count, 回复数量
+ * @param {String} query 搜索关键词
+ */
+exports.getCountByQuery = function (query) {
+  return new Promise(function(resolve, reject) {
+    Reply.count(query, function(err, count) {
+      if (err) reject(err)
+      else resolve(count)
+    })
+  })
+};
+
+/**
  * 获取一条回复信息
  * @param {String} id 回复ID
  */
@@ -23,47 +39,6 @@ exports.getReplyById = function (id) {
 };
 
 /**
- * 根据回复ID，获取回复
- * Callback:
- * - err, 数据库异常
- * - reply, 回复内容
- * @param {String} id 回复ID
- * @param {Function} callback 回调函数
- */
-// exports.getReplyById = function (id, callback) {
-//   if (!id) {
-//     return callback(null, null);
-//   }
-//   Reply.findOne({_id: id}, function (err, reply) {
-
-//     reply = reply.toObject();
-
-//     if (err) {
-//       return callback(err);
-//     }
-//     if (!reply) {
-//       return callback(err, null);
-//     }
-
-//     var author_id = reply.author_id;
-//     User.getUserById(author_id, function (err, author) {
-//       if (err) {
-//         return callback(err);
-//       }
-//       reply.author = author;
-
-//       at.linkUsers(reply.content, function (err, str) {
-//         if (err) {
-//           return callback(err);
-//         }
-//         reply.content = renderHelper.markdown(str);
-//         return callback(err, reply);
-//       });
-//     });
-//   });
-// };
-
-/**
  * 根据主题ID，获取回复列表
  * Callback:
  * - err, 数据库异常
@@ -73,46 +48,29 @@ exports.getReplyById = function (id) {
 exports.getRepliesByTopicId = function (id) {
   return new Promise(function(resolve, reject) {
     Reply.find({topic_id: id, deleted: false}, '', {sort: 'create_at'}, function (err, docs) {
-      console.log(docs)
       if (err) return reject(ResultMsg.DB_ERROR)
       if (!docs) return reject(ResultMsg.DATA_NOT_FOUND)
       resolve(docs)
     })
   })
-  // Reply.find({topic_id: id, deleted: false}, '', {sort: 'create_at'}, function (err, replies) {
+};
 
-
-  //   var newReplies = [];
-  //   for (var i = 0, len = replies.length; i < len; i++) {
-  //     newReplies[i] = replies[i].toObject();
-  //   }
-
-  //   var proxy = new EventProxy();
-  //   proxy.after('reply_find', newReplies.length, function () {
-  //     cb(null, newReplies);
-  //   });
-  //   for (var j = 0; j < newReplies.length; j++) {
-  //     (function (i) {
-  //       var author_id = newReplies[i].author_id;
-  //       User.getUserById(author_id, function (err, author) {
-  //         if (err) {
-  //           return cb(err);
-  //         }
-  //         newReplies[i].author = author || { _id: '' };
-  //         if (newReplies[i].content_is_html) {
-  //           return proxy.emit('reply_find');
-  //         }
-  //         at.linkUsers(newReplies[i].content, function (err, str) {
-  //           if (err) {
-  //             return cb(err);
-  //           }
-  //           newReplies[i].content = renderHelper.markdown(str);
-  //           proxy.emit('reply_find');
-  //         });
-  //       });
-  //     })(j);
-  //   }
-  // });
+/**
+ * 根据query，获取回复列表
+ * Callback:
+ * - err, 数据库异常
+ * - replies, 回复列表
+ * @param {String} id 主题ID
+ */
+exports.getRepliesByQuery = function (query, opt) {
+  return new Promise(function(resolve, reject) {
+    if (!query || !opt) return reject(ResultMsg.PARAMS_ERROR)
+    Reply.find(query, '', opt, function (err, docs) {
+      if (err) return reject(ResultMsg.DB_ERROR)
+      if (!docs) return reject(ResultMsg.DATA_NOT_FOUND)
+      resolve(docs)
+    })
+  })
 };
 
 /**

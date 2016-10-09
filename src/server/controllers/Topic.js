@@ -38,17 +38,17 @@ class Topic extends Base {
     let limit = config.list_topic_count
     let key = JSON.stringify(query) + 'pages'
 
-    return new Promise(function(resolove, reject) {
+    return new Promise(function(resolve, reject) {
       cache.get(key)
         .then(pages => {
           if (pages) {
-            resolove(pages)
+            resolve(pages)
           } else {
             TopicProxy.getCountByQuery(query)
               .then(count => {
                 let pages = Math.ceil(count / limit);
                 cache.set(key, pages, 60 * 1)
-                  .then(() => resolove(pages))
+                  .then(() => resolve(pages))
                   .catch(err => reject(err))
               })
               .catch(err => reject(err))

@@ -44,7 +44,19 @@ class Home extends Component {
       selectedSubmenuKey = args2 || '';
     }
 
+    if (selectedMenuKey === '') return
+    
     actions.getTopicsByMenu(selectedMenuKey, selectedSubmenuKey);
+  }
+
+  _topics() {
+    if (this.props.topics.length > 0) {
+      return (<ul className="list-group">
+              {this.props.topics.map((topic, index) => (<TopicRow key={topic._id} index={index+1} item={topic}/>))} 
+            </ul>)
+    } else {
+      return (<div>无数据</div>)
+    }
   }
 
   render() {
@@ -56,13 +68,7 @@ class Home extends Component {
           menus={this.props.menus || []} 
           onSelectedMenu={this.onSelectedMenu.bind(this)}/>
         <div className={s.root}>
-          <div className="panel panel-default">
-            <ul className="list-group">
-              {this.props.topics.map((topic, index) =>
-                (<TopicRow key={topic._id} index={index+1} item={topic}/>))
-              }
-            </ul>
-          </div>
+          {this._topics()}
         </div>
       </div>
     );

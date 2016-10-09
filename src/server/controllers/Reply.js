@@ -1,6 +1,7 @@
 import Base from './Base'
 var validator  = require('validator');
 var _          = require('lodash');
+var cache      = require('../common/cache');
 var at         = require('../common/at');
 var message    = require('../common/message');
 var EventProxy = require('eventproxy');
@@ -15,14 +16,44 @@ class Reply extends Base {
   constructor() {
     super()
   }
+
+  getPages(query) {
+    let limit = config.list_reply_count
+    let key = JSON.stringify(query) + '[reply pages]'
+
+    return new Promise(function(resolve, reject) {
+      cache.get(key)
+        .then(pages => {
+          if (pages) {
+            resolve(pages)
+          } else {
+            ReplyProxy.getCountByQuery(query)
+              .then(count => {
+                let pages = Math.ceil(count / limit);
+                cache.set(key, pages, 60 * 1)
+                  .then(() => resolve(pages))
+                  .catch(err => reject(err))
+              })
+              .catch(err => reject(err))
+          }       
+        })
+        .catch(err => reject(err))
+    })
+  }
+
   /**
    * 获取回复列表
    */
-  Replies(req, res, next) {
-    var topicId = req.params.tid;
+  replies(req, res, next) {
+    let that = this
+    let topicId = req.params.tid
+    let currentPage = parseInt(req.body.currentPage, 10) || 1
+    let query = {topic_id: topicId, deleted: false}
+    let limit = config.list_reply_count
+    let options = { skip: (currentPage - 1) * limit, limit: limit, sort: '-create_at'}
 
-    ReplyProxy.getRepliesByTopicId(topicId)
-      .then(replies => {
+    Promise.all([ReplyProxy.getRepliesByQuery(query, options), that.getPages(query)])
+      .then(([replies, pages]) => {
         let thenable = {
           then: function(resolve, reject) {
             let replyAuthorIds = [];
@@ -32,25 +63,25 @@ class Reply extends Base {
             })
 
             replyAuthorIds = _.uniq(replyAuthorIds)
-            resolve([replies, replyAuthorIds])
+            resolve([replies, replyAuthorIds, pages])
           }
         }
 
         return Promise.resolve(thenable)
       })
-      .then(([replies, replyAuthorIds]) => {
+      .then(([replies, replyAuthorIds, pages]) => {
         let thenable = {
           then: function(resolve, reject) {
             UserProxy.getUsersByIds(replyAuthorIds)
-              .then(authors => resolve([replies, authors]))
+              .then(authors => resolve([replies, authors, pages]))
               .then(err => reject(err))
           }
         }
         
         return Promise.resolve(thenable)
       })
-      .then(([replies, authors]) => res.json({success: true, data: replies, authors: authors}))
-      .catch(err => res.json({success: false, message: err}))
+      .then(([replies, authors, pages]) => res.json({success: true, data: {currentPage, replies, authors, pages}}))
+      .catch(message => that.error(res, {message}))
   }
 
   /**

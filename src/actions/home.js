@@ -13,10 +13,12 @@ export const getHomeMenus = createAction(types.GET_HOME_MENUS, async()=> {
     if (menus[0].submenus && menus[0].submenus.length > 0) {
       selectedSubmenuKey = menus[0].submenus[0].key;
     }
-  }
 
-  let topics = await topicService.getTopicsByMenu(selectedMenuKey, selectedSubmenuKey);
-  return {selectedMenuKey: selectedMenuKey, selectedSubmenuKey: selectedSubmenuKey, menus: menus, topics: topics};
+    let topics = await topicService.getTopicsByMenu(selectedMenuKey, selectedSubmenuKey);
+    return {selectedMenuKey: selectedMenuKey, selectedSubmenuKey: selectedSubmenuKey, menus: menus, topics: topics};
+  } else {
+    return {selectedMenuKey: '', selectedSubmenuKey: '', menus: [], topics: []};
+  }
 });
 
 export const updateMenu = createAction(types.UPDATE_MENU, (selectedMenuKey, selectedSubmenuKey)=> {

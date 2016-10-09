@@ -66,7 +66,7 @@ class DataRouter {
 	this.router.post('/topic/de_collect', this.auth.userRequired, (req, res, next) => this.topic.de_collect(req, res, next)); // 取消关注某话题
 
 	// reply controller
-	this.router.get('/:tid/replies/data', (req, res, next) => this.reply.Replies(req, res, next));                       // 获取回复列表
+	this.router.post('/:tid/replies/data', (req, res, next) => this.reply.replies(req, res, next));                       // 获取回复列表
 	this.router.post('/reply/:tid/reply', this.auth.userRequired, (req, res, next) => this.reply.add(req, res, next));        // 提交一级回复
 	this.router.post('/reply/:rid/edit', this.auth.userRequired, (req, res, next) => this.reply.update(req, res, next));      // 修改某评论
 	this.router.post('/reply/:rid/delete', this.auth.userRequired, (req, res, next) => this.reply.delete(req, res, next));    // 删除某评论
