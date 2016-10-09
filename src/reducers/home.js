@@ -1,10 +1,12 @@
-import * as types from '../constants/ActionTypes';
+import * as types from '../constants/ActionTypes'
+import _ from 'lodash'
 
 const initialState = {
   selectedMenuKey: '',
   selectedSubmenuKey: '',
   menus: [],
   topics: [],
+  topic: {},
   replies: {}
 };
 
@@ -42,18 +44,32 @@ export default function (state = initialState, action) {
 	  	selectedMenuKey: payload.selectedMenuKey,
 	  	selectedSubmenuKey: payload.selectedSubmenuKey
 	  };
+	case types.GET_TOPIC_BY_ID:
+	  return {
+        ...state,
+        topic: payload,
+	  };
 	case types.GET_REPLIES_BY_TOPIC_ID:
-	   return {
-	     ...state,
-         replies: {
-         	...replies,
-         	[topicId]: {
-         	  currentPage: currentPage,
-         	  pages: pages,
-         	  list: replies
-         	}
+      let replies = payload.replies
+
+      replies.forEach( function(item) {
+        let index = _.findIndex(payload.authors, function(i) {
+          return i._id === item.author_id
+        })
+
+        if (index >= 0) {
+          item.author = payload.authors[index]
+        }
+      })
+
+	  return {
+	    ...state,
+        replies: {
+     	  currentPage: payload.currentPage,
+     	  pages: payload.pages,
+     	  replies: replies
          }
-	   }
+	   };
 	 default:
 	    return state;
 	}

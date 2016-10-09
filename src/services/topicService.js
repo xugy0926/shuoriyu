@@ -1,17 +1,17 @@
 import * as requestService from './request';
 
-function filterData(data) {
-	if(data.success) {
-	  return data.data;
+function filterResult(result) {
+	if(result.success) {
+	  return result.data;
 	} else {
 		return [];
 	}
 }
 
 export function getTopicsByMenu(menuKey = 'all', submenuKey = '') {
-  return requestService.post('/topics', {menuKey, submenuKey}).then(filterData);
+  return requestService.post('/topics', {menuKey, submenuKey}).then(filterResult);
 }
 
 export function getTopicById(id) {
-  return requestService.post(`/topic/${id}/data`).then(filterData);
+  return requestService.post(`/topic/${id}/data`).then(filterResult);
 }

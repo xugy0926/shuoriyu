@@ -1,0 +1,15 @@
+.discussion_timeline {
+  position: relative;
+}
+
+.discussion_timeline:before {
+  display: block;
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 79px;
+  width: 2px;
+  background-color: #f3f3f3;
+  z-index: -1;
+}

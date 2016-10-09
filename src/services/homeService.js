@@ -1,8 +1,8 @@
 import * as requestService from './request';
 
-function filterData(data) {
-	if(data.success) {
-	  return data.data;
+function filterData(result) {
+	if(result.success) {
+	  return result.data;
 	} else {
 		return [];
 	}

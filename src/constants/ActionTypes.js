@@ -36,8 +36,8 @@ export const UP_REPLY = 'UP_REPLY';
 export const PUBLISH = 'PUBLISH';
 
 // reply
-export const GET_REPLIES_BY_TOPIC_ID = 'GET_REPLIES_BY_TOPIC_ID'
-export const GET_MORE_REPLIES_BY_TOPIC_ID = 'GET_MORE_REPLIES_BY_TOPIC_ID'
+export const GET_REPLIES_BY_TOPIC_ID = 'GET_REPLIES_BY_TOPIC_ID';
+export const GET_MORE_REPLIES_BY_TOPIC_ID = 'GET_MORE_REPLIES_BY_TOPIC_ID';
 
 
 // middleware

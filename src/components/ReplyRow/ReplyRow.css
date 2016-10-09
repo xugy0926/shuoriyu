@@ -1,0 +1,65 @@
+.discussion_item {
+  position: relative;
+  margin: 5px 0 5px 5px;
+  padding-left: 0px;
+}
+
+.discussion_item_header {
+  min-height: 30px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: #767676;
+  line-height: 20px;
+  word-wrap: break-word;
+}
+
+.discussion_item_header:last-child {
+  padding-bottom: 0;
+}
+
+.avatar {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: middle;
+  border-radius: 3px;
+  float: left;
+  margin-top: 2px;
+  margin-right: 5px;
+}
+
+.author {
+  color: #555;
+  font-weight: bold;
+}
+
+.discussion_item_icon {
+  float: left;
+  width: 32px;
+  height: 32px;
+  margin-top: -7px;
+  margin-left: -40px;
+  line-height: 28px;
+  color: #767676;
+  text-align: center;
+  background-color: #f3f3f3;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.octicon {
+  font: normal normal normal 16px/1 octicons;
+  display: inline-block;
+  text-decoration: none;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.octicon_tag:before {
+  content: '\f015';
+}

@@ -9,5 +9,5 @@ function filterResult(result) {
 }
 
 export function getRepliesByTopicId(topicId='', currentPage=1) {
-  return requestService.post(`${topicId}/replies/data`, {currentPage}).then(filterData);
+  return requestService.post(`/${topicId}/replies/data`, {currentPage}).then(filterResult);
 }

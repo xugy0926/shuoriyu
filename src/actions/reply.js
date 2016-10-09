@@ -4,7 +4,7 @@ import * as replyService from '../services/replyService';
 
 export const getRepliesByTopicId = createAction(
 	types.GET_REPLIES_BY_TOPIC_ID, 
-	async(topicId, currentPage) => {
+	async(topicId, currentPage = 1) => {
 	  return await replyService.getRepliesByTopicId(topicId, currentPage);
 }, (topicId)=> {
 	return topicId

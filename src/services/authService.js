@@ -1,13 +1,11 @@
 import * as requestService from './request';
 
-function filterData(data) {
-	console.log('filetr');
-	console.log(data);
-	if(data.success) {
-	  return {user: data.data, active: data.active};
-	} else {
-		return {};
-	}
+function filterData(result) {
+  if(result.success) {
+	return {user: result.data, active: result.active};
+  } else {
+    return {};
+  }
 }
 
 export function signin(loginname, password) {

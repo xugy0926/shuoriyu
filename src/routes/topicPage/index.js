@@ -9,7 +9,6 @@ export default {
   path: '/topic/:tid',
 
   async action(context, {tid}) {
-    const data = await topicService.getTopicById(tid);
-    return <TopicPage topic={data} />;
+    return <TopicPage topicId={tid}/>;
   },
 };
