@@ -1,0 +1,6 @@
+{
+  "name": "EditorPanel",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./EditorPanel.js"
+}

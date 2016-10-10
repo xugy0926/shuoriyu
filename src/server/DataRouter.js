@@ -9,15 +9,15 @@
  */
 
 import express 	from 'express'
-var Sign = require('./controllers/Sign')
-var User = require('./controllers/User')
-var Message = require('./controllers/Message')
-var Topic = require('./controllers/Topic')
-var Reply = require('./controllers/Reply')
-var Menu = require('./controllers/Menu')
-var Rss = require('./controllers/Rss')
-var Search = require('./controllers/Search')
-var passport = require('passport')
+import Sign 	from './controllers/Sign'
+import User     from './controllers/User'
+import Message  from './controllers/Message'
+import Topic 	from './controllers/Topic'
+import Reply 	from './controllers/Reply'
+import Menu 	from './controllers/Menu'
+import Rss 		from './controllers/Rss'
+import Search 	from './controllers/Search'
+import passport from 'passport'	
 
 class DataRouter {
   constructor() {

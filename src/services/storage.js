@@ -25,3 +25,8 @@ export function setSecret(user) {
 export function removeSecret() {
 	localStorage.removeItem('user_secret');
 }
+
+export function isLogin() {
+	let user = this.getSecret()
+	return user || user !== '' || user._id || user._id !== ''
+}

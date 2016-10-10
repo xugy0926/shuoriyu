@@ -1,7 +1,8 @@
 .discussion_item {
   position: relative;
-  margin: 5px 0 5px 5px;
-  padding-left: 0px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
 }
 
 .discussion_item_header {
@@ -9,6 +10,10 @@
   padding-top: 5px;
   padding-bottom: 5px;
   color: #767676;
+  background-color: #f7f7f7;
+  border-bottom: 1px solid #ddd;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
   line-height: 20px;
   word-wrap: break-word;
 }
@@ -31,6 +36,13 @@
 .author {
   color: #555;
   font-weight: bold;
+  margin-right: 5px;
+  font-size: 14px;
+}
+
+.time {
+  margin-left: 5px;
+  font-size: 14px;
 }
 
 .discussion_item_icon {

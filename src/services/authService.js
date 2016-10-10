@@ -17,7 +17,5 @@ export function signup(loginname, email, password, rePassword) {
 }
 
 export function checkToken(accessToken) {
-  console.log('------');
-  console.log(accessToken);
   return requestService.post('/user/accesstoken', {accessToken}).then(filterData);
 }

@@ -1,0 +1,52 @@
+.timeline_comment_wrapper {
+  position: relative;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-top: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+.timeline_comment_avatar {
+  float: left;
+  margin-left: -64px;
+  border-radius: 3px;
+}
+
+.timeline_comment {
+  margin-bottom: 10px;
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.comment_form_head {
+  margin-bottom: 10px;
+}
+
+.tabnav {
+  background: #f7f7f7;
+  padding: 6px 10px 0;
+  border-radius: 3px 3px 0 0;
+}
+
+.right {
+  float: right;
+}
+
+.tabnav_extra {
+  display: inline-block;
+  padding-top: 10px;
+  margin-left: 10px;
+  font-size: 12px;
+  color: #666;
+  float: right;
+}
+
+.signed_out_comment {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #fff9ea;
+  border: solid 1px #dfd8c2;
+  border-radius: 3px;
+}

@@ -35,7 +35,7 @@ class Reply extends Base {
                   .catch(err => reject(err))
               })
               .catch(err => reject(err))
-          }       
+          }
         })
         .catch(err => reject(err))
     })

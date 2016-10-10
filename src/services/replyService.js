@@ -8,6 +8,10 @@ function filterResult(result) {
 	}
 }
 
-export function getRepliesByTopicId(topicId='', currentPage=1) {
-  return requestService.post(`/${topicId}/replies/data`, {currentPage}).then(filterResult);
+export function getRepliesByTopicId(topicId = '', currentPage = 1) {
+  return requestService.post(`/${topicId}/replies/data`, {currentPage}).then(filterResult)
+}
+
+export function submitReply(topicId, content) {
+  return requestService.post(`/reply/${topicId}/reply`, {content}).then(filterResult)
 }

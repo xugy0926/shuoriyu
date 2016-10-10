@@ -12,16 +12,14 @@ import * as ResultMsg from '../constrants/ResultMsg';
 
 // 非登录用户也可通过
 exports.tryAuth = function (req, res, next) {
-  var ep = new eventproxy();
-  ep.fail(next);
 
-  var accessToken = String(req.body.accessToken || '');
+  let accessToken = String(req.body.accessToken || '');
   accessToken = validator.trim(accessToken);
 
   UserProxy.getUserById(accessToken)
     .then(user => {
       if (user.is_block) return res.json({success: false, message: '您的账户被禁用'})
-      req.use = user
+      req.user = user
       next()
     })
     .catch(err => next(err))

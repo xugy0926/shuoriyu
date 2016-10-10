@@ -50,17 +50,18 @@ export default function (state = initialState, action) {
         topic: payload,
 	  };
 	case types.GET_REPLIES_BY_TOPIC_ID:
-      let replies = payload.replies
+  {
+    let replies = payload.replies
 
-      replies.forEach( function(item) {
-        let index = _.findIndex(payload.authors, function(i) {
-          return i._id === item.author_id
-        })
-
-        if (index >= 0) {
-          item.author = payload.authors[index]
-        }
+    replies.forEach( function(item) {
+      let index = _.findIndex(payload.authors, function(i) {
+        return i._id === item.author_id
       })
+
+      if (index >= 0) {
+        item.author = payload.authors[index]
+      }
+    })
 
 	  return {
 	    ...state,
@@ -68,9 +69,33 @@ export default function (state = initialState, action) {
      	  currentPage: payload.currentPage,
      	  pages: payload.pages,
      	  replies: replies
-         }
-	   };
-	 default:
-	    return state;
+      }
+	  };
+  }
+  case types.GET_MORE_REPLIES_BY_TOPIC_ID:
+  {
+    let replies = payload.replies
+
+    replies.forEach( function(item) {
+      let index = _.findIndex(payload.authors, function(i) {
+        return i._id === item.author_id
+      })
+
+      if (index >= 0) {
+        item.author = payload.authors[index]
+      }
+    })
+
+    return {
+      ...state,
+        replies: {
+        currentPage: payload.currentPage,
+        pages: payload.pages,
+        replies: state.replies.replies.concat(replies)
+      }
+    };
+  }   
+  default:
+    return state;
 	}
 }
