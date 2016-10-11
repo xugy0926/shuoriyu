@@ -37,3 +37,9 @@ exports.bcompare = function (str, hash) {
 exports.getTopicStatus = function() {
 	return topicStatus;
 }
+
+exports.formatTopicDate = function(topic) {
+  let create_at = moment(topic.create_at).fromNow()
+  let update_at = moment(topic.update_at).fromNow()
+  return {...topic, create_at, update_at}
+}

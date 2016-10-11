@@ -8,19 +8,19 @@
 /**
  * Module dependencies.
  */
-import multiline  from 'multiline';
-import validator  from 'validator';
+import _          from 'lodash'
+import multiline  from 'multiline'
+import validator  from 'validator'
+import Promise    from 'promise'
 import Base       from './Base'
-var UserProxy         = require('../proxy').User;
-var TopicProxy        = require('../proxy').Topic;
+var UserProxy    = require('../proxy').User;
+var TopicProxy   = require('../proxy').Topic;
 var config       = require('../config');
 var eventproxy   = require('eventproxy');
 var cache        = require('../common/cache');
 var xmlbuilder   = require('xmlbuilder');
 var renderHelper = require('../common/render_helper');
-var _            = require('lodash');
 import { apiPrefix } from '../../config';
-import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
 class Page extends Base {
@@ -77,21 +77,6 @@ class Page extends Base {
     }
 
     TopicProxy.getTopicById(topicId)
-      .then(topic => {
-        if (!topic) throw '数据不存在'
-        topic = topic.toObject()
-        let thenable =  {
-          then: function(resolve, reject) {
-            UserProxy.getUserById()
-              .then(author => {
-                resolve({...topic, author})
-              })
-              .catch(err => reject(err))
-          }
-        }
-
-        return Promise.resolve(thenable)
-      })
       .then(topic => res.render('topic/index', {topic: topic}))
       .catch(err => that.error(res, {message: err}))
   }

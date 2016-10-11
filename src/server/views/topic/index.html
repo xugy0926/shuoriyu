@@ -6,14 +6,14 @@
     </h2>
     <div class="meta">
       <span>
-        发布于 <%= topic.create_at_ago() %>
+        发布于 <%= topic.create_at %>
       </span>
       <span>
         作者 <a href="<%= apiPrefix.page %>/user/<%= topic.author.loginname %>"><%= topic.author.loginname %></a>
       </span>
-      <% if (topic.create_at_ago() != topic.update_at_ago()) { %>
+      <% if (topic.create_at != topic.update_at) { %>
         <span>
-          最后一次编辑是 <%= topic.update_at_ago() %>
+          最后一次编辑是 <%= topic.update_at %>
         </span>
       <% } %>
       <% if (topic.tab) { %>

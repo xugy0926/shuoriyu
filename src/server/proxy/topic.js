@@ -1,13 +1,12 @@
-var EventProxy = require('eventproxy');
 var models     = require('../models');
 var Topic      = models.Topic;
 var User       = require('./user');
 var Reply      = require('./reply');
-var tools      = require('../common/tools');
 var at         = require('../common/at');
-var _          = require('lodash');
-import Promise from 'promise';
+import _       from 'lodash'
+import Promise from 'promise'
 import * as ResultMsg from '../constrants/ResultMsg';
+import * as tools from '../common/tools'
 
 /**
  * 获取关键词能搜索到的主题数量
@@ -96,8 +95,11 @@ exports.getTopicById = function (id) {
       else {
         User.getUserById(doc.author_id)
           .then(author => {
+            doc = doc.toObject()
             doc.linkedContent = at.linkUsers(doc.content)
             doc.author = author
+            doc.create_at = tools.formatDate(doc.create_at)
+            doc.update_at = tools.formatDate(doc.update_at)
             resolve(doc)
           })
           .catch(err => reject(ResultMsg.DB_ERROR))
