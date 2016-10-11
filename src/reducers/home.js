@@ -19,8 +19,6 @@ export default function (state = initialState, action) {
     return state;
   }
 
-  console.log(payload);
-
   switch (action.type) {
 	case types.GET_HOME_MENUS:
       let data = action.payload;
@@ -47,7 +45,7 @@ export default function (state = initialState, action) {
 	case types.GET_TOPIC_BY_ID:
 	  return {
         ...state,
-        topic: payload,
+        topic: payload.topic,
 	  };
 	case types.GET_REPLIES_BY_TOPIC_ID:
   {

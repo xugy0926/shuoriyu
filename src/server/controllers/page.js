@@ -10,6 +10,7 @@
  */
 import multiline  from 'multiline';
 import validator  from 'validator';
+import Base       from './Base'
 var UserProxy         = require('../proxy').User;
 var TopicProxy        = require('../proxy').Topic;
 var config       = require('../config');
@@ -22,7 +23,7 @@ import { apiPrefix } from '../../config';
 import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
-class Page {
+class Page extends Base {
   cmsPage(req, res) {
     res.render('cms/index',{pageTitle: '全部', navTab: 'topic'});
   }
@@ -76,8 +77,23 @@ class Page {
     }
 
     TopicProxy.getTopicById(topicId)
+      .then(topic => {
+        if (!topic) throw '数据不存在'
+        topic = topic.toObject()
+        let thenable =  {
+          then: function(resolve, reject) {
+            UserProxy.getUserById()
+              .then(author => {
+                resolve({...topic, author})
+              })
+              .catch(err => reject(err))
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
       .then(topic => res.render('topic/index', {topic: topic}))
-      .catch(err => res.json({success: false, message: err}))
+      .catch(err => that.error(res, {message: err}))
   }
 
   createTopicPage (req, res, next) {

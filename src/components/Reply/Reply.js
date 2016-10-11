@@ -9,10 +9,10 @@ import { Button } from 'react-bootstrap'
 class Reply extends Component {
 
   static propTypes = {
-    items: PropTypes.object.isRequired,
+    items: PropTypes.array,
     onMore: PropTypes.func.isRequired,
-    currentPage: PropTypes.number.isRequired,
-    pages: PropTypes.number.isRequired
+    currentPage: PropTypes.number,
+    pages: PropTypes.number
   }
 
   constructor(props) {
@@ -44,7 +44,7 @@ class Reply extends Component {
     if(items.length > 0) {
       return (
         <div>
-          {items.map((item, index) => (<ReplyRow item={item} index={index+1} />))}
+          {items.map((item, index) => (<ReplyRow key={item._id} item={item} index={index+1} />))}
           {this._moreNode()}
         </div>
       );      

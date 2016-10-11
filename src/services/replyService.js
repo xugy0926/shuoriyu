@@ -2,13 +2,9 @@ import * as requestService from './request';
 
 function filterResult(result) {
 	if(result.success) {
-	  console.log('-----1')
-	  console.log(result.data)
 	  return result.data;
 	} else {
-		console.log('-----2')
-		console.log(result.message)
-		return {};
+	  return {};
 	}
 }
 

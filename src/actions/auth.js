@@ -4,7 +4,7 @@ import * as authService from '../services/authService';
 import * as storage from '../services/storage';
 
 export const tryAuth = createAction(types.CHECK_TOKEN, async(token)=> {
-	if (storage.getToken()) {
+	if (storage.getAccessToken()) {
 		let data = await authService.checkAccessToken(storage.getAccessToken());
 		if (data.active) {
 	      saveSecret(data.user);			

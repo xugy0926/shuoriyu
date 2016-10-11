@@ -10,7 +10,7 @@ class Editor extends Component {
   static propTypes = {
     uploadUrl: PropTypes.string.isRequired,
     onReplyInputChange: PropTypes.func.isRequired,
-    onUploadImage: PropTypes.func.isRequired,
+    onUploadImage: PropTypes.func,
     onSubmit: PropTypes.func.isRequired
   }
 
@@ -32,7 +32,7 @@ class Editor extends Component {
     if (maxFiles < 1) return null;
 
     for(let i = 0; i < maxFiles; i++) {
-      this.upload(files[i], this.props.onUploadImage);
+      this.upload(files[i], this.props.onUploadImage || null);
     }
   }
 

@@ -40,7 +40,7 @@ class Navigation extends Component {
     let userNode = null;
     if (secret && secret._id && active) {
       userNode = (<Nav pullRight>
-                    <NavDropdown eventKey={1} title={secret.name}>
+                    <NavDropdown id="1" eventKey={1} title={secret.name}>
                       <MenuItem eventKey={1.1} onClick={this._onSignout.bind(this)}>退出</MenuItem>
                     </NavDropdown>
                   </Nav>);

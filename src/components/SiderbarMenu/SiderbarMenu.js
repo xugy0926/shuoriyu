@@ -6,7 +6,7 @@ import withStyles from 'isomorphic-style-loader/lib/withStyles';
 class Menu extends Component {
 
   static propTypes = {
-    menus: PropTypes.object.isRequired,
+    menus: PropTypes.array.isRequired,
     selectedMenuKey: PropTypes.string.isRequired,
     selectedSubmenuKey: PropTypes.string.isRequired,
     onSelectedMenu: PropTypes.func.isRequired,

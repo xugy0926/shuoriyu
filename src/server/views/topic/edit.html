@@ -97,7 +97,7 @@
           if (!result.success) {
             vue.errorMsg = result.error;
           } else {
-            vue.topic = result.data || {};
+            vue.topic = result.data.topic || {};
             vue.selectedMenu = vue.topic.menu || '';
             vue.updateSubmenusOptions(vue.selectedMenu);
             vue.selectedSubmenu = vue.topic.submenu || '';

@@ -5,8 +5,6 @@ import Link from '../Link'
 import moment from 'moment'
 import { Panel } from 'react-bootstrap'
 
-moment.locale('zh-cn')
-
 class ReplyRow extends Component {
 
   static propTypes = {

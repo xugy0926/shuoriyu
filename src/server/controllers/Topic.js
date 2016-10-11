@@ -167,10 +167,24 @@ class Topic extends Base {
     }
 
     TopicProxy.getTopicById(topicId)
-      .then(topic => that.success(res, {success: true, data: topic}))
+      .then(topic => {
+        if (!topic) throw '数据不存在'
+        topic = topic.toObject()
+        let thenable =  {
+          then: function(resolve, reject) {
+            UserProxy.getUserById(topic.author_id)
+              .then(author => {
+                resolve({...topic, author})
+              })
+              .catch(err => reject(err))
+          }
+        }
+
+        return Promise.resolve(thenable)
+      })
+      .then(topic => that.success(res, {success: true, data: {topic}}))
       .catch(err => that.error(res, {message: err}))
   }
-
 
   put(req, res, next) {
     let that = this

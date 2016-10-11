@@ -1,8 +1,9 @@
 import qs from 'query-string';
-import { host } from '../config';
+import { host, node_env } from '../config';
 import * as storage from './storage';
 
-const urlPrefix = 'http://' + host + '/api/v1/data';
+const urlPrefix = 'http://' + host + '/api/v1/data'
+const isDebugging = node_env === 'development'
 
 function filterJSON(res) {
 	return res.json();
@@ -26,7 +27,7 @@ export function get(url, params) {
 		url += `?${qs.stringify(params)}`;
 	}
 
-	if (true) {
+	if (isDebugging) {
 		console.info(`GET: `, url);
 		console.info(`Params: `, params)
 	}
@@ -43,7 +44,7 @@ export function post(url, body = {}) {
 
 	url = urlPrefix + url;
 
-	if (true) {
+	if (isDebugging) {
 		console.info(`POST: `, url);
 		console.info(`Body: `, body);
 	}

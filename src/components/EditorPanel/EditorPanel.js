@@ -10,7 +10,7 @@ import marked from 'marked';
 class EditorPanel extends Component {
 
   static propTypes = {
-    isLogin: PropTypes.bool.isRequired,
+    isLogin: PropTypes.bool,
     uploadUrl: PropTypes.string.isRequired,
     parentId: PropTypes.string.isRequired,
     onSubmit: PropTypes.func.isRequired
@@ -76,7 +76,7 @@ class EditorPanel extends Component {
     return (
       <div className={ s.comment_form_head, s.tabnav }>
         <a className={ s.tabnav_extra } href="http://www.appinn.com/markdown/">支持Markdown语法</a>
-        <Tabs activeKey={ this.state.key } onSelect={ this._handleSelect }>
+        <Tabs id={1} activeKey={ this.state.key } onSelect={ this._handleSelect }>
           <Tab eventKey={ 1 } title="写评论"></Tab>
           <Tab eventKey={ 2 } title="查看"></Tab>
         </Tabs>
@@ -95,9 +95,10 @@ class EditorPanel extends Component {
   }
 
   render() {
-    let avatorImageUrl = "http://7xp9om.com1.z0.glb.clouddn.com/avator.png";
+    const avatorImageUrl = "http://7xp9om.com1.z0.glb.clouddn.com/avator.png"
+    const { isLogin = false } = this.props
 
-    if (this.props.isLogin) {
+    if (isLogin) {
       return (
         <div className={ s.timeline_comment_wrapper }>
           <div className={ s.timeline_comment }>

@@ -1,26 +1,4 @@
-.discussion_item {
-  position: relative;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-}
 
-.discussion_item_header {
-  min-height: 30px;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  color: #767676;
-  background-color: #f7f7f7;
-  border-bottom: 1px solid #ddd;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  line-height: 20px;
-  word-wrap: break-word;
-}
-
-.discussion_item_header:last-child {
-  padding-bottom: 0;
-}
 
 .avatar {
   display: inline-block;
