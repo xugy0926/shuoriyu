@@ -1,14 +1,14 @@
 
 
-export function getToken() {
+export function getAccessToken() {
 	return localStorage.getItem('user_token') || '';
 }
 
-export function setToken(token) {
+export function setAccessToken(token) {
 	localStorage.setItem('user_token', token);
 }
 
-export function removeToken() {
+export function removeAccessToken() {
 	localStorage.removeItem('user_token');
 }
 

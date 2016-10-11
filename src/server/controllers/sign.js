@@ -24,11 +24,12 @@ class Sign extends Base {
   }
 
   accesstoken(req, res, next) {
-    res.json({
-      success: true,
-      data: req.user,
-      active: (req.user && req.user.active) || false
-    });
+    console.log('sign accesstoken.....1')
+    console.log(req.user)
+    authMiddleWare.gen_session(req.user, res);
+    let active = (req.user && req.user.active) || false
+    let user = req.user
+    this.success(res, {data: {user, active}})
   }
 
   signup(req, res, next) {
@@ -76,7 +77,7 @@ class Sign extends Base {
       })
       .then(user => {
         mail.sendActiveMail(user.email, utility.md5(email + user.pass + config.session_secret), loginname)
-        res.json({success: true, data: user, active: false, message: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'})
+        res.json({success: true, data: {user: user, active: false}, message: '欢迎加入 ' + config.name + '！我们已给您的注册邮箱发送了一封邮件，请点击里面的链接来激活您的帐号。'})
       })
       .catch(message => that.error(res, {message}))
   }
@@ -114,7 +115,7 @@ class Sign extends Base {
 
         if (!user.active) {
           mail.sendActiveMail(user.email, utility.md5(user.email + user.pass + config.session_secret), user.loginname)
-          res.json({success: true, data: user, active: false, message: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' })
+          res.json({success: true, data: {user: user, active: false}, message: '此帐号还没有被激活，激活链接已发送到 ' + user.email + ' 邮箱，请查收。' })
           return
         }
 
@@ -128,7 +129,7 @@ class Sign extends Base {
           }
         }
 
-        that.success(res, {data: user, active: true})
+        that.success(res, {data:{user: user, active: true}})
       })
       .catch(message => that.error(res, {message}))
   }

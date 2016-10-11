@@ -31,7 +31,7 @@ class Home extends Component {
   componentWillMount() {
     this.context.setTitle(title);
     const {actions} = this.props;
-    actions.checkToken();
+    actions.tryAuth();
     actions.getHomeMenus();
   }
 

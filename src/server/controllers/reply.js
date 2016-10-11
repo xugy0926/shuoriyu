@@ -88,18 +88,19 @@ class Reply extends Base {
    * 添加回复
    */
   add(req, res, next) {
-    var content = req.body.content;
-    var topicId = req.params.tid;
-    var replyId = req.body.reply_id || '';
-    var authorId = req.session.user._id;
+    let that = this
+    let content = req.body.content;
+    let topicId = req.params.tid;
+    let replyId = req.body.reply_id || '';
+    let authorId = req.session.user._id;
 
     content = validator.trim(String(content));
     if (content === '') {
-      return res.json({success: false, message: '回复内容不能为空。'})
+      return that.error(res, '回复内容不能为空')
     }
 
     if (!topicId || !authorId) {
-      return res.json({success: false, message: '参数错误'})
+      return that.error(res, '参数错误')
     }
 
     TopicProxy.getTopicById(topicId)
@@ -138,12 +139,8 @@ class Reply extends Base {
 
         return Promise.resolve(thenable)
       })
-      .then((reply) => {
-        res.json({success: true, data: reply})
-      })
-      .catch(err => {
-        res.json({success: false, message: err})
-      })
+      .then((reply) => {that.success(res, {data:{reply}})})
+      .catch(message => {that.error(res, message)})
   }
 
   /**
@@ -190,6 +187,7 @@ class Reply extends Base {
    提交编辑回复
    */
   update(req, res, next) {
+    let that = this
     let replyId = req.params.reply_id
     let content = req.body.content
     let userId = req.session.user._id.toString()
@@ -208,10 +206,8 @@ class Reply extends Base {
         reply.content = content
         return ReplyProxy.update(reply)
       })
-      .then(reply => {
-        res.json({success: true, message: '更新成功'})
-      })
-      .catch(err => console.log(err))
+      .then(reply => that.success(res, {data:{reply}, message: '更新成功'}))
+      .catch(message => that.error(res, {message}))
   }
 
   up(req, res, next) {

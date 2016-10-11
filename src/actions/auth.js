@@ -3,9 +3,9 @@ import * as types from '../constants/ActionTypes';
 import * as authService from '../services/authService';
 import * as storage from '../services/storage';
 
-export const checkToken = createAction(types.CHECK_TOKEN, async(token)=> {
+export const tryAuth = createAction(types.CHECK_TOKEN, async(token)=> {
 	if (storage.getToken()) {
-		let data = await authService.checkToken(storage.getToken());
+		let data = await authService.checkAccessToken(storage.getAccessToken());
 		if (data.active) {
 	      saveSecret(data.user);			
 		} else {
@@ -37,12 +37,12 @@ export const onSignout = function () {
 
 function saveSecret(user) {
 	if (user) {
-	  storage.setToken(user._id);
+	  storage.setAccessToken(user.accessToken);
 	  storage.setSecret(user);
 	}
 }
 
 function removeSecret() {
-	storage.removeToken();
+	storage.removeAccessToken();
 	storage.removeSecret();
 }

@@ -94,7 +94,18 @@ export default function (state = initialState, action) {
         replies: state.replies.replies.concat(replies)
       }
     };
-  }   
+  }
+  case types.SUBMIT_REPLY:
+  {
+    let reply = payload.reply
+    return {
+      ...state,
+      replies: {
+        ...state.replies,
+        replies: [].concat(reply, state.replies.replies)
+      }
+    }
+  } 
   default:
     return state;
 	}

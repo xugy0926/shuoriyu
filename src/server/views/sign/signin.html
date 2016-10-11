@@ -31,7 +31,8 @@
             if (!result.success) {
               vue.errorMsg = result.message;
             } else {
-              if (result.data && result.data.active) {
+              var { user } = result.data
+              if (user && user.active) {
                 location.href =  pagePrefix + '/cms';
               } else {
                 vue.errorMsg = '您的账号未激活';

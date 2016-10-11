@@ -12,6 +12,7 @@ import 'babel-polyfill';
 import path from 'path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import connectMongodb from 'connect-mongo'
 import bodyParser from 'body-parser';
 import expressJwt from 'express-jwt';
 import expressGraphQL from 'express-graphql';
@@ -28,7 +29,7 @@ import models from './data/models';
 import schema from './data/schema';
 import routes from './routes';
 import assets from './assets'; // eslint-disable-line import/no-unresolved
-import { host, debug, port, auth, redisInfo, mini_assets, apiPrefix } from './config';
+import { host, debug, port, auth, redisInfo, mongodbUrl, mini_assets, apiPrefix } from './config';
 
 var serverConfig = require('./server/config');
 if (!debug && serverConfig.oneapm_key) {
@@ -59,8 +60,9 @@ var logger = require('./server/common/logger');
 var helmet = require('helmet');
 var bytes = require('bytes');
 
+let MongoStore = new connectMongodb(session)
 // assets
-var serverAssets = {};
+let serverAssets = {};
 
 if (mini_assets) {
   try {
@@ -110,8 +112,7 @@ app.use(bodyParser.json());
 // for server.
 // -----------------------------------------------------------------------------
 // 静态文件目录
-var staticDir = path.join(__dirname, 'public');
-app.use('/public', express.static(staticDir));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.use('/agent', proxyMiddleware.proxy);
 // 通用的中间件
 app.use(require('response-time')());
@@ -119,34 +120,20 @@ app.use(helmet.frameguard('sameorigin'));
 app.use(bodyParser.json({limit: '1mb'}));
 app.use(bodyParser.urlencoded({ extended: true, limit: '1mb' }));
 app.use(require('method-override')());
-// app.use(require('cookie-parser')(serverConfig.session_secret));
 app.use(compress());
+app.use(require('cookie-parser')(serverConfig.session_secret));
 app.use(session({
   secret: serverConfig.session_secret,
-  store: new RedisStore({
-    port: redisInfo.port,
-    host: redisInfo.host,
-    db: redisInfo.db,
-    pass: redisInfo.password,
+  store: new MongoStore({
+    url: mongodbUrl
   }),
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
 }));
 
 // custom middleware
 app.use(serverAuth.authUser);
 app.use(serverAuth.blockUser());
-
-// if (!debug) {
-//   app.use(function (req, res, next) {
-//     if (req.path === '/api' || req.path.indexOf('/api') === -1) {
-//       csurf()(req, res, next);
-//       return;
-//     }
-//     next();
-//   });
-//   app.set('view cache', true);
-// }
 
 serverConfig.mini_assets = mini_assets;
 

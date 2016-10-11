@@ -59,6 +59,23 @@ exports.getUserById = function (id) {
 };
 
 /**
+ * 根据用户accesstoken，查找用户
+ * Callback:
+ * - err, 数据库异常
+ * - user, 用户
+ * @param {String} token 用户accesstoken
+ */
+exports.getUserByAccessToken = function(token) {
+  return new Promise(function(resolve, reject) {
+    if (!token) return reject(ResultMsg.PARAMS_ERROR)
+    User.findOne({accessToken: token}, function(err, doc) {
+      if (err) reject(ResultMsg.DB_ERROR)
+      else resolve(doc)
+    })
+  })
+}
+
+/**
  * 根据邮箱，查找用户
  * Callback:
  * - err, 数据库异常

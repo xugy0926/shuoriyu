@@ -1,5 +1,6 @@
 import qs from 'query-string';
 import { host } from '../config';
+import * as storage from './storage';
 
 const urlPrefix = 'http://' + host + '/api/v1/data';
 
@@ -35,7 +36,11 @@ export function get(url, params) {
 		.then(filterJSON);
 }
 
-export function post(url, body) {
+export function post(url, body = {}) {
+    let accessToken = storage.getAccessToken()
+
+    body = {...body, accessToken}
+
 	url = urlPrefix + url;
 
 	if (true) {

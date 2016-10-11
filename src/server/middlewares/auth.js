@@ -16,10 +16,11 @@ exports.tryAuth = function (req, res, next) {
   let accessToken = String(req.body.accessToken || '');
   accessToken = validator.trim(accessToken);
 
-  UserProxy.getUserById(accessToken)
+  UserProxy.getUserByAccessToken(accessToken)
     .then(user => {
       if (user.is_block) return res.json({success: false, message: '您的账户被禁用'})
       req.user = user
+      req.session.user = user
       next()
     })
     .catch(err => next(err))
@@ -95,24 +96,36 @@ exports.authUser = function (req, res, next) {
     next()
   } else {
     let auth_token = req.signedCookies[config.auth_cookie_name];
-    if (!auth_token) {
-      return next();
-    }
 
-    let auth = auth_token.split('$$$$');
-    let userId = auth[0];
-    if (userId) {
-      UserProxy.getUserById(userId)
-        .then((user) => {
+    if (auth_token) {
+      let auth = auth_token.split('$$$$');
+      let userId = auth[0];
+      if (userId) {
+        UserProxy.getUserById(userId)
+          .then(user => {
+            user = new UserModel(user)
+            if (config.admins.hasOwnProperty(user.loginname)) {
+              user.is_admin = true
+            }
+
+            res.locals.current_user = req.session.user = user
+            next()
+          })
+          .catch(err => next(err))
+      } else {
+        next()
+      }
+    } else if(req.body.accessToken) {
+      UserProxy.getUserByAccessToken(req.body.accessToken)
+        .then(user => {
           user = new UserModel(user)
-          if (config.admins.hasOwnProperty(user.loginname)) {
-            user.is_admin = true
-          }
+            if (config.admins.hasOwnProperty(user.loginname)) {
+              user.is_admin = true
+            }
 
-          res.locals.current_user = req.session.user = user
-          next()
-        })
-        .catch(err => next(err))
+            res.locals.current_user = req.session.user = user
+            next()    
+        }).catch(err => next(err))
     } else {
       next()
     }

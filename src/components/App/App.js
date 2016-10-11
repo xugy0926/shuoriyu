@@ -53,16 +53,15 @@ class App extends Component {
 
   render() {
     return !this.props.error ? (
-        <Col>
-          <Navigation />
-          <Col />
-          <Grid>
-          {this.props.children}
-          </Grid>
-        </Col>
+      <Col>
+        <Navigation />         
+        <Grid>
+        {this.props.children}
+        </Grid>
+      </Col>
     ) : this.props.children;
   }
 
 }
 
-export default (App);
+export default App
