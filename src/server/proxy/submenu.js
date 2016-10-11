@@ -1,12 +1,12 @@
-
-var assert = require('power-assert');
-var Submenu = require('../models').Submenu;
+import models from '../models'
 import Promise from 'promise';
-import * as ResultMsg from '../constrants/ResultMsg';
+import * as ResultMsg from '../constrants/ResultMsg'
+
+let SubmenuModel = models.Submenu
 
 exports.getSubmenuById = function (id) {
   return new Promise(function(resolove, reject) {
-  	Submenu.findOne({_id: id}, function(err, doc) {
+  	SubmenuModel.findOne({_id: id}, function(err, doc) {
   	  if (err) reject(err)
   	  else resolove(doc)
   	})
@@ -15,7 +15,7 @@ exports.getSubmenuById = function (id) {
 
 exports.getOneSubmenu = function (opt) {
   return new Promise(function(resolove, reject) {
-  	Submenu.findOne(opt, function(err, doc) {
+  	SubmenuModel.findOne(opt, function(err, doc) {
   	  if (err) reject(err)
   	  else resolove(doc)
   	})
@@ -24,7 +24,7 @@ exports.getOneSubmenu = function (opt) {
 
 exports.getSubmenus = function (opt) {
   return new Promise(function(resolove, reject) {
-  	Submenu.find(opt, function(err, docs) {
+  	SubmenuModel.find(opt, function(err, docs) {
       if (err) reject(err)
       else resolove(docs)
   	})
@@ -33,7 +33,7 @@ exports.getSubmenus = function (opt) {
 
 exports.newAndSave = function (parentId, key, value) {
   return new Promise(function(resolove, reject) {
-	  var submenu  = new Submenu();
+	  var submenu  = new SubmenuModel();
 	  submenu.parent_id = parentId;
 	  submenu.key  = key;
 	  submenu.value = value;

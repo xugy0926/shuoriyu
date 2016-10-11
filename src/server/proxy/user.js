@@ -1,9 +1,10 @@
-var models  = require('../models');
-var User    = models.User;
-var utility = require('utility');
-var uuid    = require('node-uuid');
-import Promise from 'promise';
-import * as ResultMsg from '../constrants/ResultMsg';
+import models  from '../models'
+import utility from 'utility'
+import uuid    from 'node-uuid'
+import Promise from 'promise'
+import * as ResultMsg from '../constrants/ResultMsg'
+
+let UserModel    = models.User;
 
 /**
  * 根据用户名列表查找用户列表
@@ -18,7 +19,7 @@ exports.getUsersByNames = function (names) {
       return resolve([])
     }
 
-    User.find({ loginname: { $in: names } }, function(err, docs) {
+    UserModel.find({ loginname: { $in: names } }, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(docs)
     })
@@ -34,7 +35,7 @@ exports.getUsersByNames = function (names) {
  */
 exports.getUserByLoginName = function (loginName) {
   return new Promise(function(resolve, reject) {
-    User.findOne({'loginname': new RegExp('^'+loginName+'$', "i")}, function(err, doc) {
+    UserModel.findOne({'loginname': new RegExp('^'+loginName+'$', "i")}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)
     })
@@ -51,7 +52,7 @@ exports.getUserByLoginName = function (loginName) {
 exports.getUserById = function (id) {
   return new Promise(function(resolve, reject) {
     if (!id) return reject(ResultMsg.PARAMS_ERROR)
-    User.findOne({_id: id}, function(err, doc) {
+    UserModel.findOne({_id: id}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)     
     });
@@ -68,7 +69,7 @@ exports.getUserById = function (id) {
 exports.getUserByAccessToken = function(token) {
   return new Promise(function(resolve, reject) {
     if (!token) return reject(ResultMsg.PARAMS_ERROR)
-    User.findOne({accessToken: token}, function(err, doc) {
+    UserModel.findOne({accessToken: token}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)
     })
@@ -84,7 +85,7 @@ exports.getUserByAccessToken = function(token) {
  */
 exports.getUserByMail = function (email) {
   return new Promise(function(resolve, reject) {
-    User.findOne({email: email}, function(err, doc) {
+    UserModel.findOne({email: email}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)
     });
@@ -100,7 +101,7 @@ exports.getUserByMail = function (email) {
  */
 exports.getUsersByIds = function (ids) {
   return new Promise(function(resolve, reject) {
-    User.find({'_id': {'$in': ids}}, function(err, docs) {
+    UserModel.find({'_id': {'$in': ids}}, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(docs) 
     })
@@ -117,7 +118,7 @@ exports.getUsersByIds = function (ids) {
  */
 exports.getUsersByQuery = function (query, opt) {
   return new Promise(function(resolve, reject) {
-    User.find(query, '', opt, function(err, docs) {
+    UserModel.find(query, '', opt, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(docs)       
     })    
@@ -134,7 +135,7 @@ exports.getUsersByQuery = function (query, opt) {
  */
 exports.getUserByNameAndKey = function (loginname, key) {
   return new Promise(function(resolve, reject) {
-    User.findOne({loginname: loginname, retrieve_key: key}, function(err, doc) {
+    UserModel.findOne({loginname: loginname, retrieve_key: key}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)       
     })
@@ -146,7 +147,7 @@ exports.increaseScore = function (authorId, {topicCount, replyCount}) {
   replyCount = !replyCount ? 0 : replyCount
 
   return new Promise(function(resolve, reject) {
-    User.findOne({_id: authorId}, function(err, doc) {
+    UserModel.findOne({_id: authorId}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else {
         if (topicCount != 0) {
@@ -174,7 +175,7 @@ exports.newAndSave = function ({loginname, passwordHash, email, avatarUrl, activ
       return reject(ResultMsg.PARAMS_ERROR)
     }
 
-    let user         = new User();
+    let user         = new UserModel();
     user.name        = loginname;
     user.loginname   = loginname;
     user.pass        = passwordHash;

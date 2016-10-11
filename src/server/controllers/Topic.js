@@ -24,7 +24,6 @@ import { apiPrefix } from '../../config';
 import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
-
 class Topic extends Base {
   constructor() {
     super()

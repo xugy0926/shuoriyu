@@ -1,14 +1,12 @@
-var EventProxy = require('eventproxy');
-var _ = require('lodash');
+import _ from 'lodash'
+import models from '../models'
+import Promise from 'promise'
+import * as ResultMsg from '../constrants/ResultMsg'
 
-var models     = require('../models');
-var Topic      = models.Topic;
-var Message    = models.Message;
-var User       = models.User;
-var Reply      = models.Reply;
-
-import Promise from 'promise';
-import * as ResultMsg from '../constrants/ResultMsg';
+let TopicModel      = models.Topic
+let MessageModel    = models.Message
+let UserModel       = models.User
+let ReplyModel      = models.Reply
 
 /**
  * 根据用户ID，获取未读消息的数量
@@ -20,7 +18,7 @@ import * as ResultMsg from '../constrants/ResultMsg';
  */
 exports.getMessagesCount = function (id, hasRead=false) {
   return new Promise(function(resolve, reject) {
-    Message.count({master_id: id, has_read: hasRead}, function(err, count) {
+    MessageModel.count({master_id: id, has_read: hasRead}, function(err, count) {
       if (err) return reject(ResultMsg.DB_ERROR)
       else resolve(count)
     })    
@@ -37,33 +35,12 @@ exports.getMessagesCount = function (id, hasRead=false) {
  */
 exports.getMessageById = function (id) {
   return new Promise(function(resolve, reject) {
-    Message.findOne({_id: id}, function (err, doc) {
+    MessageModel.findOne({_id: id}, function (err, doc) {
       if (err) return reject(ResultMsg.DB_ERROR)
       else resolve(doc)
     });
   })
 };
-
-// var getMessageRelations = exports.getMessageRelations = function (message, callback) {
-//   if (message.type === 'reply' || message.type === 'reply2' || message.type === 'at') {
-//     var proxy = new EventProxy();
-//     proxy.fail(callback);
-//     proxy.assign('author', 'topic', 'reply', function (author, topic, reply) {
-//       message.author = author;
-//       message.topic = topic;
-//       message.reply = reply;
-//       if (!author || !topic) {
-//         message.is_invalid = true;
-//       }
-//       return callback(null, message);
-//     }); // 接收异常
-//     User.getUserById(message.author_id, proxy.done('author'));
-//     Topic.getTopicById(message.topic_id, proxy.done('topic'));
-//     Reply.getReplyById(message.reply_id, proxy.done('reply'));
-//   } else {
-//     return callback(null, {is_invalid: true});
-//   }
-// };
 
 /**
  * 根据用户ID，获取已读消息列表
@@ -75,7 +52,7 @@ exports.getMessageById = function (id) {
 exports.getMessagesByUserId = function (userId, hasRead=false, options) {
   options = options ? options : {}
   return new Promise(function(resolve, reject) {
-    Message.find({master_id: userId, has_read: hasRead}, {}, options, function(err, docs) {
+    MessageModel.find({master_id: userId, has_read: hasRead}, {}, options, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(docs)
     })
@@ -111,9 +88,9 @@ var readFullMessages = function(messages=[], resolve, reject) {
       ep.emit('read', message)
     })
 
-    Topic.findOne({_id: messages[i].topic_id}, ep.done('topic'))
-    User.findOne({_id: messages[i].author_id}, ep.done('author'))
-    Reply.findOne({_id: messages[i].reply_id}, ep.done('reply'))
+    TopicModel.findOne({_id: messages[i].topic_id}, ep.done('topic'))
+    UserModel.findOne({_id: messages[i].author_id}, ep.done('author'))
+    ReplyModel.findOne({_id: messages[i].reply_id}, ep.done('reply'))
   }
 }
 
@@ -132,7 +109,7 @@ exports.updateMessagesToRead = function (userId, messages) {
     });
 
     var query = { master_id: userId, _id: { $in: ids } };
-    Message.update(query, { $set: { has_read: true } }, { multi: true }).exec(function(err) {
+    MessageModel.update(query, { $set: { has_read: true } }, { multi: true }).exec(function(err) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve
     })

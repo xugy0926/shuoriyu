@@ -1,12 +1,11 @@
-var models     = require('../models');
-var Reply      = models.Reply;
-var EventProxy = require('eventproxy');
-var tools      = require('../common/tools');
-var User       = require('./user');
-var at         = require('../common/at');
-var renderHelper = require('../common/render_helper');
-import Promise from 'promise';
-import * as ResultMsg from '../constrants/ResultMsg';
+import models  from '../models'
+import * as tools from '../common/tools'
+import * as at   from '../common/at'
+import * as renderHelper from '../common/render_helper'
+import Promise from 'promise'
+import * as ResultMsg from '../constrants/ResultMsg'
+
+let ReplyModel = models.Reply
 
 
 /**
@@ -18,7 +17,7 @@ import * as ResultMsg from '../constrants/ResultMsg';
  */
 exports.getCountByQuery = function (query) {
   return new Promise(function(resolve, reject) {
-    Reply.count(query, function(err, count) {
+    ReplyModel.count(query, function(err, count) {
       if (err) reject(err)
       else resolve(count)
     })
@@ -31,7 +30,7 @@ exports.getCountByQuery = function (query) {
  */
 exports.getReplyById = function (id) {
   return new Promise(function(resolve, reject) {
-    Reply.findOne({_id: id}, function(err, doc) {
+    ReplyModel.findOne({_id: id}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(doc)
     })
@@ -47,7 +46,7 @@ exports.getReplyById = function (id) {
  */
 exports.getRepliesByTopicId = function (id) {
   return new Promise(function(resolve, reject) {
-    Reply.find({topic_id: id, deleted: false}, '', {sort: 'create_at'}, function (err, docs) {
+    ReplyModel.find({topic_id: id, deleted: false}, '', {sort: 'create_at'}, function (err, docs) {
       if (err) return reject(ResultMsg.DB_ERROR)
       if (!docs) return reject(ResultMsg.DATA_NOT_FOUND)
       resolve(docs)
@@ -65,7 +64,7 @@ exports.getRepliesByTopicId = function (id) {
 exports.getRepliesByQuery = function (query, opt) {
   return new Promise(function(resolve, reject) {
     if (!query || !opt) return reject(ResultMsg.PARAMS_ERROR)
-    Reply.find(query, '', opt, function (err, docs) {
+    ReplyModel.find(query, '', opt, function (err, docs) {
       if (err) return reject(ResultMsg.DB_ERROR)
       if (!docs) return reject(ResultMsg.DATA_NOT_FOUND)
       resolve(docs)
@@ -89,7 +88,7 @@ exports.newAndSave = function ({content, topicId, authorId, replyId}) {
 
     replyId  = !replyId ? '' : replyId;
 
-    var reply       = new Reply();
+    var reply       = new ReplyModel();
     reply.content   = content;
     reply.topic_id  = topicId;
     reply.author_id = authorId;
@@ -122,7 +121,7 @@ exports.update = function(doc) {
  */
 exports.getLastReplyByTopicId = function (topicId) {
   return new Promise(function(resolve, reject) {
-    Reply.findOne(
+    ReplyModel.findOne(
       {topic_id: topicId, deleted: false}, 
       '_id', 
       {sort: {create_at : -1}, 
@@ -137,7 +136,7 @@ exports.getLastReplyByTopicId = function (topicId) {
 exports.getRepliesByAuthorId = function (authorId, opt) {
   return new Promise(function(resolve, reject) {
     opt = !opt? null : opt
-    Reply.find({author_id: authorId}, {}, opt, function(err, docs) {
+    ReplyModel.find({author_id: authorId}, {}, opt, function(err, docs) {
       if (err) reject(ResultMsg.DB_ERROR) 
       else resolve(docs)
     })
@@ -147,7 +146,7 @@ exports.getRepliesByAuthorId = function (authorId, opt) {
 // 通过 author_id 获取回复总数
 exports.getCountByAuthorId = function (authorId) {
   return new Promise(function(resolve, reject) {
-    Reply.count({author_id: authorId}, function(err, count) {
+    ReplyModel.count({author_id: authorId}, function(err, count) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolve(count)
     })

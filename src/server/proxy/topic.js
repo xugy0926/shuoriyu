@@ -1,13 +1,12 @@
-var models     = require('../models');
-var Topic      = models.Topic;
-var User       = require('./user');
-var Reply      = require('./reply');
-var at         = require('../common/at');
+import models    from '../models'
+import UserProxy from './user'
+import * as at from '../common/at'
 import _       from 'lodash'
 import Promise from 'promise'
-import * as ResultMsg from '../constrants/ResultMsg';
-import * as tools from '../common/tools'
+import * as tools     from '../common/tools'
+import * as ResultMsg from '../constrants/ResultMsg'
 
+let TopicModel = models.Topic;
 /**
  * 获取关键词能搜索到的主题数量
  * Callback:
@@ -17,7 +16,7 @@ import * as tools from '../common/tools'
  */
 exports.getCountByQuery = function (query) {
   return new Promise(function(resolve, reject) {
-    Topic.count(query, function(err, count) {
+    TopicModel.count(query, function(err, count) {
       if (err) reject(err)
       else resolve(count)
     })
@@ -36,7 +35,7 @@ exports.getTopicsByQuery = function (query, opt) {
   query.deleted = false;
 
   return new Promise(function(resolve, reject) {
-    Topic.find(query, {}, opt, function (err, topics) {
+    TopicModel.find(query, {}, opt, function (err, topics) {
       if (err) return reject(ResultMsg.DB_ERROR)
       else resolve(topics)
     })
@@ -46,7 +45,7 @@ exports.getTopicsByQuery = function (query, opt) {
 // for sitemap
 exports.getLimit5w = function () {
   return new Promise(function(resolve, reject) {
-    Topic.find({deleted: false}, '_id', {limit: 50000, sort: '-create_at'}, function(err, docs) {
+    TopicModel.find({deleted: false}, '_id', {limit: 50000, sort: '-create_at'}, function(err, docs) {
       if (err) reject(err)
       else resolve(docs)
     })
@@ -64,7 +63,7 @@ exports.updateLastReply = function (topicId, replyId) {
     if (!topicId || !replyId) {
       return reject(ResultMsg.PARAMS_ERROR)
     }
-    Topic.findOne({_id: topicId}, function (err, topic) {
+    TopicModel.findOne({_id: topicId}, function (err, topic) {
       if (err) {
         return reject(ResultMsg.DB_ERROR)
       }
@@ -90,10 +89,10 @@ exports.updateLastReply = function (topicId, replyId) {
  */
 exports.getTopicById = function (id) {
   return new Promise(function(resolve, reject) {
-    Topic.findOne({_id: id}, function(err, doc) {
+    TopicModel.findOne({_id: id}, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else {
-        User.getUserById(doc.author_id)
+        UserProxy.getUserById(doc.author_id)
           .then(author => {
             doc = doc.toObject()
             doc.linkedContent = at.linkUsers(doc.content)
@@ -118,7 +117,7 @@ exports.reduceTopicCount = function (topicId, lastReplyId) {
       return reject(ResultMsg.PARAMS_ERROR)
     }
     
-    Topic.findOne({_id: topicId}, function (err, doc) {
+    TopicModel.findOne({_id: topicId}, function (err, doc) {
       if (err) return reject(ResultMsg.DB_ERROR)
       if (!doc) return reject(ResultMsg.DATA_NOT_FOUND)
       doc.reply_count -= 1
@@ -133,7 +132,7 @@ exports.reduceTopicCount = function (topicId, lastReplyId) {
 
 exports.newAndSave = function (topic) {
   return new Promise(function(resolve, reject) {
-    var newTopic       = new Topic();
+    var newTopic       = new TopicModel();
     newTopic.title     = topic.title;
     newTopic.content   = topic.content;
     newTopic.menu      = topic.menu;

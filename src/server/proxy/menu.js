@@ -1,15 +1,14 @@
-
-var EventProxy = require('eventproxy');
-var Menu = require('../models').Menu;
-var SubmenuProxy = require('./submenu');
-var Submenu = require('../models').Submenu;
-
+import models from '../models'
+import SubmenuProxy from './submenu'
 import Promise from 'promise';
 import * as ResultMsg from '../constrants/ResultMsg';
 
+let MenuModel = models.Menu
+let SubmenuModel = models.Submenu
+
 exports.getMenuById = function (id, callback) {
   return new Promise(function(resolove, reject) {
-      Menu.findOne({_id: id}, function(err, doc) {
+      MenuModel.findOne({_id: id}, function(err, doc) {
         if (err) reject(ResultMsg.DB_ERROR)
         else resolove(doc)
       })
@@ -18,7 +17,7 @@ exports.getMenuById = function (id, callback) {
 
 exports.getOneMenu = function (opt) {
   return new Promise(function(resolove, reject) {
-    Menu.findOne(opt, function(err, doc) {
+    MenuModel.findOne(opt, function(err, doc) {
       if (err) reject(ResultMsg.DB_ERROR)
       else resolove(doc)     
     })
@@ -27,7 +26,7 @@ exports.getOneMenu = function (opt) {
 
 exports.getMenus = function (opt) {
   return new Promise(function(resolve, reject) {
-    Menu.find(opt, function(err, menus) {
+    MenuModel.find(opt, function(err, menus) {
       if (err) {
         return reject(ResultMsg.DB_ERROR)
       }
@@ -41,7 +40,7 @@ exports.getMenus = function (opt) {
         newMenus[i] = menus[i].toObject()
       }
 
-      Submenu.find({deleted: false}, function(err, submenus) {
+      SubmenuModel.find({deleted: false}, function(err, submenus) {
         if (err) {
           return reject(ResultMsg.DB_ERROR)
         }
@@ -64,7 +63,7 @@ exports.getMenus = function (opt) {
 
 exports.newAndSave = function (key, value) {
   return new Promise(function(resolve, reject) {
-    let menu  = new Menu()
+    let menu  = new MenuModel()
     menu.key  = key
     menu.value = value
 
